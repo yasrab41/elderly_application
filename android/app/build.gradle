@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.elderly_prototype_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -51,6 +51,14 @@ dependencies {
   // Import the Firebase BoM
   implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
   // ADD THIS DESUGARING LIBRARY:
-  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4' 
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4' 
     // Note: The latest version is usually best, 2.0.4 is a common stable version.
+
+    // Optional but recommended
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+   // My changes, adding these because somestimes enabling desugaring may result in a Flutter apps crashing on Android 12L and above.
+  implementation("androidx.window:window:1.0.0")
+  implementation("androidx.window:window-java:1.0.0")
+
 }
