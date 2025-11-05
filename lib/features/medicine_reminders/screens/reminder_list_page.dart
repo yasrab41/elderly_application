@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/app_theme.dart'; // Import for theme colors
+import '../../../core/app_theme.dart'; // Theme from config/
 import '../services/reminder_state_notifier.dart'; // Notifier from services/
 import 'widgets/reminder_card.dart'; // Card from screens/widgets
 
@@ -12,31 +12,28 @@ class ReminderListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // WATCH: Listen to the list state for automatic UI updates
+    // 🔑 FIX: Watch the provider to listen for changes
     final reminders = ref.watch(remindersProvider);
-    // READ: Get the Notifier instance to call methods
     final notifier = ref.read(remindersProvider.notifier);
-
-    // Check the non-nullable loading flag from the Notifier
-    final isLoaded = notifier.isInitialLoadComplete;
 
     final primaryColor = Theme.of(context).colorScheme.primary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
 
+    // --- State Handling ---
     Widget bodyContent;
 
-    // --- State Handling ---
-    if (!isLoaded) {
-      // State 1: Show loading indicator while the initial database load runs
-      bodyContent = const Center(child: CircularProgressIndicator());
-    } else if (reminders.isEmpty) {
-      // State 2: Show empty message after loading is complete
+    if (reminders.isEmpty && notifier.isInitialLoadComplete == true) {
+      // State 1: Data is empty after loading is complete
       bodyContent = Center(
         child: Text(
           'No reminders set. Tap + to add one!',
           style: TextStyle(color: secondaryColor, fontSize: 16),
         ),
       );
+    } else if (reminders.isEmpty && !(notifier.isInitialLoadComplete ?? true)) {
+      // State 2: Data is currently loading (the list is empty, but load is running)
+      // This assumes you add 'isInitialLoadComplete' to your ReminderStateNotifier
+      bodyContent = const Center(child: CircularProgressIndicator());
     } else {
       // State 3: Data is available
       bodyContent = ListView.builder(

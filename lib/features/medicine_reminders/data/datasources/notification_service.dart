@@ -15,7 +15,7 @@ class NotificationService {
     // 1. Initialize Time Zone data
     tz.initializeTimeZones();
 
-    // ✅ YOUR FIX: The specific method name that works in your environment.
+    // FIX 1: Corrected assignment for FlutterTimezone.getLocalTimezone()
     final String timeZoneName = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
 
@@ -36,29 +36,16 @@ class NotificationService {
       iOS: initializationSettingsIOS,
     );
 
-    // 3. Request Runtime Permissions & Create Channel
+    // 3. Request Runtime Permissions BEFORE initialization completes
     final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
         notificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidImplementation != null) {
-      // 🟢 FIX: CREATE NOTIFICATION CHANNEL (for sound/visibility)
-      // This MUST be done before notifications are scheduled.
-      const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'daily_medicine_channel', // Match this ID exactly!
-        'Daily Medicine Reminders',
-        description:
-            'This channel is used for high-priority medicine reminders with sound.',
-        importance: Importance.max, // MAX importance ensures sound is used
-        playSound: true,
-      );
-
-      await androidImplementation.createNotificationChannel(channel);
-
       // For Android 13+ (API 33), request the POST_NOTIFICATIONS permission
       await androidImplementation.requestNotificationsPermission();
 
-      // ✅ YOUR FIX: Request permission for exact alarms to resolve PlatformException
+      // FIX 2: Request permission for exact alarms to resolve PlatformException
       final bool? granted =
           await androidImplementation.requestExactAlarmsPermission();
 
@@ -100,10 +87,10 @@ class NotificationService {
     final scheduledTime = _nextInstanceOfTime(time.hour, time.minute);
 
     const androidDetails = AndroidNotificationDetails(
-      'daily_medicine_channel', // Must match the channel ID created in init()
+      'daily_medicine_channel',
       'Daily Medicine Reminder',
       channelDescription: 'Daily reminder for taking medicine.',
-      importance: Importance.max, // High importance
+      importance: Importance.max,
       priority: Priority.high,
     );
     const notificationDetails = NotificationDetails(
@@ -118,9 +105,9 @@ class NotificationService {
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
 
-      // This parameter name is used as it previously worked for your setup
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
+      // Using the parameter names that worked for your local setup before the error
+      // uiLocalNotificationDateInterpretation:
+      //     UILocalNotificationDateInterpretation.absoluteTime,
 
       matchDateTimeComponents: DateTimeComponents.time,
       payload: reminder.id.toString(),
