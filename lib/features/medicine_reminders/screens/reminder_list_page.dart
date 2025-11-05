@@ -1,74 +1,123 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/app_theme.dart'; // Theme from config/
-import '../services/reminder_state_notifier.dart'; // Notifier from services/
-import 'widgets/reminder_card.dart'; // Card from screens/widgets
-
-import 'add_reminder_page.dart'; // Sibling screen
+import '../services/reminder_state_notifier.dart';
+import 'add_reminder_page.dart';
+import 'widgets/todays_schedule_card.dart'; // New Widget
+import 'widgets/all_reminders_card.dart'; // New Widget
 
 class ReminderListPage extends ConsumerWidget {
   const ReminderListPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 🔑 FIX: Watch the provider to listen for changes
-    final reminders = ref.watch(remindersProvider);
     final notifier = ref.read(remindersProvider.notifier);
+    final allReminders = ref.watch(remindersProvider);
+    final todaysReminders = notifier.todaysReminders; // Use the new getter
+    final isLoaded = notifier.isInitialLoadComplete;
 
-    final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
-
-    // --- State Handling ---
-    Widget bodyContent;
-
-    if (reminders.isEmpty && notifier.isInitialLoadComplete == true) {
-      // State 1: Data is empty after loading is complete
-      bodyContent = Center(
-        child: Text(
-          'No reminders set. Tap + to add one!',
-          style: TextStyle(color: secondaryColor, fontSize: 16),
-        ),
-      );
-    } else if (reminders.isEmpty && !(notifier.isInitialLoadComplete ?? true)) {
-      // State 2: Data is currently loading (the list is empty, but load is running)
-      // This assumes you add 'isInitialLoadComplete' to your ReminderStateNotifier
-      bodyContent = const Center(child: CircularProgressIndicator());
-    } else {
-      // State 3: Data is available
-      bodyContent = ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: reminders.length,
-        itemBuilder: (context, index) {
-          final reminder = reminders[index];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: ReminderCard(
-              reminder: reminder,
-              onToggle: () => notifier.toggleReminder(reminder),
-              onDelete: () => notifier.deleteReminder(reminder.id!),
-              primaryColor: primaryColor,
-              secondaryColor: secondaryColor,
-            ),
-          );
-        },
-      );
-    }
-    // -----------------------
+    final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5), // Light background
       appBar: AppBar(
         title: const Text('Medicine Reminders'),
+        backgroundColor: theme.colorScheme.primary, // Modern UI
+        elevation: 0,
+        foregroundColor: theme.colorScheme.primary, // Brown text/icons
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add_circle,
+                color: theme.colorScheme.secondary, size: 30),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const AddReminderPage(),
+              ));
+            },
+          ),
+        ],
       ),
-      body: bodyContent, // Use the determined content widget
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => const AddReminderPage(),
-          ));
-        },
-        child: const Icon(Icons.add),
-      ),
+      body: !isLoaded
+          ? Center(
+              child:
+                  CircularProgressIndicator(color: theme.colorScheme.primary))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+                  // --- TODAY'S SCHEDULE SECTION ---
+                  Text(
+                    "Today's Schedule",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (todaysReminders.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: Center(
+                        child: Text(
+                          'No reminders scheduled for today.',
+                          style: TextStyle(
+                              fontSize: 15, color: theme.colorScheme.secondary),
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: todaysReminders.length,
+                      itemBuilder: (context, index) {
+                        return TodaysScheduleCard(
+                          reminder: todaysReminders[index],
+                        );
+                      },
+                    ),
+
+                  const SizedBox(height: 30),
+
+                  // --- ALL REMINDERS SECTION ---
+                  Text(
+                    'All Reminders',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (allReminders.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: Center(
+                        child: Text(
+                          'No reminders set yet. Tap + to add one.',
+                          style: TextStyle(
+                              fontSize: 15, color: theme.colorScheme.secondary),
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: allReminders.length,
+                      itemBuilder: (context, index) {
+                        return AllRemindersCard(
+                          reminder: allReminders[index],
+                        );
+                      },
+                    ),
+                  const SizedBox(height: 20), // Padding at the bottom
+                ],
+              ),
+            ),
     );
   }
 }

@@ -8,10 +8,19 @@ final Color _secondaryColor = const Color(0xFF8D6E63); // Medium Brown
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
+      // --- FIX: Explicitly set background colors to white ---
+      // This ensures the main screen background (Scaffold) is white
+      scaffoldBackgroundColor: Colors.white,
+      // This ensures cards (like your reminder card) and other surfaces are white
+      cardColor: Colors.white,
+      // This ensures dialogs and modal bottom sheets are white
+      dialogBackgroundColor: Colors.white,
+      // ------------------------------------------------------
+
       colorScheme: ColorScheme.light(
         primary: _primaryColor,
         secondary: _secondaryColor,
-        surface: Colors.white,
+        surface: Colors.white, // Already correctly set for surface
         onPrimary: Colors.white,
         onSurface: Colors.black,
       ),
@@ -26,7 +35,6 @@ class AppTheme {
           fontWeight: FontWeight.bold,
         ),
       ),
-      // ... (rest of theme properties remain the same)
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: _secondaryColor,
         foregroundColor: Colors.white,

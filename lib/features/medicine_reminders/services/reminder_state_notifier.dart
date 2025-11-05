@@ -1,83 +1,70 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/legacy.dart'; // This import is likely not needed
 import 'dart:math';
 
-// ---------------------------------------------------------
-// FIX 1: Corrected Imports
-// Adjust the relative path to jump from 'services' folder to 'data/...'
-// Depending on your exact structure, you might only need one '..'
 import '../data/models/medicine_model.dart';
 import '../data/datasources/database_service.dart';
 import '../data/datasources/notification_service.dart';
-// ---------------------------------------------------------
 
 // Global provider for the Notification Service instance
 final notificationServiceProvider = Provider((ref) => NotificationService());
 
 // This is the Riverpod StateNotifier, managing the list of reminders.
 class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
-  // FIX 2: Correct declaration of the final variable
   final NotificationService _notificationService;
 
-  // FIX 3: Correct constructor call
-  // Pass the dependency (this._notificationService) and the initial state (super([]))
+  bool _isInitialLoadComplete = false;
+  bool get isInitialLoadComplete => _isInitialLoadComplete;
+
   ReminderStateNotifier(this._notificationService) : super([]) {
     loadReminders();
   }
 
   final _dbService = DatabaseService.instance;
 
-  // bool? get isInitialLoadComplete => null;
-  bool _isInitialLoadComplete = false;
-  bool get isInitialLoadComplete => _isInitialLoadComplete;
-
   Future<void> loadReminders() async {
-    // FIX 4: 'state' is now correctly recognized as a property of StateNotifier
     state = await _dbService.readAllReminders();
     _isInitialLoadComplete = true;
   }
 
-  // --- ADD REMINDER ---
+  // --- ADD REMINDER (MODIFIED) ---
   Future<void> addReminder({
     required String name,
     required String dosage,
-    required TimeOfDay time,
+    required List<String> times, // Now a list of strings
+    required DateTime startDate,
+    required DateTime endDate,
   }) async {
-    final now = DateTime.now();
-    final reminderTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
-
     final newReminder = MedicineReminder(
       name: name,
       dosage: dosage,
-      time: reminderTime,
-      notificationId: Random().nextInt(10000000),
+      times: times,
+      startDate: startDate,
+      endDate: endDate,
+      isActive: true,
     );
 
+    // We MUST save to DB first to get an ID
     final savedReminder = await _dbService.create(newReminder);
-    await _notificationService.scheduleDailyReminder(savedReminder);
 
-    // state = [...state, savedReminder];
-    // ✅ Reload from database to ensure data consistency
+    // Now schedule notifications using the reminder WITH an ID
+    await _notificationService.scheduleMedicineReminders(savedReminder);
+
     state = await _dbService.readAllReminders();
   }
 
-  // --- TOGGLE REMINDER ---
+  // --- TOGGLE REMINDER (MODIFIED) ---
   Future<void> toggleReminder(MedicineReminder reminder) async {
     final updatedReminder = reminder.copyWith(isActive: !reminder.isActive);
-
     await _dbService.update(updatedReminder);
 
     if (updatedReminder.isActive) {
-      await _notificationService.scheduleDailyReminder(updatedReminder);
+      // Re-schedule all associated notifications
+      await _notificationService.scheduleMedicineReminders(updatedReminder);
     } else {
-      await _notificationService.cancelReminder(updatedReminder.notificationId);
+      // Cancel all associated notifications
+      await _notificationService.cancelMedicineReminders(updatedReminder);
     }
 
     state = [
@@ -86,15 +73,39 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     ];
   }
 
-  // --- DELETE REMINDER ---
-  Future<void> deleteReminder(int id) async {
-    final reminderToDelete = state.firstWhere((r) => r.id == id);
+  // --- DELETE REMINDER (MODIFIED) ---
+  Future<void> deleteReminder(MedicineReminder reminder) async {
+    // First, cancel all notifications
+    await _notificationService.cancelMedicineReminders(reminder);
 
-    await _notificationService.cancelReminder(reminderToDelete.notificationId);
+    // Then, delete from database
+    await _dbService.delete(reminder.id!);
 
-    await _dbService.delete(id);
+    state = state.where((item) => item.id != reminder.id).toList();
+  }
 
-    state = state.where((item) => item.id != id).toList();
+  // --- NEW GETTER FOR "TODAY'S SCHEDULE" ---
+  List<MedicineReminder> get todaysReminders {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    return state.where((reminder) {
+      // Check if reminder is active and today is within the start/end date range
+      // We add one day to endDate to make the range inclusive
+      final endDateInclusive = reminder.endDate.add(const Duration(days: 1));
+      return reminder.isActive &&
+          (today.isAtSameMomentAs(reminder.startDate) ||
+              today.isAfter(reminder.startDate)) &&
+          (today.isBefore(endDateInclusive));
+    }).toList();
+  }
+
+  // --- NEW HELPER FOR "TAKE NOW" BUTTON ---
+  Future<void> markAsTaken(MedicineReminder reminder, String time) async {
+    // This is where you would build logic to log the medication.
+    // For now, we can just print a debug message.
+    debugPrint("User marked '${reminder.name}' at $time as TAKEN.");
+    // You could also cancel just this one notification for today.
   }
 }
 

@@ -32,8 +32,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Elderly Application Prototype',
 
-      // 1. Set the Custom Theme
-      theme: AppTheme.lightTheme, // <--- NEW
+      // 1. Apply your defined light theme
+      theme: AppTheme.lightTheme,
+
+      // 2. CRITICAL STEP: FORCE light mode
+      themeMode: ThemeMode.light,
 
       // 2. Set the requested Home Screen
       // NOTE: Temporarily set to ReminderListPage as requested.
