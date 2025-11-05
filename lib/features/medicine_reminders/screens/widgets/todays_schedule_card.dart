@@ -1,40 +1,49 @@
-import 'package:elderly_prototype_app/features/medicine_reminders/data/models/medicine_model.dart';
-import 'package:elderly_prototype_app/features/medicine_reminders/services/reminder_state_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:intl/intl.dart';
+import '../../services/reminder_state_notifier.dart';
+
+// This provider will store a Set of unique dose IDs that have been "taken".
+// A unique ID is "reminderId-HH:mm", e.g., "7-19:41"
+final takenDosesProvider = StateProvider<Set<String>>((ref) => {});
 
 class TodaysScheduleCard extends ConsumerWidget {
-  final MedicineReminder reminder;
-  const TodaysScheduleCard({super.key, required this.reminder});
+  final MedicineDose dose;
+  const TodaysScheduleCard({super.key, required this.dose});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final reminder = dose.reminder; // Get the parent reminder from the dose
 
-    // Find the next time for today
+    // Format the specific time for this dose
+    final doseTime = DateFormat.jm().format(
+        DateTime(2020, 1, 1, dose.timeOfDay.hour, dose.timeOfDay.minute));
+
+    // --- "TAKE NOW" LOGIC ---
+    // Create a unique ID for this specific dose
+    final uniqueDoseId = '${reminder.id}-${dose.timeStr}';
+
+    // Watch the provider to see if this dose is in the "taken" set
+    final isTaken = ref.watch(takenDosesProvider).contains(uniqueDoseId);
+
+    // Check if the dose time has already passed
     final now = TimeOfDay.now();
-    String nextTime = "Completed";
-    String rawNextTime = "";
+    final doseTimeOfDay = dose.timeOfDay;
+    // Check if current hour is greater OR (current hour is same AND current minute is greater)
+    final bool hasPassed = (doseTimeOfDay.hour < now.hour) ||
+        (doseTimeOfDay.hour == now.hour && doseTimeOfDay.minute < now.minute);
+    // ----------------------------
 
-    // Find the first time today that hasn't passed yet
-    for (final timeStr in reminder.times) {
-      final timeParts = timeStr.split(':');
-      final time = TimeOfDay(
-          hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
-      if (time.hour > now.hour ||
-          (time.hour == now.hour && time.minute >= now.minute)) {
-        nextTime = DateFormat.jm()
-            .format(DateTime(2020, 1, 1, time.hour, time.minute));
-        rawNextTime = timeStr; // e.g., "08:00"
-        break;
-      }
-    }
+    // Card is greyed out if taken OR if the time has passed and it wasn't taken
+    final bool isGreyedOut = isTaken || hasPassed;
 
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: Colors.white,
+      // Change color if it's been taken or has passed
+      color: isGreyedOut ? Colors.grey[200] : Colors.white,
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
@@ -44,11 +53,14 @@ class TodaysScheduleCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.1),
+                color: isGreyedOut
+                    ? Colors.grey[400]
+                    : theme.colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.medication_outlined,
-                  color: theme.colorScheme.primary, size: 24),
+              child: Icon(isTaken ? Icons.check : Icons.medication_outlined,
+                  color: isGreyedOut ? Colors.white : theme.colorScheme.primary,
+                  size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -58,27 +70,61 @@ class TodaysScheduleCard extends ConsumerWidget {
                   Text(
                     reminder.name,
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isGreyedOut
+                          ? Colors.grey[600]
+                          : theme.colorScheme.primary,
+                      // Add strikethrough if taken or passed
+                      decoration:
+                          isGreyedOut ? TextDecoration.lineThrough : null,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Next: $nextTime - ${reminder.dosage}',
+                    // Show the specific dose time
+                    'Time: $doseTime - ${reminder.dosage}',
                     style: TextStyle(
-                        fontSize: 14, color: theme.colorScheme.secondary),
+                        fontSize: 14,
+                        color: isGreyedOut
+                            ? Colors.grey[600]
+                            : theme.colorScheme.secondary),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 12),
-            if (nextTime != "Completed")
+
+            // --- "TAKE NOW" BUTTON LOGIC ---
+            if (isTaken)
+              // If taken, show a simple "Taken" text
+              Text(
+                'Taken ✔',
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            else if (hasPassed)
+              // If time passed and not taken, show "Missed"
+              Text(
+                'Missed',
+                style: TextStyle(
+                  color: Colors.red[700],
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            else
+              // If not taken and not passed, show the button
               ElevatedButton(
                 onPressed: () {
-                  ref
-                      .read(remindersProvider.notifier)
-                      .markAsTaken(reminder, rawNextTime);
-                  // Show a snackbar
+                  // 1. Update the StateProvider to mark this dose as taken
+                  ref.read(takenDosesProvider.notifier).update((state) {
+                    // Return a new Set with the uniqueDoseId added
+                    return {...state, uniqueDoseId};
+                  });
+
+                  // 2. Show a snackbar
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Marked ${reminder.name} as taken!'),
@@ -95,6 +141,7 @@ class TodaysScheduleCard extends ConsumerWidget {
                 ),
                 child: const Text('Take Now'),
               ),
+            // ---------------------------------
           ],
         ),
       ),

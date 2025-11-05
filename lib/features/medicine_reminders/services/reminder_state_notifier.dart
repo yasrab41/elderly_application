@@ -1,11 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/legacy.dart'; // This import is likely not needed
-import 'dart:math';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../data/models/medicine_model.dart';
 import '../data/datasources/database_service.dart';
 import '../data/datasources/notification_service.dart';
+
+// --- MODEL CLASS ---
+// A helper class to represent a single dose at a specific time
+class MedicineDose {
+  final MedicineReminder reminder;
+  final String timeStr; // e.g., "08:00"
+  final TimeOfDay timeOfDay;
+
+  MedicineDose({
+    required this.reminder,
+    required this.timeStr,
+  }) : timeOfDay = TimeOfDay(
+          hour: int.parse(timeStr.split(':')[0]),
+          minute: int.parse(timeStr.split(':')[1]),
+        );
+}
 
 // Global provider for the Notification Service instance
 final notificationServiceProvider = Provider((ref) => NotificationService());
@@ -23,12 +38,17 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
 
   final _dbService = DatabaseService.instance;
 
+  // Utility to strip time for pure date comparison (Year/Month/Day only)
+  DateTime _normalizeDate(DateTime dt) {
+    return DateTime(dt.year, dt.month, dt.day);
+  }
+
   Future<void> loadReminders() async {
     state = await _dbService.readAllReminders();
     _isInitialLoadComplete = true;
   }
 
-  // --- ADD REMINDER (MODIFIED) ---
+  // --- ADD REMINDER ---
   Future<void> addReminder({
     required String name,
     required String dosage,
@@ -39,9 +59,9 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     final newReminder = MedicineReminder(
       name: name,
       dosage: dosage,
-      times: times,
-      startDate: startDate,
-      endDate: endDate,
+      times: times, // Use the new list
+      startDate: startDate, // Use the new date
+      endDate: endDate, // Use the new date
       isActive: true,
     );
 
@@ -54,17 +74,16 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     state = await _dbService.readAllReminders();
   }
 
-  // --- TOGGLE REMINDER (MODIFIED) ---
+  // --- TOGGLE REMINDER ---
   Future<void> toggleReminder(MedicineReminder reminder) async {
     final updatedReminder = reminder.copyWith(isActive: !reminder.isActive);
+
     await _dbService.update(updatedReminder);
 
     if (updatedReminder.isActive) {
-      // Re-schedule all associated notifications
       await _notificationService.scheduleMedicineReminders(updatedReminder);
     } else {
-      // Cancel all associated notifications
-      await _notificationService.cancelMedicineReminders(updatedReminder);
+      await _notificationService.cancelMedicineReminders(reminder);
     }
 
     state = [
@@ -73,39 +92,53 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     ];
   }
 
-  // --- DELETE REMINDER (MODIFIED) ---
+  // --- DELETE REMINDER ---
   Future<void> deleteReminder(MedicineReminder reminder) async {
-    // First, cancel all notifications
     await _notificationService.cancelMedicineReminders(reminder);
-
-    // Then, delete from database
     await _dbService.delete(reminder.id!);
-
     state = state.where((item) => item.id != reminder.id).toList();
   }
 
-  // --- NEW GETTER FOR "TODAY'S SCHEDULE" ---
-  List<MedicineReminder> get todaysReminders {
+  // 🔑 VERIFIED GETTER NAME: todaysDoses
+  List<MedicineDose> get todaysDoses {
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    // Normalize today's date to midnight for comparison
+    final today = _normalizeDate(now);
 
-    return state.where((reminder) {
-      // Check if reminder is active and today is within the start/end date range
-      // We add one day to endDate to make the range inclusive
-      final endDateInclusive = reminder.endDate.add(const Duration(days: 1));
-      return reminder.isActive &&
-          (today.isAtSameMomentAs(reminder.startDate) ||
-              today.isAfter(reminder.startDate)) &&
-          (today.isBefore(endDateInclusive));
+    final List<MedicineDose> allDoses = [];
+
+    // 1. Get all active medicines for today
+    final activeReminders = state.where((reminder) {
+      // Normalize reminder dates for pure date comparison
+      final normalizedStart = _normalizeDate(reminder.startDate);
+      final normalizedEnd = _normalizeDate(reminder.endDate);
+
+      // CRITICAL FIX: Use compareTo for robust date-only comparison.
+      // today is after or same as start (today >= start)
+      final isAfterOrSameAsStart = today.compareTo(normalizedStart) >= 0;
+      // today is before or same as end (today <= end)
+      final isBeforeOrSameAsEnd = today.compareTo(normalizedEnd) <= 0;
+
+      final isInDateRange = isAfterOrSameAsStart && isBeforeOrSameAsEnd;
+
+      return reminder.isActive && isInDateRange;
     }).toList();
-  }
 
-  // --- NEW HELPER FOR "TAKE NOW" BUTTON ---
-  Future<void> markAsTaken(MedicineReminder reminder, String time) async {
-    // This is where you would build logic to log the medication.
-    // For now, we can just print a debug message.
-    debugPrint("User marked '${reminder.name}' at $time as TAKEN.");
-    // You could also cancel just this one notification for today.
+    // 2. Create a flat list of all individual doses
+    for (final reminder in activeReminders) {
+      for (final timeStr in reminder.times) {
+        allDoses.add(MedicineDose(reminder: reminder, timeStr: timeStr));
+      }
+    }
+
+    // 3. Sort the final list by time
+    allDoses.sort((a, b) {
+      final aTime = a.timeOfDay.hour * 60 + a.timeOfDay.minute;
+      final bTime = b.timeOfDay.hour * 60 + b.timeOfDay.minute;
+      return aTime.compareTo(bTime);
+    });
+
+    return allDoses;
   }
 }
 
