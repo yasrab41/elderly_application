@@ -1,12 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Using older StateNotifierProvider
 import 'package:intl/intl.dart';
-import '../../services/reminder_state_notifier.dart';
+import '../../services/reminder_state_notifier.dart'; // For MedicineDose
+import '../../data/datasources/database_service.dart';
 
-// This provider will store a Set of unique dose IDs that have been "taken".
-// A unique ID is "reminderId-HH:mm", e.g., "7-19:41"
-final takenDosesProvider = StateProvider<Set<String>>((ref) => {});
+// --- TakenDosesNotifier: Extends StateNotifier ---
+class TakenDosesNotifier extends StateNotifier<Set<String>> {
+  final DatabaseService _dbService;
+  final String _todayDateStr;
+
+  // Constructor now initializes dependencies and calls super({})
+  TakenDosesNotifier(this._dbService)
+      // Get today's date in YYYY-MM-DD format
+      : _todayDateStr = DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        super({}) {
+    // Start with an empty set
+    _loadTakenDoses(); // Load from DB immediately
+  }
+
+  // Load persistent state from database
+  Future<void> _loadTakenDoses() async {
+    state = await _dbService.getTakenDosesForDate(_todayDateStr);
+  }
+
+  // Mark as taken and save to database
+  Future<void> markAsTaken(String uniqueDoseId) async {
+    // 1. Save to DB
+    await _dbService.markDoseAsTaken(uniqueDoseId, _todayDateStr);
+    // 2. Update in-memory state (this triggers the UI rebuild)
+    state = {...state, uniqueDoseId};
+  }
+}
+
+// Uses StateNotifierProvider
+final takenDosesProvider =
+    StateNotifierProvider<TakenDosesNotifier, Set<String>>((ref) {
+  return TakenDosesNotifier(DatabaseService.instance);
+});
+// ------------------------------------
 
 class TodaysScheduleCard extends ConsumerWidget {
   final MedicineDose dose;
@@ -21,35 +52,52 @@ class TodaysScheduleCard extends ConsumerWidget {
     final doseTime = DateFormat.jm().format(
         DateTime(2020, 1, 1, dose.timeOfDay.hour, dose.timeOfDay.minute));
 
-    // --- "TAKE NOW" LOGIC ---
-    // Create a unique ID for this specific dose
+    // --- "TAKE NOW" LOGIC (Now Persistent) ---
     final uniqueDoseId = '${reminder.id}-${dose.timeStr}';
 
-    // Watch the provider to see if this dose is in the "taken" set
     final isTaken = ref.watch(takenDosesProvider).contains(uniqueDoseId);
 
-    // Check if the dose time has already passed
-    final now = TimeOfDay.now();
-    final doseTimeOfDay = dose.timeOfDay;
-    // Check if current hour is greater OR (current hour is same AND current minute is greater)
-    final bool hasPassed = (doseTimeOfDay.hour < now.hour) ||
-        (doseTimeOfDay.hour == now.hour && doseTimeOfDay.minute < now.minute);
-    // ----------------------------
+    // --- 🛑 GRACE PERIOD LOGIC ---
 
-    // Card is greyed out if taken OR if the time has passed and it wasn't taken
-    final bool isGreyedOut = isTaken || hasPassed;
+    // 1. Get current time in minutes since midnight
+    final now = TimeOfDay.now();
+    final int nowInMinutes =
+        now.hour * 60 + now.minute; // e.g., 10:00 AM -> 600
+
+    // 2. Get dose time in minutes since midnight
+    final doseTimeOfDay = dose.timeOfDay;
+    final int doseTimeInMinutes =
+        doseTimeOfDay.hour * 60 + doseTimeOfDay.minute; // e.g., 9:50 AM -> 590
+
+    // 3. Define the grace period
+    const int gracePeriodInMinutes = 5;
+
+    // 4. Define 'isMissed'
+    // It's missed if it's NOT taken AND the grace period is over.
+    final bool isMissed =
+        !isTaken && (nowInMinutes > (doseTimeInMinutes + gracePeriodInMinutes));
+
+    // 5. Define 'isPending'
+    // It's pending if it's NOT taken and NOT missed.
+    // This means the time is either before, at, or within the grace period.
+    final bool isPending = !isTaken && !isMissed;
+
+    // 6. Define 'isGreyedOut' (for UI styling)
+    // The card is greyed out if it's either Taken or Missed.
+    final bool isGreyedOut = isTaken || isMissed;
+
+    // --- 🛑 END GRACE PERIOD LOGIC ---
 
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      // Change color if it's been taken or has passed
       color: isGreyedOut ? Colors.grey[200] : Colors.white,
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
         child: Row(
           children: [
-            // Icon in a circle
+            // (Icon logic remains the same)
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -63,6 +111,7 @@ class TodaysScheduleCard extends ConsumerWidget {
                   size: 24),
             ),
             const SizedBox(width: 16),
+            // (Text logic remains the same)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,14 +124,12 @@ class TodaysScheduleCard extends ConsumerWidget {
                       color: isGreyedOut
                           ? Colors.grey[600]
                           : theme.colorScheme.primary,
-                      // Add strikethrough if taken or passed
                       decoration:
                           isGreyedOut ? TextDecoration.lineThrough : null,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    // Show the specific dose time
                     'Time: $doseTime - ${reminder.dosage}',
                     style: TextStyle(
                         fontSize: 14,
@@ -95,9 +142,8 @@ class TodaysScheduleCard extends ConsumerWidget {
             ),
             const SizedBox(width: 12),
 
-            // --- "TAKE NOW" BUTTON LOGIC ---
+            // --- 🛑 UPDATED "TAKE NOW" BUTTON LOGIC ---
             if (isTaken)
-              // If taken, show a simple "Taken" text
               Text(
                 'Taken ✔',
                 style: TextStyle(
@@ -105,8 +151,7 @@ class TodaysScheduleCard extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               )
-            else if (hasPassed)
-              // If time passed and not taken, show "Missed"
+            else if (isMissed) // Use the new 'isMissed' flag
               Text(
                 'Missed',
                 style: TextStyle(
@@ -114,17 +159,15 @@ class TodaysScheduleCard extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               )
-            else
-              // If not taken and not passed, show the button
+            else // This is the 'isPending' state
               ElevatedButton(
                 onPressed: () {
-                  // 1. Update the StateProvider to mark this dose as taken
-                  ref.read(takenDosesProvider.notifier).update((state) {
-                    // Return a new Set with the uniqueDoseId added
-                    return {...state, uniqueDoseId};
-                  });
+                  // Call the Notifier's method
+                  ref
+                      .read(takenDosesProvider.notifier)
+                      .markAsTaken(uniqueDoseId);
 
-                  // 2. Show a snackbar
+                  // (Snackbar logic remains the same)
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Marked ${reminder.name} as taken!'),

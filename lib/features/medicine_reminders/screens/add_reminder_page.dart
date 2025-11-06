@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // ⭐️ FIXED: Riverpod import was missing
 import 'package:intl/intl.dart';
 import '../services/reminder_state_notifier.dart';
-import '../data/models/medicine_model.dart'; // 1. Import the model
+import '../data/models/medicine_model.dart';
 
 class AddReminderPage extends ConsumerStatefulWidget {
+  // ⭐️ FIXED: Needs ConsumerStatefulWidget from Riverpod
   // 2. Add optional reminder field
   final MedicineReminder? reminderToEdit;
 
@@ -15,13 +16,14 @@ class AddReminderPage extends ConsumerStatefulWidget {
 }
 
 class _AddReminderPageState extends ConsumerState<AddReminderPage> {
+  // ⭐️ FIXED: Needs ConsumerState from Riverpod
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _dosageController = TextEditingController();
 
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
-  List<TimeOfDay> _times = []; // 3. Make this mutable
+  List<TimeOfDay> _times = [];
 
   // 4. Check if we are in "Edit Mode"
   bool get isEditMode => widget.reminderToEdit != null;
@@ -158,13 +160,13 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.colorScheme.primary.withOpacity(0.05),
       appBar: AppBar(
         // 7. Update AppBar title
         title: Text(isEditMode ? 'Edit Reminder' : 'Add New Reminder'),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: theme.colorScheme.secondary,
+        foregroundColor: theme.colorScheme.primary,
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -217,6 +219,7 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                         color: theme.colorScheme.secondary.withOpacity(0.5))),

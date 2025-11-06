@@ -1,7 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Using older StateNotifierProvider
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/legacy.dart';
-// import 'package:flutter_riverpod/legacy.dart'; // This import is likely not needed
 import 'dart:math';
 
 import '../data/models/medicine_model.dart';
@@ -35,6 +33,7 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
   bool _isInitialLoadComplete = false;
   bool get isInitialLoadComplete => _isInitialLoadComplete;
 
+  // Constructor uses initial state []
   ReminderStateNotifier(this._notificationService) : super([]) {
     loadReminders();
   }
@@ -47,15 +46,16 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
   }
 
   Future<void> loadReminders() async {
+    // State update syntax remains 'state = ...'
     state = await _dbService.readAllReminders();
     _isInitialLoadComplete = true;
   }
 
-  // --- ADD REMINDER (Original) ---
+  // --- ADD REMINDER ---
   Future<void> addReminder({
     required String name,
     required String dosage,
-    required List<String> times, // Now a list of strings
+    required List<String> times,
     required DateTime startDate,
     required DateTime endDate,
   }) async {
@@ -67,34 +67,35 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
       endDate: endDate,
       isActive: true,
     );
+
     final savedReminder = await _dbService.create(newReminder);
+
     await _notificationService.scheduleMedicineReminders(savedReminder);
-    state = await _dbService.readAllReminders();
+
+    // State update syntax: 'state = [...state, newReminder]'
+    state = [...state, savedReminder];
   }
 
-  // --- ⭐️ NEW UPDATE METHOD ⭐️ ---
+  // --- UPDATE REMINDER ---
   Future<void> updateReminder(MedicineReminder updatedReminder) async {
-    // Find the original reminder from the current state
-    // We need this to know the *old* times, in case they changed
     final originalReminder =
         state.firstWhere((r) => r.id == updatedReminder.id);
 
-    // 1. Cancel all old notifications
     await _notificationService.cancelMedicineReminders(originalReminder);
-
-    // 2. Update the reminder in the database
     await _dbService.update(updatedReminder);
 
-    // 3. Schedule all new notifications (if active)
     if (updatedReminder.isActive) {
       await _notificationService.scheduleMedicineReminders(updatedReminder);
     }
 
-    // 4. Reload the state from the database
-    state = await _dbService.readAllReminders();
+    // State update syntax: Rebuild the list with the updated item
+    state = [
+      for (final item in state)
+        if (item.id == updatedReminder.id) updatedReminder else item,
+    ];
   }
 
-  // --- TOGGLE REMINDER (Original) ---
+  // --- TOGGLE REMINDER ---
   Future<void> toggleReminder(MedicineReminder reminder) async {
     final updatedReminder = reminder.copyWith(isActive: !reminder.isActive);
     await _dbService.update(updatedReminder);
@@ -105,26 +106,30 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
       await _notificationService.cancelMedicineReminders(reminder);
     }
 
+    // State update syntax: Rebuild the list with the toggled item
     state = [
       for (final item in state)
         if (item.id == updatedReminder.id) updatedReminder else item,
     ];
   }
 
-  // --- DELETE REMINDER (Original) ---
+  // --- DELETE REMINDER ---
   Future<void> deleteReminder(MedicineReminder reminder) async {
     await _notificationService.cancelMedicineReminders(reminder);
     await _dbService.delete(reminder.id!);
+
+    // State update syntax: Filter out the deleted item
     state = state.where((item) => item.id != reminder.id).toList();
   }
 
-  // --- GETTER FOR "TODAY'S SCHEDULE" (Original) ---
+  // --- GETTER FOR "TODAY'S SCHEDULE" ---
   List<MedicineDose> get todaysDoses {
     final now = DateTime.now();
     final today = _normalizeDate(now);
 
     final List<MedicineDose> allDoses = [];
 
+    // 1. Get all active medicines for today
     final activeReminders = state.where((reminder) {
       final normalizedStart = _normalizeDate(reminder.startDate);
       final normalizedEnd = _normalizeDate(reminder.endDate);
@@ -136,12 +141,14 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
       return reminder.isActive && isInDateRange;
     }).toList();
 
+    // 2. Create a flat list of all individual doses
     for (final reminder in activeReminders) {
       for (final timeStr in reminder.times) {
         allDoses.add(MedicineDose(reminder: reminder, timeStr: timeStr));
       }
     }
 
+    // 3. Sort the final list by time
     allDoses.sort((a, b) {
       final aTime = a.timeOfDay.hour * 60 + a.timeOfDay.minute;
       final bTime = b.timeOfDay.hour * 60 + b.timeOfDay.minute;
@@ -153,6 +160,7 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
 }
 
 // Global provider for accessing the state notifier
+// Uses StateNotifierProvider and explicitly passes dependencies
 final remindersProvider =
     StateNotifierProvider<ReminderStateNotifier, List<MedicineReminder>>((ref) {
   final service = ref.watch(notificationServiceProvider);

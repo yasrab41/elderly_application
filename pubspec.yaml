@@ -35,7 +35,7 @@ dependencies:
   firebase_core: ^4.2.0
   flutter:
     sdk: flutter
-  flutter_riverpod: ^3.0.3
+  flutter_riverpod: ^1.0.0
   google_sign_in: ^6.1.0
   path_provider: ^2.1.5
   sqflite: ^2.3.0
