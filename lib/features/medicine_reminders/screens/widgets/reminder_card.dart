@@ -1,6 +1,5 @@
 import 'package:elderly_prototype_app/features/medicine_reminders/data/models/medicine_model.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 // Custom Widget for displaying each Reminder Item
 class ReminderCard extends StatelessWidget {

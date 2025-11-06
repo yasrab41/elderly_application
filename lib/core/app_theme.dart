@@ -13,8 +13,6 @@ class AppTheme {
       scaffoldBackgroundColor: Color(0xFFF5F5F5),
       // This ensures cards (like your reminder card) and other surfaces are white
       cardColor: Colors.white,
-      // This ensures dialogs and modal bottom sheets are white
-      dialogBackgroundColor: Colors.white,
       // ------------------------------------------------------
 
       colorScheme: ColorScheme.light(
@@ -60,6 +58,7 @@ class AppTheme {
           ),
         ),
       ),
+      dialogTheme: DialogThemeData(backgroundColor: Colors.white),
     );
   }
 }

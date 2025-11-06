@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 
-import '../../../core/app_theme.dart'; // Theme from config/
+// Theme from config/
 import '../services/reminder_state_notifier.dart'; // Notifier from services/
 import 'widgets/all_reminders_card.dart';
 import 'widgets/todays_schedule_card.dart'; // Import the card

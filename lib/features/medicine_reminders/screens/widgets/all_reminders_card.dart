@@ -51,7 +51,7 @@ class AllRemindersCard extends ConsumerWidget {
                   onChanged: (value) {
                     notifier.toggleReminder(reminder);
                   },
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   inactiveThumbColor: Colors.grey,
                   inactiveTrackColor: Colors.grey.withOpacity(0.3),
                 ),

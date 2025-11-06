@@ -51,7 +51,7 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
   InputDecoration _inputDecoration(String label) {
     final theme = Theme.of(context);
     return InputDecoration(
-      labelText: label,
+      hintText: label,
       labelStyle: TextStyle(color: theme.colorScheme.secondary),
       filled: true,
       fillColor: Colors.white,
@@ -160,13 +160,13 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.primary.withOpacity(0.05),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         // 7. Update AppBar title
         title: Text(isEditMode ? 'Edit Reminder' : 'Add New Reminder'),
-        backgroundColor: Colors.transparent,
+        backgroundColor: theme.colorScheme.primary,
         elevation: 0,
-        foregroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.secondary,
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -217,12 +217,12 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
                       fontSize: 16)),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color: theme.colorScheme.secondary.withOpacity(0.5))),
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                // decoration: BoxDecoration(
+                //     // color: Colors.white,
+                //     borderRadius: BorderRadius.circular(12),
+                //     border: Border.all(
+                //         color: theme.colorScheme.secondary.withOpacity(0.5))),
                 child: Wrap(
                   spacing: 8.0,
                   runSpacing: 4.0,
