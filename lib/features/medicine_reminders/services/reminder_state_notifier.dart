@@ -1,12 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
+// import 'package:flutter_riverpod/legacy.dart'; // This import is likely not needed
+import 'dart:math';
 
 import '../data/models/medicine_model.dart';
 import '../data/datasources/database_service.dart';
 import '../data/datasources/notification_service.dart';
 
-// --- MODEL CLASS ---
+// --- NEW MODEL CLASS ---
 // A helper class to represent a single dose at a specific time
 class MedicineDose {
   final MedicineReminder reminder;
@@ -21,6 +23,7 @@ class MedicineDose {
           minute: int.parse(timeStr.split(':')[1]),
         );
 }
+// ---------------------
 
 // Global provider for the Notification Service instance
 final notificationServiceProvider = Provider((ref) => NotificationService());
@@ -48,7 +51,7 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     _isInitialLoadComplete = true;
   }
 
-  // --- ADD REMINDER ---
+  // --- ADD REMINDER (Original) ---
   Future<void> addReminder({
     required String name,
     required String dosage,
@@ -59,25 +62,41 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     final newReminder = MedicineReminder(
       name: name,
       dosage: dosage,
-      times: times, // Use the new list
-      startDate: startDate, // Use the new date
-      endDate: endDate, // Use the new date
+      times: times,
+      startDate: startDate,
+      endDate: endDate,
       isActive: true,
     );
-
-    // We MUST save to DB first to get an ID
     final savedReminder = await _dbService.create(newReminder);
-
-    // Now schedule notifications using the reminder WITH an ID
     await _notificationService.scheduleMedicineReminders(savedReminder);
-
     state = await _dbService.readAllReminders();
   }
 
-  // --- TOGGLE REMINDER ---
+  // --- ⭐️ NEW UPDATE METHOD ⭐️ ---
+  Future<void> updateReminder(MedicineReminder updatedReminder) async {
+    // Find the original reminder from the current state
+    // We need this to know the *old* times, in case they changed
+    final originalReminder =
+        state.firstWhere((r) => r.id == updatedReminder.id);
+
+    // 1. Cancel all old notifications
+    await _notificationService.cancelMedicineReminders(originalReminder);
+
+    // 2. Update the reminder in the database
+    await _dbService.update(updatedReminder);
+
+    // 3. Schedule all new notifications (if active)
+    if (updatedReminder.isActive) {
+      await _notificationService.scheduleMedicineReminders(updatedReminder);
+    }
+
+    // 4. Reload the state from the database
+    state = await _dbService.readAllReminders();
+  }
+
+  // --- TOGGLE REMINDER (Original) ---
   Future<void> toggleReminder(MedicineReminder reminder) async {
     final updatedReminder = reminder.copyWith(isActive: !reminder.isActive);
-
     await _dbService.update(updatedReminder);
 
     if (updatedReminder.isActive) {
@@ -92,46 +111,37 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     ];
   }
 
-  // --- DELETE REMINDER ---
+  // --- DELETE REMINDER (Original) ---
   Future<void> deleteReminder(MedicineReminder reminder) async {
     await _notificationService.cancelMedicineReminders(reminder);
     await _dbService.delete(reminder.id!);
     state = state.where((item) => item.id != reminder.id).toList();
   }
 
-  // 🔑 VERIFIED GETTER NAME: todaysDoses
+  // --- GETTER FOR "TODAY'S SCHEDULE" (Original) ---
   List<MedicineDose> get todaysDoses {
     final now = DateTime.now();
-    // Normalize today's date to midnight for comparison
     final today = _normalizeDate(now);
 
     final List<MedicineDose> allDoses = [];
 
-    // 1. Get all active medicines for today
     final activeReminders = state.where((reminder) {
-      // Normalize reminder dates for pure date comparison
       final normalizedStart = _normalizeDate(reminder.startDate);
       final normalizedEnd = _normalizeDate(reminder.endDate);
 
-      // CRITICAL FIX: Use compareTo for robust date-only comparison.
-      // today is after or same as start (today >= start)
       final isAfterOrSameAsStart = today.compareTo(normalizedStart) >= 0;
-      // today is before or same as end (today <= end)
       final isBeforeOrSameAsEnd = today.compareTo(normalizedEnd) <= 0;
-
       final isInDateRange = isAfterOrSameAsStart && isBeforeOrSameAsEnd;
 
       return reminder.isActive && isInDateRange;
     }).toList();
 
-    // 2. Create a flat list of all individual doses
     for (final reminder in activeReminders) {
       for (final timeStr in reminder.times) {
         allDoses.add(MedicineDose(reminder: reminder, timeStr: timeStr));
       }
     }
 
-    // 3. Sort the final list by time
     allDoses.sort((a, b) {
       final aTime = a.timeOfDay.hour * 60 + a.timeOfDay.minute;
       final bTime = b.timeOfDay.hour * 60 + b.timeOfDay.minute;

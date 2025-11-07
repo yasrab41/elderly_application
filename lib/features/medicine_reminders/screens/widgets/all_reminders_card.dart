@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../services/reminder_state_notifier.dart';
+import '../add_reminder_page.dart'; // 1. Import the AddReminderPage
 
 class AllRemindersCard extends ConsumerWidget {
   final MedicineReminder reminder;
@@ -94,33 +95,51 @@ class AllRemindersCard extends ConsumerWidget {
                       color: theme.colorScheme.secondary,
                       fontWeight: FontWeight.w600),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                    // Add a confirmation dialog
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Delete Reminder'),
-                        content: Text(
-                            'Are you sure you want to delete ${reminder.name}? This will remove all associated alarms.'),
-                        actions: [
-                          TextButton(
-                            child: const Text('Cancel'),
-                            onPressed: () => Navigator.of(ctx).pop(),
+
+                // --- 2. WRAP ICONS IN A ROW ---
+                Row(
+                  children: [
+                    // --- 3. ADD EDIT BUTTON ---
+                    IconButton(
+                      icon: Icon(Icons.edit_outlined,
+                          color: theme.colorScheme.secondary),
+                      onPressed: () {
+                        // Navigate to the Add/Edit page and pass the reminder
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              AddReminderPage(reminderToEdit: reminder),
+                        ));
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () {
+                        // (Confirmation dialog logic remains the same)
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Delete Reminder'),
+                            content: Text(
+                                'Are you sure you want to delete ${reminder.name}? This will remove all associated alarms.'),
+                            actions: [
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () => Navigator.of(ctx).pop(),
+                              ),
+                              TextButton(
+                                child: const Text('Delete',
+                                    style: TextStyle(color: Colors.red)),
+                                onPressed: () {
+                                  notifier.deleteReminder(reminder);
+                                  Navigator.of(ctx).pop();
+                                },
+                              ),
+                            ],
                           ),
-                          TextButton(
-                            child: const Text('Delete',
-                                style: TextStyle(color: Colors.red)),
-                            onPressed: () {
-                              notifier.deleteReminder(reminder);
-                              Navigator.of(ctx).pop();
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -132,12 +132,12 @@ class ReminderListPage extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Medicine Reminders'),
-        backgroundColor: Colors.transparent, // Modern UI
+        backgroundColor: primaryColor, // Modern UI
         elevation: 0,
-        foregroundColor: primaryColor, // Brown text/icons
+        foregroundColor: secondaryColor, // Brown text/icons
         actions: [
           IconButton(
-            icon: Icon(Icons.add_circle, color: primaryColor, size: 30),
+            icon: Icon(Icons.add_circle, color: Colors.white, size: 30),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => const AddReminderPage(),

@@ -10,7 +10,7 @@ class AppTheme {
     return ThemeData(
       // --- FIX: Explicitly set background colors to white ---
       // This ensures the main screen background (Scaffold) is white
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: Color(0xFFF5F5F5),
       // This ensures cards (like your reminder card) and other surfaces are white
       cardColor: Colors.white,
       // This ensures dialogs and modal bottom sheets are white
