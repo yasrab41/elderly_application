@@ -175,6 +175,8 @@ class _LoginState extends State<Login> {
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: _hintTextColor.withOpacity(0.7)),
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
           hintText: hintText,
           hintStyle: TextStyle(color: _hintTextColor, fontSize: 16.0),
         ),
@@ -246,7 +248,7 @@ class _LoginState extends State<Login> {
                         _buildTextField(
                           controller: mailcontroller,
                           hintText:
-                              "Username", // Changed from Email to match image
+                              "Email", // Changed from Email to match image
                           icon: Icons.person_outline,
                         ),
 

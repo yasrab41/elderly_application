@@ -7,6 +7,9 @@ import 'package:elderly_prototype_app/features/authentication/screens/signup.dar
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+// You need a file at this path for Google sign-in
+// import 'package:elderly_prototype_app/features/authentication/data/auth_methods.dart';
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -15,53 +18,73 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  // Define the primary color based on the user's request
+  // Color Palette
   final Color _primaryColor = const Color(0xFF48352A);
   final Color _textFieldBackground = const Color(0xFFedf0f8);
   final Color _hintTextColor = const Color(0xFFb2b7bf);
 
-  String email = "", password = "";
-
+  // Controllers and Key
   TextEditingController mailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
-
   final _formkey = GlobalKey<FormState>();
 
+  // Regex for basic email format validation
+  static final RegExp _emailRegExp = RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+
+  // 🚀 FIX: Function to handle Login logic
   userLogin() async {
+    // 1. Validate the form first
     if (_formkey.currentState!.validate()) {
-      setState(() {
-        email = mailcontroller.text;
-        password = passwordcontroller.text;
-      });
+      _formkey.currentState!
+          .save(); // Ensure 'onSaved' is called if you were using it
+
+      // Update state for clear variable usage (optional but clean)
+      String email = mailcontroller.text.trim();
+      String password = passwordcontroller.text.trim();
 
       try {
         await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
-        Navigator.push(context,
+
+        // Success: Navigate to the home screen
+        Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const StartScreen()));
       } on FirebaseAuthException catch (e) {
+        String errorMessage;
+
         if (e.code == 'user-not-found') {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              backgroundColor: Colors.orangeAccent,
-              content: Text(
-                "No User Found for that Email",
-                style: TextStyle(fontSize: 18.0),
-              )));
+          errorMessage = "No user found for that email.";
         } else if (e.code == 'wrong-password') {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              backgroundColor: Colors.orangeAccent,
-              content: Text(
-                "Wrong Password Provided by User",
-                style: TextStyle(fontSize: 18.0),
-              )));
+          errorMessage = "Incorrect password. Please try again.";
+        } else if (e.code == 'invalid-email') {
+          // This covers the 'badly formatted email' error from the logs
+          errorMessage = "The email address is badly formatted.";
+        } else {
+          errorMessage = "Login failed. Check your credentials and try again.";
         }
+
+        // Show the error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text(
+              errorMessage,
+              style: const TextStyle(fontSize: 16.0, color: Colors.white),
+            )));
+      } catch (e) {
+        // Handle general exceptions (e.g., network issues)
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              "An unexpected error occurred: ${e.toString()}",
+              style: const TextStyle(fontSize: 16.0, color: Colors.white),
+            )));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Wrap content in SingleChildScrollView to prevent overflow
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -112,15 +135,30 @@ class _LoginState extends State<Login> {
                             ),
                           ]),
                       child: TextFormField(
+                        controller: mailcontroller,
+                        keyboardType: TextInputType.emailAddress, // Better UX
+                        // 🚀 FIX: Explicit Email Validation
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please Enter E-mail';
+                            return 'Please enter your E-mail';
+                          }
+                          if (!_emailRegExp.hasMatch(value.trim())) {
+                            return 'Enter a valid email address'; // Fixes the logged error
                           }
                           return null;
                         },
-                        controller: mailcontroller,
                         decoration: InputDecoration(
+                            // 🚀 FIX: Removed all borders for clean look
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+
+                            // Added padding to prevent content/hint from touching box top/bottom
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 15.0),
+                            isDense: true,
                             hintText: "Email",
                             hintStyle: TextStyle(
                                 color: _hintTextColor, fontSize: 16.0)),
@@ -147,13 +185,21 @@ class _LoginState extends State<Login> {
                         controller: passwordcontroller,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please Enter Password';
+                            return 'Please enter your Password';
                           }
                           return null;
                         },
                         obscureText: true,
                         decoration: InputDecoration(
+                            // 🚀 FIX: Removed all borders for clean look
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 15.0),
+                            isDense: true,
                             hintText: "Password",
                             hintStyle: TextStyle(
                                 color: _hintTextColor, fontSize: 16.0)),
@@ -189,6 +235,7 @@ class _LoginState extends State<Login> {
 
                     // --- Sign In Button (using Primary Color) ---
                     GestureDetector(
+                      // 🚀 FIX: Calling the login function
                       onTap: userLogin,
                       child: Container(
                           width: MediaQuery.of(context).size.width,
@@ -237,10 +284,10 @@ class _LoginState extends State<Login> {
               children: [
                 GestureDetector(
                   onTap: () {
+                    // Assuming AuthMethods().signInWithGoogle is correctly defined
                     AuthMethods().signInWithGoogle(context);
                   },
                   child: Image.asset(
-                    // Note: Ensure your assets path is correct
                     "assets/images/google.png",
                     height: 45,
                     width: 45,
@@ -253,7 +300,6 @@ class _LoginState extends State<Login> {
                     // AuthMethods().signInWithApple();
                   },
                   child: Image.asset(
-                    // Note: Ensure your assets path is correct
                     "assets/images/apple1.png",
                     height: 50,
                     width: 50,

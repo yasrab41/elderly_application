@@ -128,10 +128,29 @@ class _SignUpState extends State<SignUp> {
                         },
                         controller: namecontroller,
                         decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: "Name",
-                            hintStyle: TextStyle(
-                                color: _hintTextColor, fontSize: 16.0)),
+                          hintText: "Name",
+                          hintStyle:
+                              TextStyle(color: _hintTextColor, fontSize: 16.0),
+
+                          // 🚀 THE FIX: Explicitly remove borders for all states 🚀
+
+                          // 1. Removes the default border when the field is inactive (not focused)
+                          enabledBorder: InputBorder.none,
+
+                          // // 2. Removes the border when the field is active (focused)
+                          // // This is the one causing the "weird" blue/teal line you see.
+                          focusedBorder: InputBorder.none,
+
+                          // // 3. (Optional but recommended) Removes the border when validation fails
+                          errorBorder: InputBorder.none,
+
+                          // // 4. (Optional but recommended) Removes the border when validation fails and field is focused
+                          focusedErrorBorder: InputBorder.none,
+
+                          // Note: Setting 'border: InputBorder.none' is sometimes enough,
+                          // but setting all specific borders ensures the Container's decoration
+                          // is the *only* visible styling.
+                        ),
                       ),
                     ),
 
@@ -162,6 +181,8 @@ class _SignUpState extends State<SignUp> {
                         decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: "Email",
+                            // enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
                             hintStyle: TextStyle(
                                 color: _hintTextColor, fontSize: 16.0)),
                       ),
@@ -195,6 +216,8 @@ class _SignUpState extends State<SignUp> {
                         decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: "Password",
+                            // enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
                             hintStyle: TextStyle(
                                 color: _hintTextColor, fontSize: 16.0)),
                       ),

@@ -217,7 +217,7 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
                       fontSize: 16)),
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                padding: const EdgeInsets.fromLTRB(8, 5, 8, 1),
                 // decoration: BoxDecoration(
                 //     // color: Colors.white,
                 //     borderRadius: BorderRadius.circular(12),

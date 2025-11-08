@@ -168,6 +168,8 @@ class _SignUpState extends State<SignUp> {
           prefixIcon: Icon(icon, color: _hintTextColor.withOpacity(0.7)),
           border: InputBorder.none,
           hintText: hintText,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
           hintStyle: TextStyle(color: _hintTextColor, fontSize: 16.0),
         ),
       ),

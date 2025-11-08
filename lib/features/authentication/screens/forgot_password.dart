@@ -1,4 +1,4 @@
-import 'package:elderly_prototype_app/features/authentication/screens/signup2.dart';
+import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

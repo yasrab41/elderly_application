@@ -1,3 +1,5 @@
+import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
+import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
 import 'package:elderly_prototype_app/firebase_options.dart';
 // Note: Keeping the signup import, but it won't be the home for now
 // import 'package:elderly_prototype_app/features/authentication/screens/signup3.dart';
@@ -41,7 +43,7 @@ class MyApp extends StatelessWidget {
       // 2. Set the requested Home Screen
       // NOTE: Temporarily set to ReminderListPage as requested.
       //       Later, this will likely be your HomeScreen or LoginScreen.
-      home: const ReminderListPage(), // <--- UPDATED
+      home: const SignUp(), // <--- UPDATED
     );
   }
 }
