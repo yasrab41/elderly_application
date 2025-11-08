@@ -61,37 +61,67 @@ class TodaysScheduleCard extends ConsumerWidget {
 
     // 1. Get current time in minutes since midnight
     final now = TimeOfDay.now();
-    final int nowInMinutes =
-        now.hour * 60 + now.minute; // e.g., 10:00 AM -> 600
+    final int nowInMinutes = now.hour * 60 + now.minute;
 
     // 2. Get dose time in minutes since midnight
     final doseTimeOfDay = dose.timeOfDay;
     final int doseTimeInMinutes =
-        doseTimeOfDay.hour * 60 + doseTimeOfDay.minute; // e.g., 9:50 AM -> 590
+        doseTimeOfDay.hour * 60 + doseTimeOfDay.minute;
 
     // 3. Define the grace period
     const int gracePeriodInMinutes = 5;
 
-    // 4. Define 'isMissed'
-    // It's missed if it's NOT taken AND the grace period is over.
+    // 4. Define 'isMissed' (the state where time has passed, but it hasn't been taken)
     final bool isMissed =
         !isTaken && (nowInMinutes > (doseTimeInMinutes + gracePeriodInMinutes));
 
     // 5. Define 'isPending'
-    // It's pending if it's NOT taken and NOT missed.
-    // This means the time is either before, at, or within the grace period.
+    // It's pending if it's NOT taken and NOT missed
     final bool isPending = !isTaken && !isMissed;
 
-    // 6. Define 'isGreyedOut' (for UI styling)
-    // The card is greyed out if it's either Taken or Missed.
-    final bool isGreyedOut = isTaken || isMissed;
-
     // --- 🛑 END GRACE PERIOD LOGIC ---
+
+    // --- 🎨 NEW: Define State-Specific Colors ---
+    final Color cardColor;
+    final Color iconBackgroundColor;
+    final Color iconColor;
+    final Color primaryTextColor;
+    final Color secondaryTextColor;
+    final TextDecoration? textDecoration;
+    final IconData iconData;
+
+    if (isTaken) {
+      cardColor = Colors.green.shade50; // Light green background
+      iconBackgroundColor = Colors.green.shade100;
+      iconColor = Colors.green.shade800;
+      primaryTextColor = Colors.green.shade800;
+      secondaryTextColor = Colors.green.shade700;
+      textDecoration = TextDecoration.lineThrough;
+      iconData = Icons.check_circle_outline; // Changed icon
+    } else if (isMissed) {
+      cardColor = Colors.red.shade50; // Light red background
+      iconBackgroundColor = Colors.red.shade100;
+      iconColor = Colors.red.shade800;
+      primaryTextColor = Colors.red.shade800;
+      secondaryTextColor = Colors.red.shade700;
+      textDecoration = null; // No line-through, still actionable
+      iconData = Icons.warning_amber_rounded; // Changed icon
+    } else {
+      // isPending
+      cardColor = Colors.brown.shade50; // Default white
+      iconBackgroundColor = theme.colorScheme.primary.withOpacity(0.1);
+      iconColor = theme.colorScheme.primary;
+      primaryTextColor = theme.colorScheme.primary;
+      secondaryTextColor = theme.colorScheme.secondary;
+      textDecoration = null;
+      iconData = Icons.medication_outlined;
+    }
+    // --- 🎨 End Color Definitions ---
 
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: isGreyedOut ? Colors.grey[200] : Colors.white,
+      color: cardColor, // 🎨 Use new dynamic card color
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
@@ -101,13 +131,12 @@ class TodaysScheduleCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isGreyedOut
-                    ? Colors.grey[400]
-                    : theme.colorScheme.primary.withOpacity(0.1),
+                color:
+                    iconBackgroundColor, // 🎨 Use new dynamic icon background
                 shape: BoxShape.circle,
               ),
-              child: Icon(isTaken ? Icons.check : Icons.medication_outlined,
-                  color: isGreyedOut ? Colors.white : theme.colorScheme.primary,
+              child: Icon(iconData, // 🎨 Use new dynamic icon
+                  color: iconColor, // 🎨 Use new dynamic icon color
                   size: 24),
             ),
             const SizedBox(width: 16),
@@ -121,53 +150,43 @@ class TodaysScheduleCard extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isGreyedOut
-                          ? Colors.grey[600]
-                          : theme.colorScheme.primary,
+                      color: primaryTextColor, // 🎨 Use new dynamic text color
                       decoration:
-                          isGreyedOut ? TextDecoration.lineThrough : null,
+                          textDecoration, // 🎨 Use new dynamic decoration
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Time: $doseTime - ${reminder.dosage}',
                     style: TextStyle(
-                        fontSize: 14,
-                        color: isGreyedOut
-                            ? Colors.grey[600]
-                            : theme.colorScheme.secondary),
+                      fontSize: 14,
+                      color:
+                          secondaryTextColor, // 🎨 Use new dynamic text color
+                      decoration: textDecoration,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 12),
 
-            // --- 🛑 UPDATED "TAKE NOW" BUTTON LOGIC ---
+            // --- 🛑 UPDATED BUTTON/TEXT LOGIC ---
             if (isTaken)
               Text(
                 'Taken ✔',
                 style: TextStyle(
-                  color: theme.colorScheme.primary,
+                  color: primaryTextColor, // 🎨 Use new (green) text color
                   fontWeight: FontWeight.bold,
                 ),
               )
-            else if (isMissed) // Use the new 'isMissed' flag
-              Text(
-                'Missed',
-                style: TextStyle(
-                  color: Colors.red[700],
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            else // This is the 'isPending' state
+            else
+              // This is the combined PENDING and MISSED state, both show a button
               ElevatedButton(
                 onPressed: () {
-                  // Call the Notifier's method
                   ref
                       .read(takenDosesProvider.notifier)
                       .markAsTaken(uniqueDoseId);
 
-                  // (Snackbar logic remains the same)
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Marked ${reminder.name} as taken!'),
@@ -176,13 +195,16 @@ class TodaysScheduleCard extends ConsumerWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.secondary,
+                  // 🚨 KEY CHANGE: Use Red color if missed, Secondary (Brown) if pending
+                  backgroundColor: isMissed
+                      ? Colors.red.shade600 // Red button on light red card
+                      : theme.colorScheme.secondary, // Brown for pending
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
-                child: const Text('Take Now'),
+                child: Text(isMissed ? 'Take (Late)' : 'Take Now'),
               ),
             // ---------------------------------
           ],
