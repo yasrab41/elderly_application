@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:elderly_prototype_app/features/authentication/screens/forgot_password.dart';
 import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
 import 'package:elderly_prototype_app/features/authentication/data/auth_methods.dart';
@@ -175,8 +173,6 @@ class _LoginState extends State<Login> {
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: _hintTextColor.withOpacity(0.7)),
           border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
           hintText: hintText,
           hintStyle: TextStyle(color: _hintTextColor, fontSize: 16.0),
         ),
@@ -248,7 +244,7 @@ class _LoginState extends State<Login> {
                         _buildTextField(
                           controller: mailcontroller,
                           hintText:
-                              "Email", // Changed from Email to match image
+                              "Username", // Changed from Email to match image
                           icon: Icons.person_outline,
                         ),
 
