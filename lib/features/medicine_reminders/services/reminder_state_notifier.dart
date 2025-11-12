@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Using older StateNotifierProvider
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -6,8 +6,7 @@ import '../data/models/medicine_model.dart';
 import '../data/datasources/database_service.dart';
 import '../data/datasources/notification_service.dart';
 
-// --- NEW MODEL CLASS ---
-// A helper class to represent a single dose at a specific time
+// --- (MedicineDose class remains the same) ---
 class MedicineDose {
   final MedicineReminder reminder;
   final String timeStr; // e.g., "08:00"
@@ -21,7 +20,6 @@ class MedicineDose {
           minute: int.parse(timeStr.split(':')[1]),
         );
 }
-// ---------------------
 
 // Global provider for the Notification Service instance
 final notificationServiceProvider = Provider((ref) => NotificationService());
@@ -33,9 +31,8 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
   bool _isInitialLoadComplete = false;
   bool get isInitialLoadComplete => _isInitialLoadComplete;
 
-  // Constructor uses initial state []
   ReminderStateNotifier(this._notificationService) : super([]) {
-    loadReminders();
+    loadRemindersAndSchedule(); // 🛑 Renamed for clarity
   }
 
   final _dbService = DatabaseService.instance;
@@ -45,13 +42,35 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     return DateTime(dt.year, dt.month, dt.day);
   }
 
-  Future<void> loadReminders() async {
-    // State update syntax remains 'state = ...'
+  // --- 🛑 NEW: Central Scheduling Logic ---
+  Future<void> loadRemindersAndSchedule() async {
+    // 1. Load all reminders from DB
     state = await _dbService.readAllReminders();
     _isInitialLoadComplete = true;
+
+    // 2. Cancel ALL previously scheduled notifications
+    await _notificationService.cancelAllNotifications();
+
+    // 3. Get ONLY today's doses
+    final dosesForToday = todaysDoses; // Use the getter
+
+    // 4. Schedule one-time alarms for each of today's doses
+    for (final dose in dosesForToday) {
+      // We still need a unique ID for each dose
+      final reminderId = dose.reminder.id!;
+      final timeIndex = dose.reminder.times.indexOf(dose.timeStr);
+      final notificationId = (reminderId * 100) + timeIndex;
+
+      await _notificationService.scheduleDailyDose(
+        notificationId: notificationId,
+        name: dose.reminder.name,
+        dosage: dose.reminder.dosage,
+        time: dose.timeOfDay,
+      );
+    }
   }
 
-  // --- ADD REMINDER ---
+  // --- 🛑 MODIFIED: ADD REMINDER ---
   Future<void> addReminder({
     required String name,
     required String dosage,
@@ -67,62 +86,46 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
       endDate: endDate,
       isActive: true,
     );
+    await _dbService.create(newReminder);
 
-    final savedReminder = await _dbService.create(newReminder);
-
-    await _notificationService.scheduleMedicineReminders(savedReminder);
-
-    // State update syntax: 'state = [...state, newReminder]'
-    state = [...state, savedReminder];
+    // Refresh the entire list and schedule
+    await loadRemindersAndSchedule();
   }
 
-  // --- UPDATE REMINDER ---
+  // --- 🛑 MODIFIED: UPDATE REMINDER ---
   Future<void> updateReminder(MedicineReminder updatedReminder) async {
+    // We still need to cancel the old ones in case the number of times changed
     final originalReminder =
         state.firstWhere((r) => r.id == updatedReminder.id);
-
     await _notificationService.cancelMedicineReminders(originalReminder);
+
     await _dbService.update(updatedReminder);
 
-    if (updatedReminder.isActive) {
-      await _notificationService.scheduleMedicineReminders(updatedReminder);
-    }
-
-    // State update syntax: Rebuild the list with the updated item
-    state = [
-      for (final item in state)
-        if (item.id == updatedReminder.id) updatedReminder else item,
-    ];
+    // Refresh the entire list and schedule
+    await loadRemindersAndSchedule();
   }
 
-  // --- TOGGLE REMINDER ---
+  // --- 🛑 MODIFIED: TOGGLE REMINDER ---
   Future<void> toggleReminder(MedicineReminder reminder) async {
     final updatedReminder = reminder.copyWith(isActive: !reminder.isActive);
     await _dbService.update(updatedReminder);
 
-    if (updatedReminder.isActive) {
-      await _notificationService.scheduleMedicineReminders(updatedReminder);
-    } else {
-      await _notificationService.cancelMedicineReminders(reminder);
-    }
-
-    // State update syntax: Rebuild the list with the toggled item
-    state = [
-      for (final item in state)
-        if (item.id == updatedReminder.id) updatedReminder else item,
-    ];
+    // Refresh the entire list and schedule
+    // This will either schedule or not schedule based on the new 'isActive' flag
+    await loadRemindersAndSchedule();
   }
 
-  // --- DELETE REMINDER ---
+  // --- 🛑 MODIFIED: DELETE REMINDER ---
   Future<void> deleteReminder(MedicineReminder reminder) async {
+    // We must cancel *before* deleting
     await _notificationService.cancelMedicineReminders(reminder);
     await _dbService.delete(reminder.id!);
 
-    // State update syntax: Filter out the deleted item
+    // Refresh the list (no need to reschedule, as the item is gone)
     state = state.where((item) => item.id != reminder.id).toList();
   }
 
-  // --- GETTER FOR "TODAY'S SCHEDULE" ---
+  // --- (todaysDoses getter remains the same, it's correct) ---
   List<MedicineDose> get todaysDoses {
     final now = DateTime.now();
     final today = _normalizeDate(now);
@@ -159,8 +162,7 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
   }
 }
 
-// Global provider for accessing the state notifier
-// Uses StateNotifierProvider and explicitly passes dependencies
+// (remindersProvider remains the same)
 final remindersProvider =
     StateNotifierProvider<ReminderStateNotifier, List<MedicineReminder>>((ref) {
   final service = ref.watch(notificationServiceProvider);
