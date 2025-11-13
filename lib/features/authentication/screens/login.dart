@@ -1,346 +1,205 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:elderly_prototype_app/features/authentication/screens/forgot_password.dart';
-import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
-import 'package:elderly_prototype_app/features/authentication/data/auth_methods.dart';
-import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../services/auth_service.dart'; // 🚀 CRITICAL: Import the service file
+import 'signup.dart'; // Ensure this path is correct
 
-// You need a file at this path for Google sign-in
-// import 'package:elderly_prototype_app/features/authentication/data/auth_methods.dart';
-
-class Login extends StatefulWidget {
+class Login extends ConsumerStatefulWidget {
   const Login({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  ConsumerState<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
-  // Color Palette
-  final Color _primaryColor = const Color(0xFF48352A);
-  final Color _textFieldBackground = const Color(0xFFedf0f8);
-  final Color _hintTextColor = const Color(0xFFb2b7bf);
+class _LoginState extends ConsumerState<Login> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+  String? _errorMessage;
 
-  // Controllers and Key
-  TextEditingController mailcontroller = TextEditingController();
-  TextEditingController passwordcontroller = TextEditingController();
-  final _formkey = GlobalKey<FormState>();
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
-  // Regex for basic email format validation
-  static final RegExp _emailRegExp = RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+  // --- Logic for Sign In ---
+  Future<void> _handleSignIn() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-  // 🚀 FIX: Function to handle Login logic
-  userLogin() async {
-    // 1. Validate the form first
-    if (_formkey.currentState!.validate()) {
-      _formkey.currentState!
-          .save(); // Ensure 'onSaved' is called if you were using it
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-      // Update state for clear variable usage (optional but clean)
-      String email = mailcontroller.text.trim();
-      String password = passwordcontroller.text.trim();
-
-      try {
-        await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
-
-        // Success: Navigate to the home screen
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const StartScreen()));
-      } on FirebaseAuthException catch (e) {
-        String errorMessage;
-
-        if (e.code == 'user-not-found') {
-          errorMessage = "No user found for that email.";
-        } else if (e.code == 'wrong-password') {
-          errorMessage = "Incorrect password. Please try again.";
-        } else if (e.code == 'invalid-email') {
-          // This covers the 'badly formatted email' error from the logs
-          errorMessage = "The email address is badly formatted.";
-        } else {
-          errorMessage = "Login failed. Check your credentials and try again.";
-        }
-
-        // Show the error message to the user
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text(
-              errorMessage,
-              style: const TextStyle(fontSize: 16.0, color: Colors.white),
-            )));
-      } catch (e) {
-        // Handle general exceptions (e.g., network issues)
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(
-              "An unexpected error occurred: ${e.toString()}",
-              style: const TextStyle(fontSize: 16.0, color: Colors.white),
-            )));
-      }
+    try {
+      // Use the newly defined authServiceProvider here
+      final authService = ref.read(authServiceProvider);
+      await authService.signInWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      // Success is handled by the main.dart AuthGate watching the auth state.
+    } catch (e) {
+      // Display error to the user
+      setState(() {
+        _errorMessage = e.toString().contains('user-not-found')
+            ? 'No user found for that email.'
+            : 'Login failed. Please check your credentials.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+  // -------------------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // --- NEW STYLISH HEADER ---
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 200,
-              decoration: BoxDecoration(
-                color: _primaryColor,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(50),
+      appBar: AppBar(
+        title: const Text('Login'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(32.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const Text(
+                  'Welcome Back!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF5D4037), // Brown 800
+                  ),
                 ),
-              ),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 30, bottom: 20),
-              child: const Text(
-                'Log In',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 34.0,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 30),
+
+                // Email Field
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        !value.contains('@')) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-            ),
+                const SizedBox(height: 20),
 
-            const SizedBox(height: 40.0),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              child: Form(
-                key: _formkey,
-                child: Column(
-                  children: [
-                    // --- Email Field ---
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      decoration: BoxDecoration(
-                          color: _textFieldBackground,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]),
-                      child: TextFormField(
-                        controller: mailcontroller,
-                        keyboardType: TextInputType.emailAddress, // Better UX
-                        // 🚀 FIX: Explicit Email Validation
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your E-mail';
-                          }
-                          if (!_emailRegExp.hasMatch(value.trim())) {
-                            return 'Enter a valid email address'; // Fixes the logged error
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                            // 🚀 FIX: Removed all borders for clean look
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            focusedErrorBorder: InputBorder.none,
-
-                            // Added padding to prevent content/hint from touching box top/bottom
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 15.0),
-                            isDense: true,
-                            hintText: "Email",
-                            hintStyle: TextStyle(
-                                color: _hintTextColor, fontSize: 16.0)),
-                      ),
+                // Password Field
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty || value.length < 6) {
+                      return 'Password must be at least 6 characters long';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 30),
 
-                    const SizedBox(height: 20.0),
-
-                    // --- Password Field ---
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      decoration: BoxDecoration(
-                          color: _textFieldBackground,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]),
-                      child: TextFormField(
-                        controller: passwordcontroller,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your Password';
-                          }
-                          return null;
-                        },
-                        obscureText: true,
-                        decoration: InputDecoration(
-                            // 🚀 FIX: Removed all borders for clean look
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            focusedErrorBorder: InputBorder.none,
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 15.0),
-                            isDense: true,
-                            hintText: "Password",
-                            hintStyle: TextStyle(
-                                color: _hintTextColor, fontSize: 16.0)),
-                      ),
+                // Error Message Display
+                if (_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: Text(
+                      _errorMessage!,
+                      style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
+                  ),
 
-                    const SizedBox(height: 15.0),
-
-                    // --- Forgot Password ---
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgotPassword()));
-                        },
-                        child: const Text(
-                          "Forgot Password?",
+                // Login Button
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _handleSignIn,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'LOG IN',
                           style: TextStyle(
-                            color: Colors.black54,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.underline,
-                          ),
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
+                ),
+                const SizedBox(height: 20),
+
+                // Divider and Sign Up option
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(color: Colors.grey.shade600),
                       ),
                     ),
-
-                    const SizedBox(height: 40.0),
-
-                    // --- Sign In Button (using Primary Color) ---
-                    GestureDetector(
-                      // 🚀 FIX: Calling the login function
-                      onTap: userLogin,
-                      child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          padding: const EdgeInsets.symmetric(vertical: 15.0),
-                          decoration: BoxDecoration(
-                              color: _primaryColor,
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: _primaryColor.withOpacity(0.4),
-                                  spreadRadius: 1,
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ]),
-                          child: const Center(
-                              child: Text(
-                            "Sign In",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold),
-                          ))),
-                    ),
+                    const Expanded(child: Divider()),
                   ],
                 ),
-              ),
-            ),
+                const SizedBox(height: 10),
 
-            const SizedBox(height: 30.0),
-
-            // --- Or Login With Text ---
-            Text(
-              "or Login with",
-              style: TextStyle(
-                  color: _primaryColor,
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w500),
-            ),
-
-            const SizedBox(height: 20.0),
-
-            // --- Social Login Icons ---
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    // Assuming AuthMethods().signInWithGoogle is correctly defined
-                    AuthMethods().signInWithGoogle(context);
-                  },
-                  child: Image.asset(
-                    "assets/images/google.png",
-                    height: 45,
-                    width: 45,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 30.0),
-                GestureDetector(
-                  onTap: () {
-                    // AuthMethods().signInWithApple();
-                  },
-                  child: Image.asset(
-                    "assets/images/apple1.png",
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              ],
-            ),
-
-            const SizedBox(height: 40.0),
-
-            // --- Don't have an account / SignUp link ---
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Don't have an account?",
-                    style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w500)),
-                const SizedBox(width: 5.0),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SignUp()));
+                TextButton(
+                  onPressed: () {
+                    // Navigate to Sign Up screen
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const SignUp()),
+                    );
                   },
                   child: Text(
-                    "SignUp",
+                    "Don't have an account? Sign Up",
                     style: TextStyle(
-                        color: _primaryColor,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20.0),
-          ],
+          ),
         ),
       ),
     );

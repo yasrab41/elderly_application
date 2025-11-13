@@ -1,49 +1,56 @@
-import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
+// 1. Remove unused imports
+// import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
+// import 'features/medicine_reminders/screens/reminder_list_page.dart';
+
+// 2. Add required imports for the Auth Gate
+import 'package:elderly_prototype_app/features/authentication/screens/login.dart';
+import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
 import 'package:elderly_prototype_app/firebase_options.dart';
-// Note: Keeping the signup import, but it won't be the home for now
-// import 'package:elderly_prototype_app/features/authentication/screens/signup3.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // <--- NEW
-
-// --- Imports for Medicine Reminder Feature ---
-import 'core/app_theme.dart'; // <--- NEW: Your custom theme
-import 'features/medicine_reminders/screens/reminder_list_page.dart'; // <--- NEW: The page you requested
-import 'features/medicine_reminders/data/datasources/notification_service.dart'; // <--- NEW: Notification setup
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/app_theme.dart';
+import 'features/medicine_reminders/data/datasources/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // 1. Firebase Initialization (already here)
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // 2. Notification Service Initialization (Must be called before runApp)
-  await NotificationService().init(); // <--- NEW
-
-  // 3. Run the app wrapped in ProviderScope for Riverpod
-  runApp(const ProviderScope(child: MyApp())); // <--- UPDATED
+  // Notification Service must be initialized before running the app
+  await NotificationService().init();
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+// 3. Change to ConsumerWidget
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  // 4. Add WidgetRef ref to the build method
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 5. Watch the auth provider. The state is User? (nullable Firebase User).
+    final user = ref.watch(authNotifierProvider);
+
+    // Check if the user object is not null (i.e., user is logged in).
+    final isLoggedIn = user != null;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Elderly Application Prototype',
-
-      // 1. Apply your defined light theme
       theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.light, // Force light mode
 
-      // 2. CRITICAL STEP: FORCE light mode
-      themeMode: ThemeMode.light,
+      // 6. 🛑 IMPLEMENT THE AUTH GATE using a simple null check 🛑
+      home: isLoggedIn
+          ? const StartScreen() // If user is logged in (User is not null)
+          : const Login(), // If user is not logged in (User is null)
 
-      // 2. Set the requested Home Screen
-      // NOTE: Temporarily set to ReminderListPage as requested.
-      //       Later, this will likely be your HomeScreen or LoginScreen.
-      home: const SignUp(), // <--- UPDATED
+      // Note: This implementation assumes the Firebase initialization is fast.
+      // If you need a proper "Loading" screen while Firebase checks the state,
+      // you would need to introduce an AsyncValue wrapper or a separate boolean
+      // state in your AuthNotifier to track initialization status.
+      // However, for simplicity and to match the current provider's return type (User?),
+      // the direct check is used.
     );
   }
 }

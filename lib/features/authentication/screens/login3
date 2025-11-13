@@ -1,6 +1,6 @@
 import 'package:elderly_prototype_app/features/authentication/screens/forgot_password.dart';
 import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
-import 'package:elderly_prototype_app/features/authentication/data/auth_methods.dart';
+import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/features/authentication/screens/signup3.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

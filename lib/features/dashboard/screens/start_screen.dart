@@ -1,11 +1,12 @@
 import 'package:elderly_prototype_app/features/dashboard/screens/fitness_screen_old.dart';
-import 'package:elderly_prototype_app/features/dashboard/screens/health_screen.dart';
+import 'package:elderly_prototype_app/features/dashboard/screens/profile_screen.dart';
+
 import 'package:elderly_prototype_app/features/dashboard/screens/home_screen.dart'
     as home;
-import 'package:elderly_prototype_app/features/dashboard/screens/setting_screen.dart';
+import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
+
 import 'package:flutter/material.dart';
 
-// 1. Import the new reusable navigation widget
 import 'widgets/curved_bottom_nav.dart';
 
 class StartScreen extends StatefulWidget {
@@ -16,14 +17,14 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  // Set index to 0 for the HomeScreen to be the initial page
   int _currentIndex = 0;
+
+  // 2. Update the screens list
   final List<Widget> _screens = [
     home.HomeScreen(),
-    HealthScreen(),
-    // Using placeholder screens for other pages
+    ReminderListPage(),
     FitnessScreen(),
-    SettingScreen(),
+    const ProfileScreen(), // 3. Use ProfileScreen instead of SettingScreen
   ];
 
   @override
@@ -36,8 +37,6 @@ class _StartScreenState extends State<StartScreen> {
         right: false,
         child: Scaffold(
           body: _screens[_currentIndex],
-
-          // 2. Use the new, cleaner widget here
           bottomNavigationBar: CurvedBottomNav(
             currentIndex: _currentIndex,
             onTap: (value) {

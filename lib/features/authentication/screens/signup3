@@ -1,6 +1,6 @@
-import 'package:elderly_prototype_app/features/authentication/screens/login3.dart';
+import 'package:elderly_prototype_app/features/authentication/screens/login3';
 import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
-import 'package:elderly_prototype_app/features/authentication/data/auth_methods.dart';
+import 'package:elderly_prototype_app/features/authentication/services/auth_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

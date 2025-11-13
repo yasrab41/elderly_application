@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
-// Import for date formatting
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:flutter/material.dart'; // For debugPrint
+import 'package:intl/intl.dart';
 
 import 'package:elderly_prototype_app/features/medicine_reminders/data/models/medicine_model.dart';
-
-import 'package:path/path.dart';
 
 // Handles all SQLite CRUD operations.
 class DatabaseService {
@@ -13,11 +12,11 @@ class DatabaseService {
   DatabaseService._init();
 
   final String remindersTable = 'reminders';
-  final String takenDosesTable = 'taken_doses'; // 1. New table name
+  final String takenDosesTable = 'taken_doses';
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('reminders.db');
+    _database = await _initDB('reminders_v4.db'); // New DB name to be safe
     return _database!;
   }
 
@@ -27,21 +26,22 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 3, // 2. INCREMENT VERSION to 3
+      version: 1, // Start at v1 for the new DB
       onCreate: _createDB,
-      onUpgrade: _onUpgrade, // 3. Ensure onUpgrade is set
     );
   }
 
+  // Create DB with userId columns from the start
   Future _createDB(Database db, int version) async {
-    // --- Create Reminders Table ---
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     const textType = 'TEXT NOT NULL';
     const boolType = 'BOOLEAN NOT NULL';
 
+    // 1. Add userId to reminders table
     await db.execute('''
       CREATE TABLE $remindersTable (
         id $idType,
+        userId $textType, 
         name $textType,
         dosage $textType,
         times $textType, 
@@ -51,52 +51,34 @@ class DatabaseService {
       )
     ''');
 
-    // 4. --- Create Taken Doses Table ---
-    await _createTakenDosesTable(db);
-  }
-
-  // 5. --- New Table Creation Method ---
-  Future<void> _createTakenDosesTable(Database db) async {
+    // 2. Add userId to taken_doses table and make the combo unique
     await db.execute('''
       CREATE TABLE $takenDosesTable (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId $textType,
         unique_dose_id TEXT NOT NULL,
         date_taken TEXT NOT NULL,
-        UNIQUE(unique_dose_id, date_taken)
+        UNIQUE(userId, unique_dose_id, date_taken)
       )
     ''');
   }
 
-  // 6. --- Handle Upgrading from v2 to v3 ---
-  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      // Logic from v1 to v2 (rebuild reminders table)
-      await db.execute('DROP TABLE IF EXISTS $remindersTable');
-      await _createDB(
-          db, newVersion); // This will call _createTakenDosesTable too
-    }
-    if (oldVersion < 3) {
-      // Logic from v2 to v3 (just add the new table)
-      await _createTakenDosesTable(db);
-    }
-  }
-
-  // --- 7. NEW: Get Taken Doses for Today ---
-  Future<Set<String>> getTakenDosesForDate(String date) async {
+  // --- 7. MODIFIED: Get Taken Doses ---
+  Future<Set<String>> getTakenDosesForDate(String date, String userId) async {
     final db = await instance.database;
     final result = await db.query(
       takenDosesTable,
       columns: ['unique_dose_id'],
-      where: 'date_taken = ?',
-      whereArgs: [date],
+      where: 'date_taken = ? AND userId = ?', // 3. Filter by userId
+      whereArgs: [date, userId],
     );
 
-    // Convert the list of maps into a Set of strings
     return result.map((json) => json['unique_dose_id'] as String).toSet();
   }
 
-  // --- 8. NEW: Mark a Dose as Taken ---
-  Future<void> markDoseAsTaken(String uniqueDoseId, String dateTaken) async {
+  // --- 8. MODIFIED: Mark a Dose as Taken ---
+  Future<void> markDoseAsTaken(
+      String uniqueDoseId, String dateTaken, String userId) async {
     final db = await instance.database;
     try {
       await db.insert(
@@ -104,49 +86,58 @@ class DatabaseService {
         {
           'unique_dose_id': uniqueDoseId,
           'date_taken': dateTaken,
+          'userId': userId, // 4. Add userId
         },
-        conflictAlgorithm:
-            ConflictAlgorithm.ignore, // Ignore if it already exists
+        conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     } catch (e) {
       debugPrint('Error marking dose as taken: $e');
     }
   }
 
-  // --- Reminder CRUD (No Changes) ---
+  // --- Reminder CRUD (All MODIFIED) ---
 
   // CREATE
-  Future<MedicineReminder> create(MedicineReminder reminder) async {
+  Future<MedicineReminder> create(
+      MedicineReminder reminder, String userId) async {
     final db = await instance.database;
-    final id = await db.insert(remindersTable, reminder.toMap());
+    // 5. Add userId to the map before inserting
+    var map = reminder.toMap();
+    map['userId'] = userId;
+
+    final id = await db.insert(remindersTable, map);
     return reminder.copyWith(id: id);
   }
 
   // READ ALL
-  Future<List<MedicineReminder>> readAllReminders() async {
+  Future<List<MedicineReminder>> readAllReminders(String userId) async {
     final db = await instance.database;
-    final result = await db.query(remindersTable, orderBy: 'startDate ASC');
+    // 6. Filter by userId
+    final result = await db.query(remindersTable,
+        where: 'userId = ?', whereArgs: [userId], orderBy: 'startDate ASC');
     return result.map((json) => MedicineReminder.fromMap(json)).toList();
   }
 
   // UPDATE
-  Future<int> update(MedicineReminder reminder) async {
+  Future<int> update(MedicineReminder reminder, String userId) async {
     final db = await instance.database;
+    // 7. Filter by userId
     return db.update(
       remindersTable,
       reminder.toMap(),
-      where: 'id = ?',
-      whereArgs: [reminder.id],
+      where: 'id = ? AND userId = ?',
+      whereArgs: [reminder.id, userId],
     );
   }
 
   // DELETE
-  Future<int> delete(int id) async {
+  Future<int> delete(int id, String userId) async {
     final db = await instance.database;
+    // 8. Filter by userId
     return await db.delete(
       remindersTable,
-      where: 'id = ?',
-      whereArgs: [id],
+      where: 'id = ? AND userId = ?',
+      whereArgs: [id, userId],
     );
   }
 }

@@ -101,13 +101,12 @@ class HomeScreen extends StatelessWidget {
                     itemCount: _gridItems.length,
                     itemBuilder: (context, index) {
                       final item = _gridItems[index];
-                      // 🚀 MODIFICATION 1: Determine the onTap function based on the item title
+                      // 🚀 NEW FUNCTIONALITY: Determine the onTap function based on the item title
                       VoidCallback onTapAction;
 
                       if (item['title'] == 'Medicine Reminders') {
-                        // This is the specific logic you requested
+                        // This is the specific navigation logic requested
                         onTapAction = () {
-                          // Use Navigator.push to navigate to a new screen
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -116,9 +115,9 @@ class HomeScreen extends StatelessWidget {
                           );
                         };
                       } else {
-                        // 🚀 MODIFICATION 2: Placeholder for future features
+                        // Placeholder for future features
                         onTapAction = () {
-                          // Placeholder logic for other features like On-Duty Pharmacies
+                          // Placeholder logic for other features
                           debugPrint('Tapped on: ${item['title']}');
                         };
                       }
@@ -129,7 +128,7 @@ class HomeScreen extends StatelessWidget {
                         item['icon'] as IconData,
                         item['color'] as Color,
                         item['iconColor'] as Color,
-                        // 🚀 MODIFICATION 3: Pass the determined onTap action
+                        // Pass the determined onTap action
                         onTapAction,
                       );
                     },
@@ -145,8 +144,6 @@ class HomeScreen extends StatelessWidget {
   }
 
   // --- Widget Builders ---
-  // (Omitted for brevity - assuming all other builders remain the same
-  // except for the one being modified below)
 
   Widget _buildCurvedHeader(BuildContext context) {
     return SliverAppBar(
@@ -155,10 +152,10 @@ class HomeScreen extends StatelessWidget {
       pinned: true,
       elevation: 10,
       shadowColor: _baseBrown,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
+      // leading: IconButton(
+      //   icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+      //   onPressed: () => Navigator.of(context).pop(),
+      // ),
       actions: [
         IconButton(
           icon: const Icon(Icons.mic, color: Colors.white),
@@ -212,7 +209,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back, John!',
+                      'Welcome back',
                       style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
@@ -264,10 +261,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🚀 MODIFIED: Added VoidCallback onTap parameter
+  // MODIFIED: Accepts a VoidCallback onTap parameter to handle navigation
   Widget _buildFeatureCard(String title, String subtitle, IconData icon,
       Color bgColor, Color iconColor, VoidCallback onTap) {
-    // <-- New parameter
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -275,7 +271,7 @@ class HomeScreen extends StatelessWidget {
       ),
       color: bgColor,
       child: InkWell(
-        // 🚀 MODIFIED: Use the passed-in onTap function
+        // Use the passed-in onTap function for navigation/action
         onTap: onTap,
         borderRadius: BorderRadius.circular(15.0),
         child: Padding(
