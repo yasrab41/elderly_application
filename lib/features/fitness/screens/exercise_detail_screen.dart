@@ -5,6 +5,9 @@ import 'package:elderly_prototype_app/features/fitness/providers/fitness_provide
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// ⭐️ NEW: StateProvider for the timer value in seconds
+final _timerValueProvider = StateProvider.autoDispose<int>((ref) => 0);
+
 class ExerciseDetailScreen extends ConsumerStatefulWidget {
   final String exerciseId;
 
@@ -20,23 +23,19 @@ class ExerciseDetailScreen extends ConsumerStatefulWidget {
 
 class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   Timer? _timer;
-  int _secondsElapsed = 0;
   bool _isRunning = false;
-
-  // ⭐️ We don't need a local _data variable, we will read from the provider
-  // late ExerciseWithProgress _data;
 
   @override
   void initState() {
     super.initState();
     // Initialize state from the provider
-    // We use ref.read *once* in initState to set the *initial* timer value.
     final data = ref
         .read(fitnessProvider)
         .value!
         .firstWhere((e) => e.exercise.id == widget.exerciseId);
 
-    _secondsElapsed = data.progress.secondsTracked;
+    // Initialize the Riverpod timer value from the persistent progress data
+    ref.read(_timerValueProvider.notifier).state = data.progress.secondsTracked;
   }
 
   @override
@@ -50,16 +49,20 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   }
 
   void _startTimer(ExerciseProgress progress) {
+    // Read current value from the provider
+    int currentSeconds = ref.read(_timerValueProvider);
+
     if (_isRunning || progress.isCompleted) return;
     setState(() {
       _isRunning = true;
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _secondsElapsed++;
-      });
+      // Update the Riverpod state provider every second
+      currentSeconds++;
+      ref.read(_timerValueProvider.notifier).state = currentSeconds;
+
       // Save every 5 seconds for robustness
-      if (_secondsElapsed % 5 == 0) {
+      if (currentSeconds % 5 == 0) {
         _saveTime();
       }
     });
@@ -79,17 +82,19 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
     _timer?.cancel();
     setState(() {
       _isRunning = false;
-      _secondsElapsed = 0;
     });
+    // Reset the Riverpod state provider to 0
+    ref.read(_timerValueProvider.notifier).state = 0;
     // Auto-save the reset
     _saveTime();
   }
 
   void _saveTime() {
-    // ⭐️ FIX: Call the method on the notifier
+    // Read the latest value from the provider before saving
+    final totalSeconds = ref.read(_timerValueProvider);
     ref
         .read(fitnessProvider.notifier)
-        .updateTime(widget.exerciseId, _secondsElapsed);
+        .updateTime(widget.exerciseId, totalSeconds);
   }
 
   void _incrementSet(ExerciseProgress progress) {
@@ -108,15 +113,41 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
         .updateSets(widget.exerciseId, newSetCount);
   }
 
-  void _toggleComplete() {
+  /// ⭐️ FIX: Toggles completion state and handles timer/UI updates.
+  void _markComplete() async {
+    // 1. Get current time tracked from the Riverpod state provider
+    final currentSeconds = ref.read(_timerValueProvider);
+
     // If running, pause and save time first
     if (_isRunning) {
       _pauseTimer();
     }
-    // Toggle completion state
-    ref
+
+    // 2. Perform the toggle and save the new state (including time)
+    await ref.read(fitnessProvider.notifier).toggleComplete(
+          widget.exerciseId,
+          currentSeconds,
+        );
+
+    // 3. Update local state and timer based on the new completion status
+    // ⭐️⭐️ THIS IS THE LINE FROM YOUR SCREENSHOT ⭐️⭐️
+    final updatedProgress = ref
         .read(fitnessProvider.notifier)
-        .toggleComplete(widget.exerciseId, _secondsElapsed);
+        .getExerciseProgress(widget.exerciseId);
+
+    if (updatedProgress.isCompleted) {
+      // If marked complete, stop the timer
+      _timer?.cancel();
+      setState(() {
+        _isRunning = false;
+      });
+    } else {
+      // If marked incomplete, reset the local timer value in the UI to 0
+      ref.read(_timerValueProvider.notifier).state = 0;
+    }
+
+    // 4. Update the screen state to trigger rebuilds (like the button color)
+    setState(() {});
   }
 
   String _formatTime(int totalSeconds) {
@@ -129,9 +160,10 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Listen to the provider to get real-time updates for sets and completion
-    // This is how we get the _data variable now.
+    // Watch the persistent data provider
     final asyncData = ref.watch(fitnessProvider);
+    // Watch the local timer value provider
+    final secondsElapsed = ref.watch(_timerValueProvider);
 
     return asyncData.when(
       loading: () =>
@@ -140,18 +172,12 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
       data: (data) {
         final exerciseWithProgress = data.firstWhere(
           (e) => e.exercise.id == widget.exerciseId,
-          // This orElse should ideally never be hit if IDs are correct
           orElse: () => data.first,
         );
 
         final exercise = exerciseWithProgress.exercise;
         final progress = exerciseWithProgress.progress;
         final bool isCompleted = progress.isCompleted;
-
-        // Sync local timer if it was changed externally and we're not running
-        if (!_isRunning && _secondsElapsed != progress.secondsTracked) {
-          _secondsElapsed = progress.secondsTracked;
-        }
 
         // Auto-stop on Complete: If marked complete, stop the local running timer
         if (isCompleted && _isRunning) {
@@ -245,11 +271,12 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                           const SizedBox(height: 16),
 
                           // Timer Controls
-                          _buildTimerControl(theme, isCompleted, progress),
+                          // Pass the secondsElapsed from the provider
+                          _buildTimerControl(
+                              theme, isCompleted, progress, secondsElapsed),
                           const SizedBox(height: 16),
 
                           // Sets Counter
-                          // ⭐️ FIX: Pass the entire 'progress' object
                           _buildSetCounter(theme, progress),
                           const SizedBox(height: 24),
 
@@ -276,10 +303,14 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                               label: Text(isCompleted
                                   ? AppStrings.markIncomplete
                                   : AppStrings.markComplete),
-                              onPressed: _toggleComplete,
+                              // ⭐️ FIX: Call the new _markComplete logic
+                              onPressed: _markComplete,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    isCompleted ? Colors.grey : Colors.green,
+                                // ⭐️ FIX: Toggling color based on completion state
+                                backgroundColor: isCompleted
+                                    ? theme.colorScheme.onSurface
+                                        .withOpacity(0.4)
+                                    : theme.colorScheme.primary,
                                 foregroundColor: Colors.white,
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 16),
@@ -366,8 +397,8 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   }
 
   // Timer control helper
-  Widget _buildTimerControl(
-      ThemeData theme, bool isCompleted, ExerciseProgress progress) {
+  Widget _buildTimerControl(ThemeData theme, bool isCompleted,
+      ExerciseProgress progress, int secondsElapsed) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -389,7 +420,8 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _formatTime(_secondsElapsed),
+                _formatTime(
+                    secondsElapsed), // ⭐️ FIX: Use secondsElapsed from provider
                 style: theme.textTheme.headlineMedium?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -429,9 +461,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   }
 
   // Set counter helper
-  // ⭐️ FIX 1: Change parameters to accept the full 'progress' object
   Widget _buildSetCounter(ThemeData theme, ExerciseProgress progress) {
-    // ⭐️ FIX 2: Extract 'isCompleted' and 'setCount' from the progress object
     final bool isCompleted = progress.isCompleted;
     final int setCount = progress.timesCompleted;
 
@@ -454,7 +484,6 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.remove_circle),
-                // ⭐️ FIX 3: 'progress' is now defined and can be passed correctly
                 onPressed: isCompleted ? null : () => _decrementSet(progress),
                 color: theme.colorScheme.primary,
                 iconSize: 30,
@@ -466,7 +495,6 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.add_circle),
-                // ⭐️ FIX 4: 'progress' is now defined and can be passed correctly
                 onPressed: isCompleted ? null : () => _incrementSet(progress),
                 color: theme.colorScheme.primary,
                 iconSize: 30,

@@ -1,21 +1,25 @@
 import 'package:elderly_prototype_app/features/fitness/data/datasources/fitness_db_helper.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:async';
 
-// ⭐️ CRITICAL CHANGE: Converted from FutureProvider to StateNotifierProvider
-// This allows the UI to call methods to update the state.
-
-// 1. Provider for the Notifier
-final fitnessProvider = StateNotifierProvider<FitnessNotifier,
-    AsyncValue<List<ExerciseWithProgress>>>((ref) {
-  return FitnessNotifier(ref.read(fitnessDbProvider));
+// --- Database Provider ---
+// Exposes the DB Helper instance (using the singleton)
+final fitnessDbProvider = Provider<FitnessDatabaseHelper>((ref) {
+  return FitnessDatabaseHelper();
 });
 
-// 2. Provider for the DB Helper
-final fitnessDbProvider = Provider((ref) => FitnessDatabaseHelper());
+// --- Category Filter Provider ---
+// Holds the currently selected category chip
+final fitnessCategoryFilterProvider =
+    StateProvider<ExerciseCategory>((ref) => ExerciseCategory.all);
 
-// 3. The Notifier class
+// --- Main Fitness Notifier ---
+// Manages the list of exercises and all progress updates
+final fitnessProvider = StateNotifierProvider<FitnessNotifier,
+    AsyncValue<List<ExerciseWithProgress>>>((ref) {
+  return FitnessNotifier(ref.watch(fitnessDbProvider));
+});
+
 class FitnessNotifier
     extends StateNotifier<AsyncValue<List<ExerciseWithProgress>>> {
   final FitnessDatabaseHelper _db;
@@ -24,7 +28,7 @@ class FitnessNotifier
     _loadData();
   }
 
-  // Load initial data from the database
+  // Initial data load
   Future<void> _loadData() async {
     try {
       final data = await _db.fetchAllExercisesWithProgress();
@@ -34,21 +38,21 @@ class FitnessNotifier
     }
   }
 
-  // Helper to update state locally
+  // Helper to update the state list without a full reload
   void _updateState(String exerciseId, ExerciseProgress newProgress) {
-    // Get the current list of exercises
-    final currentData = state.valueOrNull ?? [];
-    if (currentData.isEmpty) return;
+    // Get the current list of data
+    final List<ExerciseWithProgress> currentData = state.value ?? [];
 
-    // Create a new list with the updated progress
-    final updatedList = currentData.map((item) {
-      if (item.exercise.id == exerciseId) {
-        return item.copyWith(progress: newProgress);
-      }
-      return item;
-    }).toList();
+    // Find and update the specific exercise
+    final updatedList = [
+      for (final item in currentData)
+        if (item.exercise.id == exerciseId)
+          item.copyWith(progress: newProgress)
+        else
+          item,
+    ];
 
-    // Set the new list as the state
+    // Set the new state
     state = AsyncData(updatedList);
   }
 
@@ -68,49 +72,50 @@ class FitnessNotifier
     final newProgress = await _db.toggleComplete(exerciseId, finalSeconds);
     _updateState(exerciseId, newProgress);
   }
-}
 
-extension on AsyncValue<List<ExerciseWithProgress>> {
-  get valueOrNull => null;
-}
-
-// --------------------------------------------------------------------------
-// FILTERED VIEW PROVIDERS (These remain mostly the same)
-// --------------------------------------------------------------------------
-
-// 2. Filter State (Which category is currently selected)
-final fitnessCategoryFilterProvider =
-    StateProvider<ExerciseCategory>((ref) => ExerciseCategory.all);
-
-// 3. Timer State (Total Time Spent Exercising)
-final fitnessTotalTimeProvider = StateProvider<Duration>((ref) {
-  final allExercises = ref.watch(fitnessProvider).value ?? [];
-  if (allExercises.isEmpty) {
-    return Duration.zero;
+  // ⭐️⭐️ FIX: THIS IS THE METHOD THE ERROR IS ABOUT ⭐️⭐️
+  /// Fetches the current progress for a single exercise *synchronously* from the db helper.
+  ExerciseProgress getExerciseProgress(String exerciseId) {
+    // This calls the method on the database helper instance
+    return _db.getExerciseProgress(exerciseId);
   }
+}
 
-  // Calculate total time from all progress items
-  final totalSeconds = allExercises.fold<int>(
-    0,
-    (sum, item) => sum + item.progress.secondsTracked,
-  );
-
-  return Duration(seconds: totalSeconds);
-});
-
-// 4. Filtered List of Exercises
+// --------------------------------------------------------------------------
+// --- Filtered List Provider ---
+// --------------------------------------------------------------------------
+// Returns a *filtered* list based on the main provider + category filter
 final filteredFitnessListProvider =
     Provider<AsyncValue<List<ExerciseWithProgress>>>((ref) {
-  final allExercisesAsync = ref.watch(fitnessProvider);
-  final selectedCategory = ref.watch(fitnessCategoryFilterProvider);
+  final category = ref.watch(fitnessCategoryFilterProvider);
+  final asyncList = ref.watch(fitnessProvider);
 
-  return allExercisesAsync.whenData((allExercises) {
-    if (selectedCategory == ExerciseCategory.all) {
-      return allExercises;
-    } else {
-      return allExercises
-          .where((e) => e.exercise.category == selectedCategory)
-          .toList();
-    }
-  });
+  return asyncList.when(
+    data: (list) {
+      if (category == ExerciseCategory.all) {
+        return AsyncData(list);
+      }
+      final filteredList =
+          list.where((item) => item.exercise.category == category).toList();
+      return AsyncData(filteredList);
+    },
+    loading: () => const AsyncLoading(),
+    error: (e, s) => AsyncError(e, stackTrace: s),
+  );
+});
+
+// --- Total Time Provider ---
+// Calculates the total time spent today across all exercises
+final fitnessTotalTimeProvider = Provider<int>((ref) {
+  final asyncList = ref.watch(fitnessProvider);
+  return asyncList.when(
+    data: (list) {
+      return list.fold<int>(
+        0,
+        (sum, item) => sum + item.progress.secondsTracked,
+      );
+    },
+    loading: () => 0,
+    error: (e, s) => 0,
+  );
 });

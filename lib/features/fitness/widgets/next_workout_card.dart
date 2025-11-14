@@ -42,58 +42,58 @@ class NextWorkoutCard extends StatelessWidget {
     final exercise = exerciseWithProgress!.exercise;
     final progress = exerciseWithProgress!.progress;
 
-    // Determine the card's background color based on completion status
-    final cardColor = progress.isCompleted
-        ? theme.colorScheme.tertiaryContainer // A lighter color for completed
-        : const Color(0xFFC9C9FF); // A soothing lavender/purple for pending
-
-    final titleColor = progress.isCompleted
-        ? theme.colorScheme.onTertiaryContainer
-        : theme.colorScheme.onSurface;
+    // ⭐️ FIX: Style swapped to match the "You are doing great" card
+    final cardColor =
+        const Color(0xFF8D6E63); // Brown color from your reference image
+    final titleColor = Colors.white; // White text for contrast
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Card(
         color: cardColor,
-        elevation: 4,
+        elevation: 4, // Added elevation back
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
-          onTap: onStart,
+          onTap: onStart, // Start the workout on tap
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.fromLTRB(
+                20, 20, 10, 20), // Adjusted padding to fit play button
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        AppStrings.nextWorkoutTitle,
+                        'Next workout',
                         style: theme.textTheme.labelLarge?.copyWith(
-                          color: Colors.black54,
+                          color: Colors.white70,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        exercise.title, // Accessing via .exercise
+                        exercise.title,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: titleColor,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           Icon(Icons.timer_outlined,
-                              size: 18, color: titleColor.withOpacity(0.7)),
+                              color: Colors.white70, size: 18),
                           const SizedBox(width: 4),
                           Text(
                             '${exercise.duration.inMinutes} min',
                             style: theme.textTheme.titleMedium?.copyWith(
-                              color: titleColor.withOpacity(0.7),
+                              color: Colors.white70,
                             ),
                           ),
                         ],
@@ -101,17 +101,26 @@ class NextWorkoutCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Play Button
+                // ⭐️ FIX: Play button on the right
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
+                    color: Colors.white,
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: Icon(
-                    progress.isCompleted ? Icons.check : Icons.play_arrow,
-                    color: Colors.white,
-                    size: 30,
+                    Icons.play_arrow,
+                    color:
+                        cardColor, // Use the card color for the icon contrast
+                    size: 32,
                   ),
                 ),
               ],

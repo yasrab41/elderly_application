@@ -26,45 +26,51 @@ class TotalProgressCard extends ConsumerWidget {
     final progressPercent = total > 0 ? completed / total : 0.0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE6F3FF), // Light blue background
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            // ⭐️ FIX: Changed to brown gradient from your theme
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF673AB7), // Deep Purple
+                Color(0xFF2196F3), // Bright Blue
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // 1. Total Time/Timer Section
             Row(
               children: [
                 Icon(Icons.timer_outlined,
-                    color: Theme.of(context).colorScheme.primary),
+                    color: Colors.white), // ⭐️ FIX: Color
                 const SizedBox(width: 8),
                 Text(
                   'Total Time Spent',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Colors.white, // ⭐️ FIX: Color
                       ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
             Text(
-              _formatDuration(totalTime),
+              _formatDuration(Duration(seconds: totalTime)),
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Colors.white, // ⭐️ FIX: Color
                   ),
             ),
 
@@ -75,7 +81,7 @@ class TotalProgressCard extends ConsumerWidget {
               'Daily Progress',
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Colors.white, // ⭐️ FIX: Color
                   ),
             ),
             const SizedBox(height: 8),
@@ -85,8 +91,8 @@ class TotalProgressCard extends ConsumerWidget {
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
                 value: progressPercent,
-                backgroundColor: Colors.grey.shade300,
-                color: const Color(0xFF5CB85C), // Green for progress
+                backgroundColor: Colors.white.withOpacity(0.3), // ⭐️ FIX: Color
+                color: Colors.white, // ⭐️ FIX: Color
                 minHeight: 12,
               ),
             ),
@@ -98,20 +104,20 @@ class TotalProgressCard extends ConsumerWidget {
               children: [
                 Text(
                   '$completed of $total Exercises Completed',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Colors.white70, // ⭐️ FIX: Color
+                      ),
                 ),
                 Text(
                   '${(progressPercent * 100).toInt()}%',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF5CB85C),
+                        color: Colors.white, // ⭐️ FIX: Color
                       ),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ]),
+        ));
   }
 }

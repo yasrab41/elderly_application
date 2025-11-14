@@ -43,7 +43,12 @@ class FitnessDatabaseHelper {
     return allExercises;
   }
 
-  /// ⭐️ ADDED: Simulates updating the time for a single exercise.
+  /// Simulates fetching the progress for a single exercise.
+  ExerciseProgress getExerciseProgress(String exerciseId) {
+    return _progressStore[exerciseId] ?? ExerciseProgress();
+  }
+
+  /// Simulates updating the time for a single exercise.
   Future<ExerciseProgress> updateTime(
       String exerciseId, int totalSeconds) async {
     await Future.delayed(const Duration(milliseconds: 50));
@@ -56,7 +61,7 @@ class FitnessDatabaseHelper {
     return newProgress;
   }
 
-  /// ⭐️ ADDED: Simulates updating the sets for a single exercise.
+  /// Simulates updating the sets for a single exercise.
   Future<ExerciseProgress> updateSets(String exerciseId, int sets) async {
     await Future.delayed(const Duration(milliseconds: 50));
     final progress = _progressStore[exerciseId] ?? ExerciseProgress();
@@ -68,18 +73,33 @@ class FitnessDatabaseHelper {
     return newProgress;
   }
 
-  /// ⭐️ ADDED: Simulates toggling the completion status.
+  /// Simulates toggling the completion status.
+  /// ⭐️ FIX: Correct logic to set secondsTracked based on completion status.
   Future<ExerciseProgress> toggleComplete(
       String exerciseId, int finalSeconds) async {
     await Future.delayed(const Duration(milliseconds: 50));
     final progress = _progressStore[exerciseId] ?? ExerciseProgress();
+
+    final bool newIsCompleted = !progress.isCompleted;
+    int newSecondsTracked = 0; // Default to 0 if incomplete
+
+    if (newIsCompleted) {
+      // If marking as COMPLETE, we save the final time.
+      newSecondsTracked = finalSeconds;
+    } else {
+      // If marking as INCOMPLETE, we intentionally reset time to 0.
+      newSecondsTracked = 0;
+    }
+
     final newProgress = progress.copyWith(
-      isCompleted: !progress.isCompleted,
-      secondsTracked: finalSeconds, // Save final time on completion
+      isCompleted: newIsCompleted,
+      secondsTracked: newSecondsTracked,
+      // We don't touch timesCompleted here, that's handled by updateSets
     );
     _progressStore[exerciseId] = newProgress;
     if (kDebugMode) {
-      print('Toggled complete for $exerciseId: ${newProgress.isCompleted}');
+      print(
+          'Toggled complete for $exerciseId: ${newProgress.isCompleted}. Time set to: ${newProgress.secondsTracked}');
     }
     return newProgress;
   }
