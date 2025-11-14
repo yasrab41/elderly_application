@@ -174,9 +174,9 @@ class FitnessScreen extends ConsumerWidget {
       expandedHeight: 200.0,
       floating: false,
       pinned: true,
-      backgroundColor: const Color(0xFF8B4513).withOpacity(0.8), // Earthy Brown
+      backgroundColor: const Color(0xFF8B4513).withOpacity(0.1), // Earthy Brown
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
+        titlePadding: const EdgeInsets.only(left: 26.0, bottom: 30.0),
         title: Text(
           AppStrings.fitnessTitle,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -193,7 +193,7 @@ class FitnessScreen extends ConsumerWidget {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF48352A), // Dark brown
-                    const Color.fromARGB(255, 119, 61, 20), // Medium brown
+                    const Color(0xFF8D6E63), // Medium brown
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -204,7 +204,7 @@ class FitnessScreen extends ConsumerWidget {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                height: 30,
+                height: 25,
                 decoration: BoxDecoration(
                   color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: const BorderRadius.only(

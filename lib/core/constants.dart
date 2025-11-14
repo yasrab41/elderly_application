@@ -1,5 +1,4 @@
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
-import 'package:flutter/material.dart';
 
 class AppStrings {
   static const String appTitle = 'Elderly Care App';
@@ -33,8 +32,8 @@ final List<ExerciseModel> exercises = [
     duration: const Duration(minutes: 3),
     difficultyLevel: 1,
     instructions:
-        'Start slowly, clockwise then counter-clockwise. Do not rush or force movement.',
-    imageUrl: 'https://placehold.co/600x400/F7D9EA/C86DD7?text=Neck+Stretch',
+        'Slow, controlled circles to relax neck and shoulders. Start slowly, clockwise then counter-clockwise. Do not rush or force movement.',
+    imageUrl: 'assets/images/neck_stretch.jpg',
   ),
   ExerciseModel(
     id: 'S2',
@@ -45,7 +44,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 1,
     instructions:
         'Inhale as you lift shoulders, exhale as you relax them down. 10 reps each direction.',
-    imageUrl: 'https://placehold.co/600x400/F7D9EA/C86DD7?text=Shoulder+Rolls',
+    imageUrl: 'assets/images/neck_stretch.jpg',
   ),
   ExerciseModel(
     id: 'S3',
@@ -57,7 +56,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Sit up straight, gently twist to the left, holding for 30 seconds. Repeat right.',
-    imageUrl: 'https://placehold.co/600x400/F7D9EA/C86DD7?text=Torso+Twist',
+    imageUrl: 'assets/images/neck_stretch.jpg',
   ),
   ExerciseModel(
     id: 'S4',
@@ -68,7 +67,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 1,
     instructions:
         'Extend arms, gently pull fingers back towards body. Hold for 15 seconds.',
-    imageUrl: 'https://placehold.co/600x400/F7D9EA/C86DD7?text=Wrist+Stretch',
+    imageUrl: 'assets/images/neck_stretch.jpg',
   ),
   ExerciseModel(
     id: 'S5',
