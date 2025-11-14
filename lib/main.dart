@@ -1,8 +1,3 @@
-// 1. Remove unused imports
-// import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
-// import 'features/medicine_reminders/screens/reminder_list_page.dart';
-
-// 2. Add required imports for the Auth Gate
 import 'package:elderly_prototype_app/features/authentication/screens/login.dart';
 import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';

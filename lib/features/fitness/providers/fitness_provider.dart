@@ -1,166 +1,116 @@
-import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/features/fitness/data/datasources/fitness_db_helper.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'dart:async';
 
-// 1. Provider for the Database Helper
-final fitnessDbProvider = Provider((ref) => FitnessDatabaseHelper.instance);
+// ⭐️ CRITICAL CHANGE: Converted from FutureProvider to StateNotifierProvider
+// This allows the UI to call methods to update the state.
 
-// 2. Provider for the selected category filter
-final fitnessCategoryFilterProvider =
-    StateProvider<ExerciseCategory>((ref) => ExerciseCategory.all);
-
-// 3. Provider for the filtered list of exercises
-final filteredFitnessListProvider =
-    Provider<AsyncValue<List<ExerciseWithProgress>>>((ref) {
-  // Watch the main provider
-  final fitnessState = ref.watch(fitnessProvider);
-  // Watch the filter provider
-  final filter = ref.watch(fitnessCategoryFilterProvider);
-
-  return fitnessState.when(
-    data: (list) {
-      if (filter == ExerciseCategory.all) {
-        return AsyncData(list);
-      }
-      // Filter the list based on the selected category
-      final filteredList =
-          list.where((item) => item.exercise.category == filter).toList();
-      return AsyncData(filteredList);
-    },
-    loading: () => const AsyncLoading(),
-    error: (e, s) => AsyncError(e, stackTrace: s),
-  );
-});
-
-// 4. The Main State Notifier Provider
+// 1. Provider for the Notifier
 final fitnessProvider = StateNotifierProvider<FitnessNotifier,
     AsyncValue<List<ExerciseWithProgress>>>((ref) {
-  return FitnessNotifier(ref);
+  return FitnessNotifier(ref.read(fitnessDbProvider));
 });
 
-// 5. The State Notifier
+// 2. Provider for the DB Helper
+final fitnessDbProvider = Provider((ref) => FitnessDatabaseHelper());
+
+// 3. The Notifier class
 class FitnessNotifier
     extends StateNotifier<AsyncValue<List<ExerciseWithProgress>>> {
-  final Ref _ref;
   final FitnessDatabaseHelper _db;
-  String? _userId;
-  String _today = '';
 
-  FitnessNotifier(this._ref)
-      : _db = _ref.read(fitnessDbProvider),
-        super(const AsyncLoading()) {
-    _init();
+  FitnessNotifier(this._db) : super(const AsyncLoading()) {
+    _loadData();
   }
 
-  // Get current date as 'YYYY-MM-DD' string
-  String _getTodayDate() {
-    return DateFormat('yyyy-MM-dd').format(DateTime.now());
-  }
-
-  // Initialize and load data
-  Future<void> _init() async {
-    // 1. Get User ID from AuthService
-    // Note: AuthService is typically outside the feature folder in lib/features/authentication/
-    final user = _ref.read(authNotifierProvider);
-    if (user == null) {
-      state = AsyncError('User not logged in', stackTrace: StackTrace.empty);
-      return;
-    }
-    _userId = user.uid;
-    _today = _getTodayDate();
-
-    // 2. Load data
-    await loadData();
-  }
-
-  // Load data from database
-  Future<void> loadData() async {
-    state = const AsyncLoading();
+  // Load initial data from the database
+  Future<void> _loadData() async {
     try {
-      // 1. Initialize and seed database
-      await _db.database;
-      await _db.seedDatabase();
-
-      // 2. Get static exercises and today's progress
-      final staticExercises = await _db.getStaticExercises();
-      final todayProgress = await _db.getTodayProgress(_userId!, _today);
-
-      // 3. Merge the two lists
-      final mergedList = staticExercises.map((exercise) {
-        // Find progress for this exercise
-        final progress = todayProgress.firstWhere(
-          (p) => p.exerciseId == exercise.id,
-          // If no progress found, create a default one
-          orElse: () => ExerciseProgress(
-            userId: _userId!,
-            exerciseId: exercise.id,
-            date: _today,
-          ),
-        );
-        return ExerciseWithProgress(exercise: exercise, progress: progress);
-      }).toList();
-
-      state = AsyncData(mergedList);
+      final data = await _db.fetchAllExercisesWithProgress();
+      state = AsyncData(data);
     } catch (e, s) {
       state = AsyncError(e, stackTrace: s);
     }
   }
 
-  // --- Methods to update progress (Auto-Save) ---
+  // Helper to update state locally
+  void _updateState(String exerciseId, ExerciseProgress newProgress) {
+    // Get the current list of exercises
+    final currentData = state.valueOrNull ?? [];
+    if (currentData.isEmpty) return;
 
-  // Update sets
-  Future<void> updateSets(String exerciseId, int newSetCount) async {
-    // Get the current progress object
-    final currentProgress = _findProgressById(exerciseId).progress.copyWith(
-          setsCompleted: newSetCount,
-        );
-    // Save to DB
-    await _db.upsertExerciseProgress(currentProgress);
-    // Update local state
-    _updateStateWithNewProgress(exerciseId, currentProgress);
-  }
-
-  // Update time tracked
-  Future<void> updateTime(String exerciseId, int newSeconds) async {
-    final currentProgress = _findProgressById(exerciseId).progress.copyWith(
-          secondsTracked: newSeconds,
-        );
-    await _db.upsertExerciseProgress(currentProgress);
-    _updateStateWithNewProgress(exerciseId, currentProgress);
-  }
-
-  // Toggle exercise completion
-  Future<void> toggleComplete(String exerciseId, int finalSeconds) async {
-    final oldProgress = _findProgressById(exerciseId).progress;
-    final newProgress = oldProgress.copyWith(
-      isCompleted: !oldProgress.isCompleted,
-      secondsTracked: finalSeconds, // Save the final time
-    );
-    await _db.upsertExerciseProgress(newProgress);
-    _updateStateWithNewProgress(exerciseId, newProgress);
-  }
-
-  // --- Helper Methods ---
-
-  // Find a specific exercise from the current state
-  ExerciseWithProgress _findProgressById(String exerciseId) {
-    return state.value!.firstWhere((e) => e.exercise.id == exerciseId);
-  }
-
-  // Update the notifier's state immutably
-  void _updateStateWithNewProgress(
-      String exerciseId, ExerciseProgress newProgress) {
-    state.whenData((list) {
-      final index = list.indexWhere((e) => e.exercise.id == exerciseId);
-      if (index != -1) {
-        // Create a new list with the updated item
-        final newList = List<ExerciseWithProgress>.from(list);
-        newList[index] = list[index].copyWith(newProgress: newProgress);
-        state = AsyncData(newList);
+    // Create a new list with the updated progress
+    final updatedList = currentData.map((item) {
+      if (item.exercise.id == exerciseId) {
+        return item.copyWith(progress: newProgress);
       }
-    });
+      return item;
+    }).toList();
+
+    // Set the new list as the state
+    state = AsyncData(updatedList);
+  }
+
+  // --- Methods for the UI to call (as seen in exercise_detail_screen.dart) ---
+
+  Future<void> updateTime(String exerciseId, int totalSeconds) async {
+    final newProgress = await _db.updateTime(exerciseId, totalSeconds);
+    _updateState(exerciseId, newProgress);
+  }
+
+  Future<void> updateSets(String exerciseId, int sets) async {
+    final newProgress = await _db.updateSets(exerciseId, sets);
+    _updateState(exerciseId, newProgress);
+  }
+
+  Future<void> toggleComplete(String exerciseId, int finalSeconds) async {
+    final newProgress = await _db.toggleComplete(exerciseId, finalSeconds);
+    _updateState(exerciseId, newProgress);
   }
 }
+
+extension on AsyncValue<List<ExerciseWithProgress>> {
+  get valueOrNull => null;
+}
+
+// --------------------------------------------------------------------------
+// FILTERED VIEW PROVIDERS (These remain mostly the same)
+// --------------------------------------------------------------------------
+
+// 2. Filter State (Which category is currently selected)
+final fitnessCategoryFilterProvider =
+    StateProvider<ExerciseCategory>((ref) => ExerciseCategory.all);
+
+// 3. Timer State (Total Time Spent Exercising)
+final fitnessTotalTimeProvider = StateProvider<Duration>((ref) {
+  final allExercises = ref.watch(fitnessProvider).value ?? [];
+  if (allExercises.isEmpty) {
+    return Duration.zero;
+  }
+
+  // Calculate total time from all progress items
+  final totalSeconds = allExercises.fold<int>(
+    0,
+    (sum, item) => sum + item.progress.secondsTracked,
+  );
+
+  return Duration(seconds: totalSeconds);
+});
+
+// 4. Filtered List of Exercises
+final filteredFitnessListProvider =
+    Provider<AsyncValue<List<ExerciseWithProgress>>>((ref) {
+  final allExercisesAsync = ref.watch(fitnessProvider);
+  final selectedCategory = ref.watch(fitnessCategoryFilterProvider);
+
+  return allExercisesAsync.whenData((allExercises) {
+    if (selectedCategory == ExerciseCategory.all) {
+      return allExercises;
+    } else {
+      return allExercises
+          .where((e) => e.exercise.category == selectedCategory)
+          .toList();
+    }
+  });
+});
