@@ -23,7 +23,7 @@ class CurvedBottomNav extends StatelessWidget {
         Icon(Icons.home, size: 30, color: Colors.white),
         Icon(Icons.health_and_safety, size: 30, color: Colors.white),
         Icon(Icons.run_circle_outlined, size: 30, color: Colors.white),
-        Icon(Icons.settings, size: 30, color: Colors.white),
+        Icon(Icons.person, size: 30, color: Colors.white),
       ],
       onTap: onTap, // Pass the tap event up to the parent
     );

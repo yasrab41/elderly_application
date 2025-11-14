@@ -1,8 +1,8 @@
-import 'package:elderly_prototype_app/features/dashboard/screens/fitness_screen_old.dart';
 import 'package:elderly_prototype_app/features/dashboard/screens/profile_screen.dart';
 
 import 'package:elderly_prototype_app/features/dashboard/screens/home_screen.dart'
     as home;
+import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
 
 import 'package:flutter/material.dart';

@@ -1,3 +1,4 @@
+import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
 import 'package:flutter/material.dart';
 
@@ -111,6 +112,17 @@ class HomeScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const ReminderListPage(),
+                            ),
+                          );
+                        };
+                      } //
+                      else if (item['title'] == 'Daily Exercises') {
+                        // This is the specific navigation logic requested
+                        onTapAction = () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const FitnessScreen(),
                             ),
                           );
                         };
