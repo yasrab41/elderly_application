@@ -39,13 +39,6 @@ class MyApp extends ConsumerWidget {
       home: isLoggedIn
           ? const StartScreen() // If user is logged in (User is not null)
           : const Login(), // If user is not logged in (User is null)
-
-      // Note: This implementation assumes the Firebase initialization is fast.
-      // If you need a proper "Loading" screen while Firebase checks the state,
-      // you would need to introduce an AsyncValue wrapper or a separate boolean
-      // state in your AuthNotifier to track initialization status.
-      // However, for simplicity and to match the current provider's return type (User?),
-      // the direct check is used.
     );
   }
 }
