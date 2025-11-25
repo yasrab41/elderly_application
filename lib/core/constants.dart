@@ -9,7 +9,32 @@ class AppStrings {
   static const String startWorkout = 'Start Workout';
   static const String setsCompleted = 'Sets Completed:';
 
-  // ⭐️ ADDED: Strings for the detail screen
+  // --- Emergency / SOS Feature ---
+  static const String sosTitle = 'Send Emergency Alert';
+  static const String sosCancelButton = 'I AM SAFE / CANCEL';
+  static const String sosSendingAlert = 'Sending Alert in...';
+
+  // Settings & Contacts
+  static const String sosSettingsTitle = 'Emergency Contacts';
+  static const String sosSettingsSubtitle = 'Manage who to call in emergency';
+  static const String addContactTitle = 'Add New Contact';
+  static const String editContactTitle = 'Edit Contact';
+  static const String contactNameHint = 'Contact Name';
+  static const String contactPhoneHint = 'Phone Number (e.g., +90555...)';
+  static const String isPrimaryLabel = 'Set as Primary Contact';
+  static const String isPrimaryHint =
+      'This person will be called automatically.';
+  static const String saveLabel = 'Save Contact';
+  static const String deleteLabel = 'Delete';
+
+  // Messages
+  static const String emergencyAlertMessage =
+      'HELP! I have an emergency. My location: ';
+  static const String validationName = 'Please enter a name';
+  static const String validationPhone = 'Please enter a phone number';
+  static const String noContacts = 'No emergency contacts added yet.';
+
+  // ⭐️ ADDED: Strings for the detail screen of Exercise
   static const String steps = 'Steps';
   static const String exerciseTimer = 'Exercise Timer';
   static const String markComplete = 'Mark as Complete';

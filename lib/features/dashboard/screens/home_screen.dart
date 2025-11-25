@@ -1,3 +1,16 @@
+import 'dart:async'; // For Timer
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:vibration/vibration.dart';
+
+import 'package:elderly_prototype_app/core/app_theme.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
+import 'package:elderly_prototype_app/features/emergency/screens/emergency_settings_screen.dart';
+import 'package:elderly_prototype_app/features/emergency/providers/contact_provider.dart';
+
 import 'package:elderly_prototype_app/features/dashboard/screens/fitness_screen_old.dart';
 import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
@@ -7,7 +20,7 @@ import 'package:flutter/material.dart';
 // and define the ReminderListPage class for this code to run.
 // For now, it's included here as a basic placeholder.
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   HomeScreen({super.key});
 
   // Color Palette
@@ -19,10 +32,17 @@ class HomeScreen extends StatelessWidget {
 
   // Data for the GridView
   final List<Map<String, dynamic>> _gridItems = const [
+    // {
+    //   'title': 'On-Duty Pharmacies',
+    //   'subtitle': 'Find open pharmacies nearby',
+    //   'icon': Icons.local_hospital_outlined,
+    //   'color': Color(0xFFFCE4EC),
+    //   'iconColor': Color(0xFFE91E63),
+    // },
     {
-      'title': 'On-Duty Pharmacies',
-      'subtitle': 'Find open pharmacies nearby',
-      'icon': Icons.local_hospital_outlined,
+      'title': 'Emergency Contacts',
+      'subtitle': AppStrings.sosSettingsSubtitle,
+      'icon': Icons.admin_panel_settings_outlined,
       'color': Color(0xFFFCE4EC),
       'iconColor': Color(0xFFE91E63),
     },
@@ -56,8 +76,76 @@ class HomeScreen extends StatelessWidget {
     },
   ];
 
+  // --- 1. EMERGENCY LOGIC START ---
+
+  Future<void> _executeEmergencyAlert(
+      BuildContext context, WidgetRef ref) async {
+    // A. Get Contacts
+    final contactsState = ref.read(contactNotifierProvider);
+    final contacts = contactsState.maybeWhen(
+      data: (c) => c,
+      orElse: () => [],
+    );
+
+    if (contacts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.noContacts)),
+      );
+      return;
+    }
+
+    // B. Haptic Feedback
+    if (await Vibration.hasVibrator() == true) {
+      Vibration.vibrate(duration: 500);
+    }
+
+    try {
+      // C. Get Location
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+
+      // Create Google Maps Link
+      String mapLink =
+          "https://www.google.com/maps/search/?api=1&query=${position.latitude},${position.longitude}";
+      String message = "${AppStrings.emergencyAlertMessage} $mapLink";
+
+      // D. Send SMS (Using url_launcher for safety/reliability)
+      // This creates a group SMS intent
+      final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
+      final Uri smsUri = Uri(
+        scheme: 'sms',
+        path: recipientNumbers,
+        queryParameters: {'body': message},
+      );
+
+      if (await canLaunchUrl(smsUri)) {
+        await launchUrl(smsUri);
+      }
+
+      // E. Call Primary Contact
+      final primaryContact = contacts.firstWhere(
+        (c) => c.isPrimary,
+        orElse: () => contacts.first,
+      );
+
+      await FlutterPhoneDirectCaller.callNumber(primaryContact.phoneNumber);
+    } catch (e) {
+      debugPrint("Error in SOS: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Alert failed: $e")),
+      );
+    }
+  }
+
+  // --- EMERGENCY LOGIC END ---
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -72,7 +160,8 @@ class HomeScreen extends StatelessWidget {
               [
                 _buildWelcomeStatusCard(),
 
-                _buildEmergencyButton(),
+                // 2. Pass context and ref to the button builder
+                _buildEmergencyButton(context, ref),
 
                 // Health Hub Title
                 Padding(
@@ -116,8 +205,16 @@ class HomeScreen extends StatelessWidget {
                             ),
                           );
                         };
-                      } //
-                      else if (item['title'] == 'Daily Exercises') {
+                      } else if (item['title'] == 'Emergency Contacts') {
+                        onTapAction = () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const EmergencySettingsScreen()),
+                          );
+                        };
+                      } else if (item['title'] == 'Daily Exercises') {
                         onTapAction = () {
                           Navigator.push(
                             context,
@@ -252,35 +349,182 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmergencyButton() {
+  // Widget _buildEmergencyButton() {
+  //   return Padding(
+  //     padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
+  //     child: SizedBox(
+  //       width: double.infinity,
+  //       child: ElevatedButton.icon(
+  //         onPressed: () {
+  //           // Trigger emergency alert logic
+  //         },
+  //         icon: const Icon(Icons.emergency, color: Colors.white),
+  //         label: const Text(
+  //           'Send Emergency Alert',
+  //           style: TextStyle(
+  //               fontSize: 18.0,
+  //               color: Colors.white,
+  //               fontWeight: FontWeight.bold),
+  //         ),
+  //         style: ElevatedButton.styleFrom(
+  //           backgroundColor: _redAlert,
+  //           padding: const EdgeInsets.symmetric(vertical: 18),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(15.0),
+  //           ),
+  //           elevation: 5,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget _buildEmergencyButton(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton.icon(
           onPressed: () {
-            // Trigger emergency alert logic
+            // Show Countdown Dialog
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (dialogContext) =>
+                  _buildCountdownDialog(dialogContext, context, ref),
+            );
           },
           icon: const Icon(Icons.emergency, color: Colors.white),
-          label: const Text(
-            'Send Emergency Alert',
-            style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold),
-          ),
+          label: const Text(AppStrings.sosTitle,
+              style: TextStyle(
+                  fontSize: 18.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold)),
           style: ElevatedButton.styleFrom(
             backgroundColor: _redAlert,
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
+                borderRadius: BorderRadius.circular(15.0)),
             elevation: 5,
           ),
         ),
       ),
     );
   }
+
+  Widget _buildCountdownDialog(
+      BuildContext dialogContext, BuildContext parentContext, WidgetRef ref) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        int countdown = 5;
+
+        Timer? timer;
+
+        void startTimer() {
+          timer = Timer.periodic(const Duration(seconds: 1), (t) {
+            if (countdown <= 1) {
+              t.cancel();
+              if (Navigator.canPop(context)) Navigator.pop(context);
+              _executeEmergencyAlert(parentContext, ref);
+            } else {
+              countdown--;
+              if (context.mounted) setState(() {});
+            }
+          });
+        }
+
+        // Start timer only once
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (timer == null) {
+            startTimer();
+          }
+        });
+
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text("🚨 SOS ALERT",
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Sending alert in $countdown",
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              const Text("Alerting contacts with your location.",
+                  textAlign: TextAlign.center),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                timer?.cancel();
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel",
+                  style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold)),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  // Widget _buildCountdownDialog(
+  //     BuildContext dialogContext, BuildContext parentContext, WidgetRef ref) {
+  //   int countdown = 5;
+  //   return StatefulBuilder(
+  //     builder: (context, setState) {
+  //       // Simple timer logic
+  //       if (countdown == 5) {
+  //         Timer.periodic(const Duration(seconds: 1), (timer) {
+  //           if (countdown == 1) {
+  //             timer.cancel();
+  //             if (context.mounted) Navigator.pop(context); // Close dialog
+  //             _executeEmergencyAlert(parentContext, ref); // Trigger Logic
+  //           } else {
+  //             if (context.mounted) {
+  //               setState(() => countdown--);
+  //             }
+  //           }
+  //         });
+  //       }
+
+  //       return AlertDialog(
+  //         backgroundColor: Colors.white,
+  //         title: const Text("🚨 SOS ALERT",
+  //             style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text("${AppStrings.sosSendingAlert} $countdown",
+  //                 style: const TextStyle(
+  //                     fontSize: 20, fontWeight: FontWeight.bold)),
+  //             const SizedBox(height: 10),
+  //             const Text("Alerting contacts with your location.",
+  //                 textAlign: TextAlign.center),
+  //           ],
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.pop(
+  //                   context); // This cancels the timer implicitly by unmounting
+  //             },
+  //             child: const Text(AppStrings.sosCancelButton,
+  //                 style: TextStyle(
+  //                     color: Colors.green,
+  //                     fontSize: 16,
+  //                     fontWeight: FontWeight.bold)),
+  //           )
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   // MODIFIED: Accepts a VoidCallback onTap parameter to handle navigation
   Widget _buildFeatureCard(String title, String subtitle, IconData icon,
