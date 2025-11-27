@@ -151,29 +151,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Create Message
       String mapLink =
           "https://maps.google.com/?q=${position.latitude},${position.longitude}";
-      String message =
-          "${AppStrings.emergencyAlertMessage}\nLocation: $mapLink";
+      String messageRaw = "${AppStrings.emergencyAlertMessage}\n $mapLink";
 
       setState(() {
-        _lastSentMessage = message;
+        _lastSentMessage = messageRaw;
         _isEmergencyActive = true; // Show "I'm Safe" button
       });
 
       // C. Get Contacts
       final contacts = ref.read(contactNotifierProvider).value ?? [];
 
-      // D. Send SMS Intent (Opens Default SMS App with recipients pre-filled)
+      // D. Send SMS Intent
       final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
 
-      // *** FIX 1: Use encodeComponent (not QueryComponent) to force %20 instead of + ***
-      final encodedMessage = Uri.encodeComponent(message);
+      // *** FIX FOR PLUS SIGNS ***
+      // We use encodeComponent (not QueryComponent) to strictly use %20
+      final encodedMessage = Uri.encodeComponent(messageRaw);
 
-      // Manually construct the URI to prevent auto-encoding back to +
+      // Manually construct the URI string to avoid Dart's auto-encoding behavior (which uses +)
       final Uri smsUri =
           Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
 
       if (await canLaunchUrl(smsUri)) {
-        await launchUrl(smsUri); // Opens SMS App
+        // LaunchMode.externalApplication is safer for SMS apps
+        await launchUrl(smsUri, mode: LaunchMode.externalApplication);
       }
 
       // E. Call Primary Contact
@@ -200,19 +201,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _executeSafeAlert() async {
     try {
       final contacts = ref.read(contactNotifierProvider).value ?? [];
-      String message =
+      String messageRaw =
           "I AM SAFE NOW. Please disregard the previous emergency alert.";
 
       final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
 
-      // *** FIX 2: Use encodeComponent here as well for the Safe message ***
-      final encodedMessage = Uri.encodeComponent(message);
-
+      // *** FIX FOR PLUS SIGNS ***
+      final encodedMessage = Uri.encodeComponent(messageRaw);
       final Uri smsUri =
           Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
 
       if (await canLaunchUrl(smsUri)) {
-        await launchUrl(smsUri);
+        await launchUrl(smsUri, mode: LaunchMode.externalApplication);
       }
 
       setState(() {
@@ -280,6 +280,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 🔥 FIX 1: Eagerly load contacts when Home Screen opens.
+    // This solves the "No contacts added yet" error on first click!
+    ref.watch(contactNotifierProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
