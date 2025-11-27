@@ -16,7 +16,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.sosSettingsTitle),
-        backgroundColor: const Color(0xFF48352A),
+        backgroundColor: Colors.white,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showContactDialog(context, ref, null),
@@ -74,10 +74,9 @@ class EmergencySettingsScreen extends ConsumerWidget {
     );
   }
 
-  // Dialog for Adding OR Editing - MODIFIED
+  // Dialog for Adding OR Editing
   void _showContactDialog(
       BuildContext context, WidgetRef ref, EmergencyContact? contact) {
-    final _formKey = GlobalKey<FormState>(); // <-- GLOBAL KEY FOR VALIDATION
     final nameController = TextEditingController(text: contact?.name ?? '');
     final phoneController =
         TextEditingController(text: contact?.phoneNumber ?? '');
@@ -93,59 +92,33 @@ class EmergencySettingsScreen extends ConsumerWidget {
                   ? AppStrings.addContactTitle
                   : AppStrings.editContactTitle),
               content: SingleChildScrollView(
-                child: Form(
-                  // <-- WRAP IN FORM
-                  key: _formKey, // <-- ASSIGN KEY
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // --- NAME FIELD: CHANGED TO TEXTFORMFIELD AND ADDED VALIDATOR ---
-                      TextFormField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                            labelText: AppStrings.contactNameHint),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Contact name cannot be empty.'; // REQUIRED VALIDATION
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-
-                      // --- PHONE FIELD: CHANGED TO TEXTFORMFIELD AND ADDED VALIDATION ---
-                      TextFormField(
-                        controller: phoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: const InputDecoration(
-                            labelText: AppStrings.contactPhoneHint),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Contact number cannot be empty.'; // REQUIRED VALIDATION
-                          }
-
-                          // REGEX VALIDATION: Allows only digits and optional leading '+'
-                          final phoneRegExp = RegExp(r'^[+0-9]+$');
-                          if (!phoneRegExp.hasMatch(value.trim())) {
-                            return 'Number must only contain digits (0-9) and a leading "+".'; // NUMERIC/ALPHABETIC VALIDATION
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-
-                      SwitchListTile(
-                        title: const Text(AppStrings.isPrimaryLabel),
-                        subtitle: const Text(AppStrings.isPrimaryHint,
-                            style: TextStyle(fontSize: 11)),
-                        value: isPrimary,
-                        activeColor: Colors.red,
-                        onChanged: (val) {
-                          setState(() => isPrimary = val);
-                        },
-                      )
-                    ],
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                          labelText: AppStrings.contactNameHint),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(
+                          labelText: AppStrings.contactPhoneHint),
+                    ),
+                    const SizedBox(height: 15),
+                    SwitchListTile(
+                      title: const Text(AppStrings.isPrimaryLabel),
+                      subtitle: const Text(AppStrings.isPrimaryHint,
+                          style: TextStyle(fontSize: 11)),
+                      value: isPrimary,
+                      activeColor: Colors.red,
+                      onChanged: (val) {
+                        setState(() => isPrimary = val);
+                      },
+                    )
+                  ],
                 ),
               ),
               actions: [
@@ -155,7 +128,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF48352A), // Button color
+                    backgroundColor: Colors.blue, // Button color
                     foregroundColor: Colors.white, // Text color
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 14),
@@ -165,10 +138,8 @@ class EmergencySettingsScreen extends ConsumerWidget {
                     elevation: 3,
                   ),
                   onPressed: () {
-                    // --- VALIDATE FORM BEFORE PROCEEDING ---
-                    if (!_formKey.currentState!.validate()) {
-                      return; // Stop if validation fails (errors are shown on fields)
-                    }
+                    if (nameController.text.isEmpty ||
+                        phoneController.text.isEmpty) return;
 
                     if (contact == null) {
                       // ADD NEW
