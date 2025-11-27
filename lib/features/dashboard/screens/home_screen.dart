@@ -164,11 +164,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       // D. Send SMS Intent (Opens Default SMS App with recipients pre-filled)
       final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
-      final Uri smsUri = Uri(
-        scheme: 'sms',
-        path: recipientNumbers,
-        queryParameters: {'body': message},
-      );
+
+      // *** FIX 1: Use encodeComponent (not QueryComponent) to force %20 instead of + ***
+      final encodedMessage = Uri.encodeComponent(message);
+
+      // Manually construct the URI to prevent auto-encoding back to +
+      final Uri smsUri =
+          Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
 
       if (await canLaunchUrl(smsUri)) {
         await launchUrl(smsUri); // Opens SMS App
@@ -202,11 +204,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           "I AM SAFE NOW. Please disregard the previous emergency alert.";
 
       final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
-      final Uri smsUri = Uri(
-        scheme: 'sms',
-        path: recipientNumbers,
-        queryParameters: {'body': message},
-      );
+
+      // *** FIX 2: Use encodeComponent here as well for the Safe message ***
+      final encodedMessage = Uri.encodeComponent(message);
+
+      final Uri smsUri =
+          Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
 
       if (await canLaunchUrl(smsUri)) {
         await launchUrl(smsUri);

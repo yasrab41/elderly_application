@@ -29,7 +29,7 @@ class AppStrings {
 
   // Messages
   static const String emergencyAlertMessage =
-      'HELP! I have an emergency. My location: ';
+      'HELP! \nI have an emergency. \nMy location: ';
   static const String validationName = 'Please enter a name';
   static const String validationPhone = 'Please enter a phone number';
   static const String noContacts = 'No emergency contacts added yet.';
