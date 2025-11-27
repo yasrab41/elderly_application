@@ -1,3 +1,5 @@
+// lib/features/emergency/data/models/emergency_contact.dart
+
 class EmergencyContact {
   final int? id;
   final String userId; // Links contact to specific user
