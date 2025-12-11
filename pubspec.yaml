@@ -49,12 +49,15 @@ dependencies:
   url_launcher: ^6.3.1
   flutter_phone_direct_caller: ^2.1.1
   vibration: ^3.1.4
- 
   permission_handler: ^11.3.1 # For requesting permissions
+
+
 dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^2.4.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -67,11 +70,13 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
+
   assets:
-    - assets/images/car.png
-    - assets/images/google.png
-    - assets/images/apple1.png
-    - assets/images/neck_stretch.jpg
+    - assets/images/
+    # - assets/images/google.png
+    # - assets/images/apple1.png
+    # - assets/images/neck_stretch.jpg
+    # - assets/images/logo.png
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -96,3 +101,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  color: "#48352A" # Your app's base brown color
+  image: assets/images/logo.png # Make sure you have a logo image here
+  android_12:
+    color: "#48352A"
+    image: assets/images/logo.png
