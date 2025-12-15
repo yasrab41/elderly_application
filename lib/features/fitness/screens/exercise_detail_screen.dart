@@ -5,7 +5,7 @@ import 'package:elderly_prototype_app/features/fitness/providers/fitness_provide
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// ⭐️ NEW: StateProvider for the timer value in seconds
+/// StateProvider for the timer value in seconds
 final _timerValueProvider = StateProvider.autoDispose<int>((ref) => 0);
 
 class ExerciseDetailScreen extends ConsumerStatefulWidget {
@@ -52,7 +52,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
     // Read current value from the provider
     int currentSeconds = ref.read(_timerValueProvider);
 
-    if (_isRunning || progress.isCompleted) return;
+    if (_isRunning) return; // Allow running even if completed
     setState(() {
       _isRunning = true;
     });
@@ -98,7 +98,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   }
 
   void _incrementSet(ExerciseProgress progress) {
-    if (progress.isCompleted) return;
+    // sets logic remains same
     int newSetCount = progress.timesCompleted + 1;
     ref
         .read(fitnessProvider.notifier)
@@ -106,14 +106,14 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   }
 
   void _decrementSet(ExerciseProgress progress) {
-    if (progress.isCompleted || progress.timesCompleted == 0) return;
+    if (progress.timesCompleted == 0) return;
     int newSetCount = progress.timesCompleted - 1;
     ref
         .read(fitnessProvider.notifier)
         .updateSets(widget.exerciseId, newSetCount);
   }
 
-  /// ⭐️ FIX: Toggles completion state and handles timer/UI updates.
+  /// Toggles completion state and handles timer/UI updates.
   void _markComplete() async {
     // 1. Get current time tracked from the Riverpod state provider
     final currentSeconds = ref.read(_timerValueProvider);
@@ -129,14 +129,13 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
           currentSeconds,
         );
 
-    // 3. Update local state and timer based on the new completion status
-    // ⭐️⭐️ THIS IS THE LINE FROM YOUR SCREENSHOT ⭐️⭐️
+    // 3. Update local state
     final updatedProgress = ref
         .read(fitnessProvider.notifier)
         .getExerciseProgress(widget.exerciseId);
 
     if (updatedProgress.isCompleted) {
-      // If marked complete, stop the timer
+      // If marked complete, ensure timer is stopped
       _timer?.cancel();
       setState(() {
         _isRunning = false;
@@ -146,7 +145,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
       ref.read(_timerValueProvider.notifier).state = 0;
     }
 
-    // 4. Update the screen state to trigger rebuilds (like the button color)
+    // 4. Update the screen state to trigger rebuilds
     setState(() {});
   }
 
@@ -179,13 +178,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
         final progress = exerciseWithProgress.progress;
         final bool isCompleted = progress.isCompleted;
 
-        // Auto-stop on Complete: If marked complete, stop the local running timer
-        if (isCompleted && _isRunning) {
-          // Use addPostFrameCallback to avoid setState during build
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _pauseTimer();
-          });
-        }
+        // REMOVED: Auto-stop logic. Timer is now fully manual.
 
         return Scaffold(
           appBar: AppBar(
@@ -198,14 +191,26 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ⭐️ NEW: Exercise Image ⭐️
+                  // Exercise Image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(
-                      exercise.imageUrl, // e.g. "assets/images/squat.png"
+                    child: Image.network(
+                      exercise.imageUrl,
                       fit: BoxFit.cover,
                       height: 250,
                       width: double.infinity,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: 250,
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        );
+                      },
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           height: 250,
@@ -221,7 +226,6 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                       },
                     ),
                   ),
-
                   const SizedBox(height: 16),
 
                   Card(
@@ -244,14 +248,12 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ),
-                              // ⭐️ FIX: Using correct difficulty property
                               _DifficultyChip(
                                   difficulty: exercise.difficultyLevel),
                             ],
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            // ⭐️ FIX: Using correct duration property
                             '${exercise.duration.inMinutes} ${AppStrings.minutesShort} • ${exercise.category.name}',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: Colors.grey[600],
@@ -276,10 +278,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
-                          _buildStepsList(
-                              theme,
-                              exercise
-                                  .instructions), // ⭐️ FIX: Using correct property
+                          _buildStepsList(theme, exercise.instructions),
                           const SizedBox(height: 24),
 
                           // Action Buttons
@@ -292,13 +291,10 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                               label: Text(isCompleted
                                   ? AppStrings.markIncomplete
                                   : AppStrings.markComplete),
-                              // ⭐️ FIX: Call the new _markComplete logic
                               onPressed: _markComplete,
                               style: ElevatedButton.styleFrom(
-                                // ⭐️ FIX: Toggling color based on completion state
                                 backgroundColor: isCompleted
-                                    ? theme.colorScheme.onSurface
-                                        .withOpacity(0.4)
+                                    ? Colors.grey
                                     : theme.colorScheme.primary,
                                 foregroundColor: Colors.white,
                                 padding:
@@ -312,7 +308,6 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                             child: OutlinedButton(
                               child: const Text(AppStrings.close),
                               onPressed: () {
-                                // Pause timer if running when closing
                                 if (_isRunning) {
                                   _pauseTimer();
                                 }
@@ -340,7 +335,6 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
   }
 
   Widget _buildStepsList(ThemeData theme, String instructions) {
-    // ⭐️ FIX: Split instructions string into a list of steps
     final List<String> steps =
         instructions.split('. ').where((s) => s.isNotEmpty).toList();
 
@@ -373,7 +367,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                   child: Text(
                     steps[index].endsWith('.')
                         ? steps[index]
-                        : '${steps[index]}.', // Ensure punctuation
+                        : '${steps[index]}.',
                     style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
                   ),
                 ),
@@ -409,8 +403,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _formatTime(
-                    secondsElapsed), // ⭐️ FIX: Use secondsElapsed from provider
+                _formatTime(secondsElapsed),
                 style: theme.textTheme.headlineMedium?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -420,11 +413,9 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                 children: [
                   ElevatedButton(
                     child: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                    onPressed: isCompleted
-                        ? null
-                        : (_isRunning
-                            ? _pauseTimer
-                            : () => _startTimer(progress)),
+                    // Allow starting even if completed if user wants to do more
+                    onPressed:
+                        _isRunning ? _pauseTimer : () => _startTimer(progress),
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           _isRunning ? Colors.redAccent : Colors.blueAccent,
@@ -434,7 +425,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                   const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.refresh),
-                    onPressed: isCompleted ? null : _resetTimer,
+                    onPressed: _resetTimer, // Allow reset anytime
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.grey[300],
                       foregroundColor: Colors.grey[700],
@@ -473,7 +464,8 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.remove_circle),
-                onPressed: isCompleted ? null : () => _decrementSet(progress),
+                // Allow decrementing sets even if marked complete
+                onPressed: () => _decrementSet(progress),
                 color: theme.colorScheme.primary,
                 iconSize: 30,
               ),
@@ -484,7 +476,8 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.add_circle),
-                onPressed: isCompleted ? null : () => _incrementSet(progress),
+                // Allow incrementing sets even if marked complete
+                onPressed: () => _incrementSet(progress),
                 color: theme.colorScheme.primary,
                 iconSize: 30,
               ),
@@ -498,7 +491,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
 
 // Helper chip
 class _DifficultyChip extends StatelessWidget {
-  final int difficulty; // ⭐️ FIX: Use int
+  final int difficulty;
   const _DifficultyChip({required this.difficulty});
 
   String _getText() {

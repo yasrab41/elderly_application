@@ -8,11 +8,11 @@ String _formatDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, '0');
   final hours = twoDigits(duration.inHours);
   final minutes = twoDigits(duration.inMinutes.remainder(60));
-  // Display only minutes if hours is 0
+  // Display hours if present, otherwise just minutes
   if (duration.inHours == 0) {
-    return '${minutes}min';
+    return '${minutes}m';
   }
-  return '${hours}h ${minutes}min';
+  return '${hours}h ${minutes}m';
 }
 
 // Replaces the generic ProgressBanner with a card showing Total Time and Progress.
