@@ -8,6 +8,10 @@ String _formatDuration(Duration duration) {
   String twoDigits(int n) => n.toString().padLeft(2, '0');
   final hours = twoDigits(duration.inHours);
   final minutes = twoDigits(duration.inMinutes.remainder(60));
+  // Display only minutes if hours is 0
+  if (duration.inHours == 0) {
+    return '${minutes}min';
+  }
   return '${hours}h ${minutes}min';
 }
 
@@ -30,7 +34,7 @@ class TotalProgressCard extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            // ⭐️ FIX: Changed to brown gradient from your theme
+            // Using a calming, consistent gradient
             gradient: LinearGradient(
               colors: [
                 Color(0xFF673AB7), // Deep Purple
@@ -54,14 +58,13 @@ class TotalProgressCard extends ConsumerWidget {
             // 1. Total Time/Timer Section
             Row(
               children: [
-                Icon(Icons.timer_outlined,
-                    color: Colors.white), // ⭐️ FIX: Color
+                const Icon(Icons.timer_outlined, color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
                   'Total Time Spent',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white, // ⭐️ FIX: Color
+                        color: Colors.white,
                       ),
                 ),
               ],
@@ -70,7 +73,7 @@ class TotalProgressCard extends ConsumerWidget {
               _formatDuration(Duration(seconds: totalTime)),
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: Colors.white, // ⭐️ FIX: Color
+                    color: Colors.white,
                   ),
             ),
 
@@ -81,7 +84,7 @@ class TotalProgressCard extends ConsumerWidget {
               'Daily Progress',
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // ⭐️ FIX: Color
+                    color: Colors.white,
                   ),
             ),
             const SizedBox(height: 8),
@@ -91,8 +94,8 @@ class TotalProgressCard extends ConsumerWidget {
               borderRadius: BorderRadius.circular(10),
               child: LinearProgressIndicator(
                 value: progressPercent,
-                backgroundColor: Colors.white.withOpacity(0.3), // ⭐️ FIX: Color
-                color: Colors.white, // ⭐️ FIX: Color
+                backgroundColor: Colors.white.withOpacity(0.3),
+                color: Colors.white,
                 minHeight: 12,
               ),
             ),
@@ -105,14 +108,14 @@ class TotalProgressCard extends ConsumerWidget {
                 Text(
                   '$completed of $total Exercises Completed',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.white70, // ⭐️ FIX: Color
+                        color: Colors.white70,
                       ),
                 ),
                 Text(
                   '${(progressPercent * 100).toInt()}%',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white, // ⭐️ FIX: Color
+                        color: Colors.white,
                       ),
                 ),
               ],

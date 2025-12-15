@@ -1,29 +1,18 @@
-// A professional mock implementation for Fitness Database operations.
-// This class simulates fetching and updating exercise progress data
-// without connecting to an actual database (like SQLite or Firebase).
+// Uses SQFlite for persistent local storage of fitness progress.
 
+import 'dart:async';
 import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 class FitnessDatabaseHelper {
-  // Simulates a persistent store for progress data
-  // Key: Exercise ID, Value: ExerciseProgress
-  Map<String, ExerciseProgress> _progressStore = {
-    'S1': ExerciseProgress(
-        isCompleted: true, timesCompleted: 3, secondsTracked: 180),
-    'T1': ExerciseProgress(
-        isCompleted: false, timesCompleted: 1, secondsTracked: 60),
-    'C1': ExerciseProgress(
-        isCompleted: true, timesCompleted: 2, secondsTracked: 600),
-    'S3': ExerciseProgress(
-        isCompleted: false, timesCompleted: 0, secondsTracked: 0),
-    'T2': ExerciseProgress(
-        isCompleted: false, timesCompleted: 0, secondsTracked: 0),
-  };
-
-  // Store the last date the app was opened/reset for daily logic
-  DateTime _lastResetDate = DateTime.now();
+  // --- SQFlite Instances ---
+  late Database _database;
+  late bool _isInitialized = false;
+  final String _tableName = 'exerciseProgress';
+  final String _databaseName = 'fitness_db.db';
 
   // --- Singleton Pattern ---
   static final FitnessDatabaseHelper _instance =
@@ -31,103 +20,193 @@ class FitnessDatabaseHelper {
   factory FitnessDatabaseHelper() => _instance;
   FitnessDatabaseHelper._internal();
 
-  /// Checks if it's a new day and resets progress if needed.
-  void _checkAndResetDailyProgress() {
-    final now = DateTime.now();
-    // Simple check: Is the day, month, or year different?
-    if (now.day != _lastResetDate.day ||
-        now.month != _lastResetDate.month ||
-        now.year != _lastResetDate.year) {
+  /// Initializes SQFlite database and opens the connection.
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+
+    try {
+      final databasePath = await getDatabasesPath();
+      final path = join(databasePath, _databaseName);
+
+      _database = await openDatabase(
+        path,
+        version: 1,
+        onCreate: (db, version) {
+          return db.execute(
+            '''
+            CREATE TABLE $_tableName(
+              id TEXT PRIMARY KEY,
+              isCompleted INTEGER,
+              timesCompleted INTEGER,
+              secondsTracked INTEGER,
+              lastUpdateDate INTEGER
+            )
+            ''',
+          );
+        },
+      );
+      _isInitialized = true;
       if (kDebugMode) {
-        print("New day detected! Resetting all fitness progress.");
+        print('SQFlite database initialized successfully.');
       }
-
-      // Reset all progress entries to default (0 sets, 0 time, incomplete)
-      // We keep the keys but reset the values
-      _progressStore.updateAll((key, value) => ExerciseProgress(
-            isCompleted: false,
-            timesCompleted: 0,
-            secondsTracked: 0,
-          ));
-
-      // Update the reset date
-      _lastResetDate = now;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error initializing SQFlite: $e');
+      }
+      // Re-throw the error so the provider can handle the failure
+      rethrow;
     }
+  }
+
+  // --- Data Loading and Reset Logic ---
+
+  /// Loads all progress from SQFlite
+  Future<Map<String, ExerciseProgress>> _loadAllProgress() async {
+    if (!_isInitialized) await initialize();
+
+    final progressMap = <String, ExerciseProgress>{};
+    try {
+      final List<Map<String, dynamic>> maps = await _database.query(_tableName);
+
+      for (var map in maps) {
+        final progress = ExerciseProgress.fromSqlite(map);
+        progressMap[map['id'] as String] = progress;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading progress from SQFlite: $e');
+      }
+    }
+    return progressMap;
+  }
+
+  /// This helper finds the progress for an exercise from the map, applying the daily reset check.
+  ExerciseProgress _getResettableProgress(
+      String exerciseId, Map<String, ExerciseProgress> progressMap) {
+    // Get the current saved progress, or initial if none exists
+    final progress = progressMap[exerciseId] ?? ExerciseProgress.initial();
+
+    // Check if the progress was last updated on a different day
+    final now = DateTime.now();
+    final lastUpdate = progress.lastUpdateDate;
+
+    final isNewDay = now.year != lastUpdate.year ||
+        now.month != lastUpdate.month ||
+        now.day != lastUpdate.day;
+
+    if (isNewDay) {
+      // If it's a new day, reset all progress metrics to 0/false,
+      // but preserve the old lastUpdateDate until a new action is saved.
+      return ExerciseProgress(
+        isCompleted: false,
+        timesCompleted: 0,
+        secondsTracked: 0,
+        lastUpdateDate: lastUpdate,
+      );
+    }
+    return progress;
   }
 
   /// Simulates fetching all exercises with the user's current progress.
   Future<List<ExerciseWithProgress>> fetchAllExercisesWithProgress() async {
-    // Check for daily reset before returning data
-    _checkAndResetDailyProgress();
+    if (!_isInitialized) await initialize();
 
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    final progressMap = await _loadAllProgress();
 
     final allExercises = exercises.map((exercise) {
-      final progress = _progressStore[exercise.id] ?? ExerciseProgress();
+      // Use the helper to check for and apply daily reset
+      final progress = _getResettableProgress(exercise.id, progressMap);
       return ExerciseWithProgress(exercise: exercise, progress: progress);
     }).toList();
 
     return allExercises;
   }
 
-  /// ⭐️ ADDED: Fetches the progress for a single exercise synchronously.
-  /// This fixes the error in ExerciseDetailScreen.
+  /// Fetches the progress for a single exercise synchronously (Placeholder, relies on provider state).
   ExerciseProgress getExerciseProgress(String exerciseId) {
-    return _progressStore[exerciseId] ?? ExerciseProgress();
+    return ExerciseProgress.initial();
   }
 
-  /// Simulates updating the time for a single exercise.
+  // --- Data Saving ---
+
+  Future<ExerciseProgress> _saveProgress(
+      String exerciseId, ExerciseProgress newProgress) async {
+    if (!_isInitialized) await initialize();
+
+    // Ensure the lastUpdateDate is set to NOW when saving to mark this moment
+    final finalProgress = newProgress.copyWith(lastUpdateDate: DateTime.now());
+
+    try {
+      // Use ConflictAlgorithm.replace to either insert a new record or update an existing one
+      await _database.insert(
+        _tableName,
+        finalProgress.toSqlite(exerciseId),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      if (kDebugMode) {
+        print('Saved progress for $exerciseId to SQFlite.');
+      }
+      return finalProgress;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error saving progress for $exerciseId: $e');
+      }
+      // Return the desired progress even if save fails, to update local state
+      return finalProgress;
+    }
+  }
+
+  /// Updates the time for a single exercise.
   Future<ExerciseProgress> updateTime(
       String exerciseId, int totalSeconds) async {
-    await Future.delayed(const Duration(milliseconds: 50));
-    final progress = _progressStore[exerciseId] ?? ExerciseProgress();
-    final newProgress = progress.copyWith(secondsTracked: totalSeconds);
-    _progressStore[exerciseId] = newProgress;
-    if (kDebugMode) {
-      print('Updated time for $exerciseId: $totalSeconds seconds');
-    }
-    return newProgress;
+    // Load current state to base the update on
+    final initialProgress =
+        (await _loadAllProgress())[exerciseId] ?? ExerciseProgress.initial();
+
+    // Check for daily reset on the read
+    final progress =
+        _getResettableProgress(exerciseId, {exerciseId: initialProgress});
+
+    // Simple logic: Mark complete if time exceeds 90% of target duration
+    final targetDuration =
+        exercises.firstWhere((e) => e.id == exerciseId).duration.inSeconds;
+    final isNowComplete = totalSeconds >= (targetDuration * 0.9);
+
+    final newProgress = progress.copyWith(
+      secondsTracked: totalSeconds,
+      isCompleted: isNowComplete,
+    );
+    return await _saveProgress(exerciseId, newProgress);
   }
 
-  /// Simulates updating the sets for a single exercise.
+  /// Updates the sets for a single exercise.
   Future<ExerciseProgress> updateSets(String exerciseId, int sets) async {
-    await Future.delayed(const Duration(milliseconds: 50));
-    final progress = _progressStore[exerciseId] ?? ExerciseProgress();
+    final initialProgress =
+        (await _loadAllProgress())[exerciseId] ?? ExerciseProgress.initial();
+    final progress =
+        _getResettableProgress(exerciseId, {exerciseId: initialProgress});
+
     final newProgress = progress.copyWith(timesCompleted: sets);
-    _progressStore[exerciseId] = newProgress;
-    if (kDebugMode) {
-      print('Updated sets for $exerciseId: $sets sets');
-    }
-    return newProgress;
+    return await _saveProgress(exerciseId, newProgress);
   }
 
-  /// Simulates toggling the completion status.
+  /// Toggles the completion status.
   Future<ExerciseProgress> toggleComplete(
       String exerciseId, int finalSeconds) async {
-    await Future.delayed(const Duration(milliseconds: 50));
-    final progress = _progressStore[exerciseId] ?? ExerciseProgress();
+    final initialProgress =
+        (await _loadAllProgress())[exerciseId] ?? ExerciseProgress.initial();
+    final progress =
+        _getResettableProgress(exerciseId, {exerciseId: initialProgress});
 
     final bool newIsCompleted = !progress.isCompleted;
-    int newSecondsTracked = 0; // Default to 0 if incomplete
+    int newSecondsTracked = newIsCompleted ? finalSeconds : 0;
 
-    if (newIsCompleted) {
-      // If marking as COMPLETE, we save the final time.
-      newSecondsTracked = finalSeconds;
-    } else {
-      // If marking as INCOMPLETE, we intentionally reset time to 0.
-      newSecondsTracked = 0;
-    }
-
+    // Update completed status and time
     final newProgress = progress.copyWith(
       isCompleted: newIsCompleted,
       secondsTracked: newSecondsTracked,
     );
-    _progressStore[exerciseId] = newProgress;
-    if (kDebugMode) {
-      print(
-          'Toggled complete for $exerciseId: ${newProgress.isCompleted}. Time set to: ${newProgress.secondsTracked}');
-    }
-    return newProgress;
+
+    return await _saveProgress(exerciseId, newProgress);
   }
 }

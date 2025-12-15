@@ -42,22 +42,55 @@ class ExerciseProgress {
   final bool isCompleted;
   final int timesCompleted; // How many sets
   final int secondsTracked; // ⭐️ ADDED: For the timer
+  final DateTime
+      lastUpdateDate; // To track the last time this progress was updated
 
   ExerciseProgress({
     this.isCompleted = false,
     this.timesCompleted = 0,
-    this.secondsTracked = 0, // ⭐️ ADDED
+    this.secondsTracked = 0,
+    required this.lastUpdateDate,
   });
+
+  // Default factory for new/uninitialized progress
+  factory ExerciseProgress.initial() {
+    return ExerciseProgress(lastUpdateDate: DateTime.now());
+  }
+
+  // ⭐️ SQFLITE: Convert to a map for saving to the local database
+  Map<String, dynamic> toSqlite(String exerciseId) {
+    return {
+      'id': exerciseId, // The primary key (exercise ID)
+      'isCompleted': isCompleted ? 1 : 0, // SQLite stores boolean as INTEGER
+      'timesCompleted': timesCompleted,
+      'secondsTracked': secondsTracked,
+      // Store date as milliseconds since epoch (integer)
+      'lastUpdateDate': lastUpdateDate.millisecondsSinceEpoch,
+    };
+  }
+
+  // ⭐️ SQFLITE: Create from a local database map
+  factory ExerciseProgress.fromSqlite(Map<String, dynamic> data) {
+    return ExerciseProgress(
+      isCompleted: (data['isCompleted'] as int) == 1,
+      timesCompleted: data['timesCompleted'] as int,
+      secondsTracked: data['secondsTracked'] as int,
+      lastUpdateDate:
+          DateTime.fromMillisecondsSinceEpoch(data['lastUpdateDate'] as int),
+    );
+  }
 
   ExerciseProgress copyWith({
     bool? isCompleted,
     int? timesCompleted,
     int? secondsTracked,
+    DateTime? lastUpdateDate,
   }) {
     return ExerciseProgress(
       isCompleted: isCompleted ?? this.isCompleted,
       timesCompleted: timesCompleted ?? this.timesCompleted,
-      secondsTracked: secondsTracked ?? this.secondsTracked, // ⭐️ ADDED
+      secondsTracked: secondsTracked ?? this.secondsTracked,
+      lastUpdateDate: lastUpdateDate ?? this.lastUpdateDate,
     );
   }
 }

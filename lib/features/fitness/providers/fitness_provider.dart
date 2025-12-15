@@ -15,7 +15,8 @@ final fitnessCategoryFilterProvider =
 // --- Main Fitness Notifier ---
 final fitnessProvider = StateNotifierProvider<FitnessNotifier,
     AsyncValue<List<ExerciseWithProgress>>>((ref) {
-  return FitnessNotifier(ref.watch(fitnessDbProvider));
+  final dbHelper = ref.watch(fitnessDbProvider);
+  return FitnessNotifier(dbHelper);
 });
 
 class FitnessNotifier
@@ -26,9 +27,12 @@ class FitnessNotifier
     _loadData();
   }
 
-  // Initial data load
+  // Initial data load (and manual reload)
   Future<void> _loadData() async {
+    state = const AsyncLoading();
     try {
+      // ⭐️ FIX: Ensure SQFLITE is initialized before fetching
+      await _db.initialize();
       final data = await _db.fetchAllExercisesWithProgress();
       state = AsyncData(data);
     } catch (e, s) {
@@ -54,7 +58,9 @@ class FitnessNotifier
   // --- UI Methods ---
 
   Future<void> updateTime(String exerciseId, int totalSeconds) async {
+    // Update the DB and wait for the new progress
     final newProgress = await _db.updateTime(exerciseId, totalSeconds);
+    // Update the local state synchronously
     _updateState(exerciseId, newProgress);
   }
 
@@ -68,9 +74,22 @@ class FitnessNotifier
     _updateState(exerciseId, newProgress);
   }
 
-  /// ⭐️ FIX: Expose the getExerciseProgress method from the DB helper
+  /// Fetches the current progress for a single exercise synchronously
+  /// by querying the currently loaded data in the state.
   ExerciseProgress getExerciseProgress(String exerciseId) {
-    return _db.getExerciseProgress(exerciseId);
+    final currentData = state.value;
+    if (currentData == null) {
+      // If data is still loading or errored, return initial progress
+      return ExerciseProgress.initial();
+    }
+
+    // Find the matching exercise in the loaded state
+    final item = currentData.firstWhere(
+      (e) => e.exercise.id == exerciseId,
+      orElse: () => throw StateError('Exercise not found: $exerciseId'),
+    );
+
+    return item.progress;
   }
 }
 
