@@ -4,7 +4,6 @@
 
 import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
-
 import 'package:flutter/foundation.dart';
 
 class FitnessDatabaseHelper {
@@ -23,18 +22,47 @@ class FitnessDatabaseHelper {
         isCompleted: false, timesCompleted: 0, secondsTracked: 0),
   };
 
+  // Store the last date the app was opened/reset for daily logic
+  DateTime _lastResetDate = DateTime.now();
+
   // --- Singleton Pattern ---
   static final FitnessDatabaseHelper _instance =
       FitnessDatabaseHelper._internal();
   factory FitnessDatabaseHelper() => _instance;
   FitnessDatabaseHelper._internal();
 
+  /// Checks if it's a new day and resets progress if needed.
+  void _checkAndResetDailyProgress() {
+    final now = DateTime.now();
+    // Simple check: Is the day, month, or year different?
+    if (now.day != _lastResetDate.day ||
+        now.month != _lastResetDate.month ||
+        now.year != _lastResetDate.year) {
+      if (kDebugMode) {
+        print("New day detected! Resetting all fitness progress.");
+      }
+
+      // Reset all progress entries to default (0 sets, 0 time, incomplete)
+      // We keep the keys but reset the values
+      _progressStore.updateAll((key, value) => ExerciseProgress(
+            isCompleted: false,
+            timesCompleted: 0,
+            secondsTracked: 0,
+          ));
+
+      // Update the reset date
+      _lastResetDate = now;
+    }
+  }
+
   /// Simulates fetching all exercises with the user's current progress.
   Future<List<ExerciseWithProgress>> fetchAllExercisesWithProgress() async {
+    // Check for daily reset before returning data
+    _checkAndResetDailyProgress();
+
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // ⭐️ FIX: Changed AppStrings.exercises to just exercises (the global list)
     final allExercises = exercises.map((exercise) {
       final progress = _progressStore[exercise.id] ?? ExerciseProgress();
       return ExerciseWithProgress(exercise: exercise, progress: progress);
@@ -43,7 +71,8 @@ class FitnessDatabaseHelper {
     return allExercises;
   }
 
-  /// Simulates fetching the progress for a single exercise.
+  /// ⭐️ ADDED: Fetches the progress for a single exercise synchronously.
+  /// This fixes the error in ExerciseDetailScreen.
   ExerciseProgress getExerciseProgress(String exerciseId) {
     return _progressStore[exerciseId] ?? ExerciseProgress();
   }
@@ -74,7 +103,6 @@ class FitnessDatabaseHelper {
   }
 
   /// Simulates toggling the completion status.
-  /// ⭐️ FIX: Correct logic to set secondsTracked based on completion status.
   Future<ExerciseProgress> toggleComplete(
       String exerciseId, int finalSeconds) async {
     await Future.delayed(const Duration(milliseconds: 50));
@@ -94,7 +122,6 @@ class FitnessDatabaseHelper {
     final newProgress = progress.copyWith(
       isCompleted: newIsCompleted,
       secondsTracked: newSecondsTracked,
-      // We don't touch timesCompleted here, that's handled by updateSets
     );
     _progressStore[exerciseId] = newProgress;
     if (kDebugMode) {

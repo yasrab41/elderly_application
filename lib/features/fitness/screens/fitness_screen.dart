@@ -18,6 +18,9 @@ class FitnessScreen extends ConsumerWidget {
     // Watch the main provider which contains ALL exercises and progress
     final allExercisesAsync = ref.watch(fitnessProvider);
 
+    // ⭐️ NEW: Watch the random next workout provider
+    final nextWorkout = ref.watch(randomNextWorkoutProvider);
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -27,8 +30,6 @@ class FitnessScreen extends ConsumerWidget {
           // 2. Content
           allExercisesAsync.when(
             data: (allExercises) {
-              final nextWorkout = _findNextIncompleteWorkout(allExercises);
-
               return SliverList(
                 delegate: SliverChildListDelegate(
                   [
@@ -46,7 +47,6 @@ class FitnessScreen extends ConsumerWidget {
                     NextWorkoutCard(
                       exerciseWithProgress: nextWorkout,
                       onStart: () {
-                        // No progressPercent argument needed now
                         if (nextWorkout != null) {
                           Navigator.push(
                             context,
@@ -123,20 +123,7 @@ class FitnessScreen extends ConsumerWidget {
     );
   }
 
-  // Helper to find the next exercise to do
-  ExerciseWithProgress? _findNextIncompleteWorkout(
-      List<ExerciseWithProgress> exercises) {
-    if (exercises.isEmpty) return null;
-
-    // Find the exercise that has not been completed today (isCompleted: false)
-    final next = exercises.firstWhere(
-      (e) => !e.progress.isCompleted,
-      orElse: () =>
-          exercises.first, // If all are complete, default to the first one
-    );
-
-    return next;
-  }
+  // NOTE: _findNextIncompleteWorkout removed as we now use the provider.
 
   // Helper to build the section titles
   Widget _buildSectionHeader(BuildContext context, String title) {
@@ -167,16 +154,15 @@ class FitnessScreen extends ConsumerWidget {
 
   // Custom AppBar to match the "Training" header design
   Widget _buildSliverAppBar(BuildContext context, WidgetRef ref) {
-    // totalTime is still watched here, primarily for demonstration/context
     final totalTime = ref.watch(fitnessTotalTimeProvider);
 
     return SliverAppBar(
       expandedHeight: 200.0,
       floating: false,
       pinned: true,
-      backgroundColor: const Color(0xFF8B4513).withOpacity(0.1), // Earthy Brown
+      backgroundColor: const Color(0xFF8B4513).withOpacity(0.8), // Earthy Brown
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 26.0, bottom: 30.0),
+        titlePadding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
         title: Text(
           AppStrings.fitnessTitle,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -193,7 +179,7 @@ class FitnessScreen extends ConsumerWidget {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF48352A), // Dark brown
-                    const Color(0xFF8D6E63), // Medium brown
+                    const Color(0xFF8B4513), // Medium brown
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -204,7 +190,7 @@ class FitnessScreen extends ConsumerWidget {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                height: 25,
+                height: 30,
                 decoration: BoxDecoration(
                   color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: const BorderRadius.only(

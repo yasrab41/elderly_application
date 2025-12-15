@@ -1,20 +1,18 @@
 import 'package:elderly_prototype_app/features/fitness/data/datasources/fitness_db_helper.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:math';
 
 // --- Database Provider ---
-// Exposes the DB Helper instance (using the singleton)
 final fitnessDbProvider = Provider<FitnessDatabaseHelper>((ref) {
   return FitnessDatabaseHelper();
 });
 
 // --- Category Filter Provider ---
-// Holds the currently selected category chip
 final fitnessCategoryFilterProvider =
     StateProvider<ExerciseCategory>((ref) => ExerciseCategory.all);
 
 // --- Main Fitness Notifier ---
-// Manages the list of exercises and all progress updates
 final fitnessProvider = StateNotifierProvider<FitnessNotifier,
     AsyncValue<List<ExerciseWithProgress>>>((ref) {
   return FitnessNotifier(ref.watch(fitnessDbProvider));
@@ -40,10 +38,8 @@ class FitnessNotifier
 
   // Helper to update the state list without a full reload
   void _updateState(String exerciseId, ExerciseProgress newProgress) {
-    // Get the current list of data
     final List<ExerciseWithProgress> currentData = state.value ?? [];
 
-    // Find and update the specific exercise
     final updatedList = [
       for (final item in currentData)
         if (item.exercise.id == exerciseId)
@@ -52,11 +48,10 @@ class FitnessNotifier
           item,
     ];
 
-    // Set the new state
     state = AsyncData(updatedList);
   }
 
-  // --- Methods for the UI to call (as seen in exercise_detail_screen.dart) ---
+  // --- UI Methods ---
 
   Future<void> updateTime(String exerciseId, int totalSeconds) async {
     final newProgress = await _db.updateTime(exerciseId, totalSeconds);
@@ -73,10 +68,8 @@ class FitnessNotifier
     _updateState(exerciseId, newProgress);
   }
 
-  // ⭐️⭐️ FIX: THIS IS THE METHOD THE ERROR IS ABOUT ⭐️⭐️
-  /// Fetches the current progress for a single exercise *synchronously* from the db helper.
+  /// ⭐️ FIX: Expose the getExerciseProgress method from the DB helper
   ExerciseProgress getExerciseProgress(String exerciseId) {
-    // This calls the method on the database helper instance
     return _db.getExerciseProgress(exerciseId);
   }
 }
@@ -84,7 +77,6 @@ class FitnessNotifier
 // --------------------------------------------------------------------------
 // --- Filtered List Provider ---
 // --------------------------------------------------------------------------
-// Returns a *filtered* list based on the main provider + category filter
 final filteredFitnessListProvider =
     Provider<AsyncValue<List<ExerciseWithProgress>>>((ref) {
   final category = ref.watch(fitnessCategoryFilterProvider);
@@ -105,7 +97,6 @@ final filteredFitnessListProvider =
 });
 
 // --- Total Time Provider ---
-// Calculates the total time spent today across all exercises
 final fitnessTotalTimeProvider = Provider<int>((ref) {
   final asyncList = ref.watch(fitnessProvider);
   return asyncList.when(
@@ -117,5 +108,27 @@ final fitnessTotalTimeProvider = Provider<int>((ref) {
     },
     loading: () => 0,
     error: (e, s) => 0,
+  );
+});
+
+// --- Random Next Workout Provider ---
+final randomNextWorkoutProvider = Provider<ExerciseWithProgress?>((ref) {
+  final asyncList = ref.watch(fitnessProvider);
+
+  return asyncList.when(
+    data: (list) {
+      // Filter for incomplete exercises
+      final incomplete = list.where((e) => !e.progress.isCompleted).toList();
+
+      if (incomplete.isEmpty) {
+        return null;
+      }
+
+      // Pick a random one
+      final random = Random();
+      return incomplete[random.nextInt(incomplete.length)];
+    },
+    loading: () => null,
+    error: (e, s) => null,
   );
 });
