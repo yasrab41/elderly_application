@@ -1,4 +1,5 @@
 import 'dart:async'; // For Timer
+import 'package:elderly_prototype_app/features/health_tracking/screens/health_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -61,9 +62,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'iconColor': Color(0xFF4CAF50),
     },
     {
-      'title': 'Social Activities',
-      'subtitle': 'Community events nearby',
-      'icon': Icons.groups_outlined,
+      'title': 'Health Tracking',
+      'subtitle': 'Track your health data',
+      'icon': Icons.monitor_heart_outlined,
       'color': Color(0xFFFFF3E0),
       'iconColor': Color(0xFFFF9800),
     },
@@ -402,6 +403,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const FitnessScreen()));
+                      } else if (item['title'] == 'Health Tracking') {
+                        onTapAction = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const HealthTrackingScreen()));
                       } else {
                         onTapAction = () {};
                       }

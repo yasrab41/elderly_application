@@ -6,6 +6,8 @@ final Color _secondaryColor = const Color(0xFF8D6E63); // Medium Brown
 
 // App Theme Data
 class AppTheme {
+  static Color primaryColor = const Color(0xFF48352A); // Dark Brown
+  static Color secondaryColor = const Color(0xFF8D6E63);
   static ThemeData get lightTheme {
     return ThemeData(
       // --- FIX: Explicitly set background colors to white ---
@@ -14,6 +16,7 @@ class AppTheme {
       // This ensures cards (like your reminder card) and other surfaces are white
       cardColor: Colors.white,
       // ------------------------------------------------------
+      // Medium Brown
 
       colorScheme: ColorScheme.light(
         primary: _primaryColor,

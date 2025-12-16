@@ -9,7 +9,7 @@ class AppStrings {
   static const String startWorkout = 'Start Workout';
   static const String setsCompleted = 'Sets Completed:';
 
-  // --- Emergency / SOS Feature ---
+  // --- Start Emergency / SOS Feature ---
   static const String sosTitle = 'Send Emergency Alert';
   static const String sosCancelButton = 'I AM SAFE / CANCEL';
   static const String sosSendingAlert = 'Sending Alert in...';
@@ -33,7 +33,9 @@ class AppStrings {
   static const String validationName = 'Please enter a name';
   static const String validationPhone = 'Please enter a phone number';
   static const String noContacts = 'No emergency contacts added yet.';
+  //--- Ends Emergency / SOS Feature ---
 
+  //--- Start of Exercise Feature ---
   // ⭐️ ADDED: Strings for the detail screen of Exercise
   static const String steps = 'Steps';
   static const String exerciseTimer = 'Exercise Timer';
@@ -44,6 +46,42 @@ class AppStrings {
   static const String difficultyEasy = 'Easy';
   static const String difficultyMedium = 'Medium';
   static const String difficultyHard = 'Hard';
+  //--- End of Exercise Feature ---
+
+  //--- Start of Health Tracking Feature ---
+  static const String healthTitle = 'Health Tracking';
+  static const String bloodPressure = 'Blood Pressure';
+  static const String bloodSugar = 'Blood Sugar';
+  static const String weight = 'Weight';
+  static const String sleep = 'Sleep';
+  static const String heartRate = 'Heart Rate';
+// static const String steps = 'Steps';
+
+// Units
+  static const String unitBP = 'mmHg';
+  static const String unitSugar = 'mg/dL';
+  static const String unitWeight = 'kg';
+  static const String unitSleep = 'hours';
+  static const String unitHeart = 'bpm';
+  static const String unitSteps = 'steps';
+
+// Status
+  static const String statusNormal = 'Normal';
+  static const String statusWarning = 'Attention';
+  static const String statusCritical = 'Critical';
+
+// Time Ranges
+  static const String week = 'Week';
+  static const String month = 'Month';
+  static const String year = 'Year';
+
+// Chart & History
+  static const String noData = 'No records yet.';
+  static const String recentHistory = 'Recent History';
+  static const String addRecord = 'Add Record';
+  static const String sys = 'Systolic';
+  static const String dia = 'Diastolic';
+  //--- End of Health Tracking Feature ---
 }
 
 // --- Mock Exercise Data with more variety ---
