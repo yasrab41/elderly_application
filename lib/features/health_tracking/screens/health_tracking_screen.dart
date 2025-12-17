@@ -16,66 +16,79 @@ class HealthTrackingScreen extends StatefulWidget {
 
 class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   // Current Selection State
-  String _selectedMetric = 'bp'; // Default: Blood Pressure
-  String _timeRange = 'Week'; // Week, Month, Year
+  String _selectedMetric = 'bp';
+  String _timeRange = 'Week';
   bool _isLoading = true;
   List<HealthRecord> _records = [];
 
-  // Metrics Configuration Map with NORMAL RANGES
+  // --- UPDATED METRICS MAP WITH SPECIFIC LABELS & HINTS ---
   final Map<String, dynamic> _metrics = {
     'bp': {
       'label': AppStrings.bloodPressure,
       'unit': AppStrings.unitBP,
       'icon': Icons.favorite,
       'color': Colors.redAccent,
-      'normalRange': '90-120 mmHg', // Added Reference
+      'normalRange': '90-120 mmHg',
       'minNormal': 90,
       'maxNormal': 120,
+      // Specific Dialog Text
+      'inputLabel': 'Systolic', // Special case for BP
+      'hintText': '120',
     },
     'sugar': {
       'label': AppStrings.bloodSugar,
       'unit': AppStrings.unitSugar,
       'icon': Icons.water_drop,
       'color': Colors.blue,
-      'normalRange': '70-100 mg/dL', // Added Reference
+      'normalRange': '70-100 mg/dL',
       'minNormal': 70,
       'maxNormal': 100,
+      'inputLabel': 'Blood Sugar (mg/dL)',
+      'hintText': 'Enter blood sugar',
     },
     'weight': {
       'label': AppStrings.weight,
       'unit': AppStrings.unitWeight,
       'icon': Icons.monitor_weight,
       'color': Colors.purple,
-      'normalRange': '60-80 kg', // Example generic range
+      'normalRange': '60-80 kg',
       'minNormal': 60,
       'maxNormal': 80,
+      'inputLabel': 'Weight (kg)',
+      'hintText': 'Enter weight',
     },
     'sleep': {
       'label': AppStrings.sleep,
       'unit': AppStrings.unitSleep,
       'icon': Icons.bedtime,
       'color': Colors.indigo,
-      'normalRange': '7-9 hours', // Added Reference
+      'normalRange': '7-9 hours',
       'minNormal': 7,
       'maxNormal': 9,
+      'inputLabel': 'Sleep (hours)',
+      'hintText': 'Enter sleep',
     },
     'heart': {
       'label': AppStrings.heartRate,
       'unit': AppStrings.unitHeart,
       'icon': Icons.favorite_border,
       'color': Colors.pink,
-      'normalRange': '60-100 bpm', // Added Reference
+      'normalRange': '60-100 bpm',
       'minNormal': 60,
       'maxNormal': 100,
+      'inputLabel': 'Heart Rate (bpm)',
+      'hintText': 'Enter heart rate',
     },
     'steps': {
       'label': AppStrings.steps,
       'unit': AppStrings.unitSteps,
       'icon': Icons.directions_walk,
       'color': Colors.green,
-      'normalRange': '8000-10000 steps', // Added Reference
+      'normalRange': '8000-10000 steps',
       'minNormal': 8000,
       'maxNormal': 15000,
+      'inputLabel': 'Steps (count)',
+      'hintText': 'Enter steps',
     },
   };
 
@@ -103,28 +116,40 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     _loadData();
   }
 
-  // --- UI BUILDER ---
   @override
   Widget build(BuildContext context) {
     final metric = _metrics[_selectedMetric];
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Light background for contrast
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(AppStrings.healthTitle,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: AppTheme.primaryColor,
         elevation: 0,
         centerTitle: true,
-        leading: const BackButton(color: Colors.black),
+        leading: const BackButton(color: Colors.white),
         actions: [
+          // IconButton(
+          //   icon: Icon(Icons.add_circle, color: Colors.white, size: 30),
+          //   onPressed: () {
+          //     Navigator.of(context).push(MaterialPageRoute(
+          //       builder: (context) => const AddReminderPage(),
+          //     ));
+          //   },
+          // ),
           Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 12.0),
             child: CircleAvatar(
-              backgroundColor: AppTheme.primaryColor,
-              radius: 20,
+              backgroundColor: Colors.white,
+              radius: 18,
               child: IconButton(
-                icon: const Icon(Icons.add, color: Colors.white),
+                icon: Icon(
+                  Icons.add,
+                  color: AppTheme.primaryColor,
+                  size: 20,
+                  fontWeight: FontWeight.bold,
+                ),
                 onPressed: () => _showAddRecordDialog(context),
               ),
             ),
@@ -139,16 +164,11 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 1. Top Buttons (Metric Selector)
                     _buildMetricGrid(),
                     const SizedBox(height: 25),
-
-                    // 2. Main Dashboard Card (Polished)
                     _buildDashboardCard(metric),
                     const SizedBox(height: 25),
-
-                    // 3. Recent History List
-                    Text(AppStrings.recentHistory,
+                    Text("Recent History",
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge
@@ -161,8 +181,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             ),
     );
   }
-
-  // --- WIDGETS ---
 
   Widget _buildMetricGrid() {
     return GridView.count(
@@ -179,7 +197,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isSelected ? Colors.white : Colors.white,
               border: Border.all(
                   color: isSelected ? e.value['color'] : Colors.grey.shade200,
                   width: isSelected ? 2 : 1),
@@ -187,7 +205,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                          color: e.value['color'].withOpacity(0.3),
+                          color: e.value['color'].withOpacity(0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 4))
                     ]
@@ -201,7 +219,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icon Container
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -230,14 +247,13 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   }
 
   Widget _buildDashboardCard(Map<String, dynamic> metric) {
-    // 1. Get Latest Data
     HealthRecord? latestRecord = _records.isNotEmpty ? _records.first : null;
     HealthRecord? previousRecord = _records.length > 1 ? _records[1] : null;
 
     double? latestVal = latestRecord?.value1;
-    double? latestVal2 = latestRecord?.value2; // Diastolic for BP
+    double? latestVal2 = latestRecord?.value2;
 
-    // 2. Trend Logic
+    // Trend Calculation
     double difference = 0;
     bool isTrendingUp = false;
     if (latestRecord != null && previousRecord != null) {
@@ -245,7 +261,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
       isTrendingUp = difference > 0;
     }
 
-    // 3. Status Logic
+    // Status Calculation
     bool isNormal = true;
     if (latestVal != null) {
       isNormal =
@@ -270,7 +286,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                // -- Header Row: Icon + Title + Status --
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -299,7 +314,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                         ],
                       ),
                     ),
-                    // Value Display
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -310,7 +324,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                                 TextSpan(
                                   text: _selectedMetric == 'bp'
                                       ? '${latestVal.toInt()}/${latestVal2?.toInt()}'
-                                      : '${latestVal.toInt()}',
+                                      : '${latestVal.toStringAsFixed(latestVal.truncateToDouble() == latestVal ? 0 : 1)}',
                                   style: const TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
@@ -340,10 +354,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
-
-                // -- Info Row: Normal Range + Trend --
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -359,10 +370,8 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                                 ? Icons.arrow_upward
                                 : Icons.arrow_downward,
                             size: 16,
-                            color: isTrendingUp
-                                ? Colors.redAccent
-                                : Colors
-                                    .green, // Usually down is good for BP/Sugar, adjust logic if needed
+                            color:
+                                isTrendingUp ? Colors.redAccent : Colors.green,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -382,9 +391,9 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             ),
           ),
 
-          // -- Filter Tabs --
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+          // Time Filters
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [AppStrings.week, AppStrings.month, AppStrings.year]
                   .map((range) {
@@ -396,10 +405,12 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color:
-                            active ? AppTheme.primaryColor : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                          color: active ? AppTheme.primaryColor : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              color: active
+                                  ? AppTheme.primaryColor
+                                  : Colors.grey.shade300)),
                       child: Text(
                         range,
                         textAlign: TextAlign.center,
@@ -422,8 +433,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ),
           const SizedBox(height: 10),
-
-          // -- CHART SECTION (Polished Line Chart) --
           SizedBox(
             height: 220,
             child: _records.isEmpty
@@ -441,31 +450,23 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     );
   }
 
-  // --- POLISHED LINE CHART ---
   Widget _buildLineChart(Color color) {
-    // 1. Prepare Data
-    // We take last 7 records and reverse them so oldest is on left, newest on right
     List<HealthRecord> chartData = _records.take(7).toList().reversed.toList();
-
-    // Convert to FlSpots
     List<FlSpot> spots = chartData.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.value1);
     }).toList();
 
     return LineChart(
       LineChartData(
-        gridData: FlGridData(
-          show: false, // Cleaner look without grid
-        ),
+        gridData: FlGridData(show: false),
         titlesData: FlTitlesData(
           show: true,
           rightTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles:
               const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          leftTitles: const AxisTitles(
-              sideTitles: SideTitles(
-                  showTitles: false)), // Hide Y-axis numbers for clean look
+          leftTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -474,12 +475,10 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
               getTitlesWidget: (value, meta) {
                 int index = value.toInt();
                 if (index >= 0 && index < chartData.length) {
-                  // Show Day (e.g., "Mon", "12")
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      DateFormat('d').format(
-                          chartData[index].timestamp), // Just the Day Number
+                      DateFormat('d').format(chartData[index].timestamp),
                       style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
@@ -495,35 +494,20 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
         borderData: FlBorderData(show: false),
         minX: 0,
         maxX: (chartData.length - 1).toDouble(),
-        // Add some padding to Y axis so line doesn't touch top/bottom
         minY: _getMinY(chartData) * 0.9,
         maxY: _getMaxY(chartData) * 1.1,
-
         lineBarsData: [
           LineChartBarData(
             spots: spots,
-            isCurved: true, // Smooth lines
+            isCurved: true,
             color: color,
             barWidth: 4,
             isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) {
-                return FlDotCirclePainter(
-                  radius: 4,
-                  color: Colors.white,
-                  strokeWidth: 2,
-                  strokeColor: color,
-                );
-              },
-            ),
+            dotData: FlDotData(show: true),
             belowBarData: BarAreaData(
               show: true,
               gradient: LinearGradient(
-                colors: [
-                  color.withOpacity(0.2),
-                  color.withOpacity(0.0),
-                ],
+                colors: [color.withOpacity(0.2), color.withOpacity(0.0)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -562,7 +546,6 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
       itemBuilder: (context, index) {
         final record = _records[index];
         final metric = _metrics[_selectedMetric];
-
         bool isNormal = record.value1 >= metric['minNormal'] &&
             record.value1 <= metric['maxNormal'];
 
@@ -582,25 +565,34 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                   : '${record.value1.toInt()} ${metric['unit']}',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            subtitle: Text(
-              DateFormat('dd MMM yyyy, HH:mm').format(record.timestamp),
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  DateFormat('dd/MM/yyyy  at HH:mm').format(record.timestamp),
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                ),
+                if (record.note != null && record.note!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      "Note: ${record.note}",
+                      style: TextStyle(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                          fontSize: 12),
+                    ),
+                  ),
+              ],
             ),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: isNormal
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                isNormal ? "Normal" : "High", // Simplified status
-                style: TextStyle(
-                    color: isNormal ? Colors.green : Colors.orange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12),
-              ),
+            trailing: Text(
+              isNormal ? "Normal" : "Attention",
+              style: TextStyle(
+                  color: isNormal
+                      ? Colors.green
+                      : Colors.red, // Updated to Red for Attention per image
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12),
             ),
           ),
         );
@@ -608,10 +600,13 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     );
   }
 
+  // --- UPDATED ADD RECORD DIALOG ---
   void _showAddRecordDialog(BuildContext context) {
     final TextEditingController val1Controller = TextEditingController();
-    final TextEditingController val2Controller =
-        TextEditingController(); // Only for BP
+    final TextEditingController val2Controller = TextEditingController();
+    final TextEditingController noteController =
+        TextEditingController(); // Added Note Controller
+    final metric = _metrics[_selectedMetric];
 
     showModalBottomSheet(
       context: context,
@@ -631,56 +626,125 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Add ${_metrics[_selectedMetric]['label']}',
+                Text('Add ${metric['label']} Record',
                     style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold)),
+                        fontSize: 18, fontWeight: FontWeight.bold)),
                 IconButton(
                     onPressed: () => Navigator.pop(ctx),
-                    icon: const Icon(Icons.close))
+                    icon: const Icon(Icons.close, size: 20))
               ],
             ),
             const SizedBox(height: 20),
+
+            // --- DYNAMIC INPUT FIELDS ---
             Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: val1Controller,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        labelText:
-                            _selectedMetric == 'bp' ? AppStrings.sys : 'Value',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        filled: true,
-                        fillColor: Colors.grey[50]),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(metric['inputLabel'],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                              color: Colors.black87)),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: val1Controller,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: metric['hintText'],
+                          hintStyle:
+                              TextStyle(color: Colors.grey[400], fontSize: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade300)),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade300)),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 if (_selectedMetric == 'bp') ...[
                   const SizedBox(width: 15),
                   Expanded(
-                    child: TextField(
-                      controller: val2Controller,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          labelText: AppStrings.dia,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          filled: true,
-                          fillColor: Colors.grey[50]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Diastolic",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                                color: Colors.black87)),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: val2Controller,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            hintText: "80",
+                            hintStyle: TextStyle(
+                                color: Colors.grey[400], fontSize: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade300)),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ]
               ],
             ),
+
+            // --- NEW NOTE FIELD ---
+            const SizedBox(height: 20),
+            const Text("Note (Optional)",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    color: Colors.black87)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: noteController,
+              maxLines: 3, // Taller field for notes
+              decoration: InputDecoration(
+                hintText: "Add any notes...",
+                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey.shade300)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey.shade300)),
+              ),
+            ),
+
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12))),
+                  backgroundColor: AppTheme.primaryColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
                 onPressed: () async {
                   if (val1Controller.text.isNotEmpty) {
                     final user = FirebaseAuth.instance.currentUser;
@@ -694,11 +758,12 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                           ? double.tryParse(val2Controller.text)
                           : null,
                       timestamp: DateTime.now(),
+                      note: noteController.text, // Saving the Note
                     );
 
                     await HealthDatabaseHelper.instance.create(newRecord);
                     Navigator.pop(ctx);
-                    _loadData(); // Refresh UI
+                    _loadData();
                   }
                 },
                 child: const Text('Add Record',

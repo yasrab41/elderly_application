@@ -18,7 +18,7 @@ class FitnessScreen extends ConsumerWidget {
     // Watch the main provider which contains ALL exercises and progress
     final allExercisesAsync = ref.watch(fitnessProvider);
 
-    // ⭐️ NEW: Watch the random next workout provider
+    // Watch the random next workout provider
     final nextWorkout = ref.watch(randomNextWorkoutProvider);
 
     return Scaffold(
@@ -36,7 +36,7 @@ class FitnessScreen extends ConsumerWidget {
                     // --- BODY ---
                     const SizedBox(height: 20),
 
-                    // Total Time/Progress Card
+                    // Total Time/Progress Card (Uses the totalTime and progress from the provider)
                     TotalProgressCard(allExercises: allExercises),
 
                     const SizedBox(height: 30),
@@ -123,8 +123,6 @@ class FitnessScreen extends ConsumerWidget {
     );
   }
 
-  // NOTE: _findNextIncompleteWorkout removed as we now use the provider.
-
   // Helper to build the section titles
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
@@ -154,8 +152,8 @@ class FitnessScreen extends ConsumerWidget {
 
   // Custom AppBar to match the "Training" header design
   Widget _buildSliverAppBar(BuildContext context, WidgetRef ref) {
-    final totalTime = ref.watch(fitnessTotalTimeProvider);
-
+    // The total time display logic is now inside TotalProgressCard.
+    // We only need the SliverAppBar for visual purposes.
     return SliverAppBar(
       expandedHeight: 200.0,
       floating: false,
@@ -208,7 +206,7 @@ class FitnessScreen extends ConsumerWidget {
 }
 
 // --------------------------------------------------------------------------
-// Category List View Screen (Kept the fix for the Riverpod error)
+// Category List View Screen
 // --------------------------------------------------------------------------
 
 class CategoryListViewScreen extends ConsumerStatefulWidget {
