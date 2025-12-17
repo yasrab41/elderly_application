@@ -1,10 +1,11 @@
-import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// Note: We are using firebase_auth's User, so no custom model import is needed.
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 
-// Placeholder for instructions screen (assuming it exists)
+// Import Login screen for navigation
+import 'package:elderly_prototype_app/features/authentication/screens/login.dart';
+
 class InstructionsScreen extends StatelessWidget {
   const InstructionsScreen({super.key});
 
@@ -20,59 +21,23 @@ class InstructionsScreen extends StatelessWidget {
   }
 }
 
-// Placeholder helper function for InstructionsScreen
-Widget _buildInstructionSection(BuildContext context,
-    {required IconData icon,
-    required String title,
-    required List<String> steps}) {
-  final theme = Theme.of(context);
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Icon(icon, color: theme.colorScheme.secondary, size: 28),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.secondary,
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 8),
-      ...steps
-          .map((step) => Padding(
-                padding: const EdgeInsets.only(left: 36.0, top: 4),
-                child: Text('• $step', style: theme.textTheme.bodyLarge),
-              ))
-          .toList(),
-    ],
-  );
-}
-
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // authState is now of type User? (nullable Firebase User)
+    // 1. FIX: Watch 'authNotifierProvider' instead of 'authStateChangesProvider'
+    // This returns 'User?' directly, not an AsyncValue.
     final User? user = ref.watch(authNotifierProvider);
     final theme = Theme.of(context);
 
-    // --- FIX: Explicit Null Check ---
+    // 2. Logic to handle if user is null (not logged in)
     if (user == null) {
-      // If the user object is null, it means we are either logged out or still initializing.
-      // In a real app, you might show a dedicated Sign In/Loading screen here.
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: Text("No user logged in")),
       );
     }
-    // --- End Fix ---
 
-    // Now 'user' is guaranteed non-null (User) inside this block
     final username = user.displayName ?? 'Elderly User';
     final email = user.email ?? 'No email available';
 
@@ -80,6 +45,7 @@ class ProfileScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Profile & Settings'),
         backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -104,24 +70,28 @@ class ProfileScreen extends ConsumerWidget {
                           size: 35, color: theme.colorScheme.secondary),
                     ),
                     const SizedBox(width: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          username,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onSurface,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            username,
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          email,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                          const SizedBox(height: 4),
+                          Text(
+                            email,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -186,12 +156,26 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const Divider(height: 10, thickness: 1),
 
-            // Sign Out Tile
+            // --- Sign Out Tile ---
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Sign Out'),
-              onTap: () {
-                ref.read(authNotifierProvider.notifier).signOut();
+              title: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () async {
+                // 1. Perform the Sign Out using your authServiceProvider
+                final authService = ref.read(authServiceProvider);
+                await authService.signOut();
+
+                // 2. Check if the widget is still in the tree
+                if (!context.mounted) return;
+
+                // 3. Navigate back to Login and clear the stack
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const Login()),
+                  (Route<dynamic> route) => false,
+                );
               },
             ),
           ],

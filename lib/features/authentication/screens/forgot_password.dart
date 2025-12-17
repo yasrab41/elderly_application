@@ -123,7 +123,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 child: Text(
                                   "Send Email",
                                   style: TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.white,
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -155,7 +155,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 child: Text(
                                   "Create",
                                   style: TextStyle(
-                                      color: Color.fromARGB(225, 184, 166, 6),
+                                      color: AppTheme.primaryColor,
                                       fontSize: 20.0,
                                       fontWeight: FontWeight.w500),
                                 ),
