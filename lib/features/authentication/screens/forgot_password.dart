@@ -1,3 +1,4 @@
+import 'package:elderly_prototype_app/core/app_theme.dart';
 import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Container(
         child: Column(
           children: [
@@ -49,7 +50,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               child: Text(
                 "Password Recovery",
                 style: TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.primaryColor,
                     fontSize: 30.0,
                     fontWeight: FontWeight.bold),
               ),
@@ -60,7 +61,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             Text(
               "Enter your mail",
               style: TextStyle(
-                  color: Colors.white,
+                  color: AppTheme.primaryColor,
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold),
             ),
@@ -74,8 +75,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           Container(
                             padding: EdgeInsets.only(left: 10.0),
                             decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.white70, width: 2.0),
+                              border: Border.all(
+                                  color: AppTheme.primaryColor, width: 2.0),
                               borderRadius: BorderRadius.circular(30),
                             ),
                             child: TextFormField(
@@ -86,14 +87,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 return null;
                               },
                               controller: mailcontroller,
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: AppTheme.primaryColor),
                               decoration: InputDecoration(
                                   hintText: "Email",
                                   hintStyle: TextStyle(
-                                      fontSize: 18.0, color: Colors.white),
+                                      fontSize: 18.0,
+                                      color: AppTheme.primaryColor),
                                   prefixIcon: Icon(
                                     Icons.person,
-                                    color: Colors.white70,
+                                    color: AppTheme.primaryColor,
                                     size: 30.0,
                                   ),
                                   border: InputBorder.none),
@@ -115,7 +117,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               width: 140,
                               padding: EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: AppTheme.primaryColor,
                                   borderRadius: BorderRadius.circular(10)),
                               child: Center(
                                 child: Text(
@@ -137,7 +139,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               Text(
                                 "Don't have an account?",
                                 style: TextStyle(
-                                    fontSize: 18.0, color: Colors.white),
+                                    fontSize: 18.0,
+                                    color: AppTheme.primaryColor),
                               ),
                               SizedBox(
                                 width: 5.0,

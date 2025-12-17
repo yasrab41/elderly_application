@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/auth_service.dart'; // 🚀 CRITICAL: Import the service file
+import '../services/auth_service.dart';
+// Import required for navigation
+import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
 
 class SignUp extends ConsumerStatefulWidget {
   const SignUp({super.key});
@@ -13,7 +15,7 @@ class _SignUpState extends ConsumerState<SignUp> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _nameController = TextEditingController(); // Added controller for Name
+  final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _errorMessage;
@@ -47,32 +49,34 @@ class _SignUpState extends ConsumerState<SignUp> {
     });
 
     try {
-      // Use the newly defined authServiceProvider here
       final authService = ref.read(authServiceProvider);
       await authService.signUpWithEmail(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
-        name: _nameController.text.trim(), // Pass the name
+        name: _nameController.text.trim(),
       );
 
-      // Success: Pop back to Login or the main screen (AuthGate handles this)
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Registration successful! Please log in.'),
-            duration: Duration(seconds: 3)),
+      // Check if widget is still mounted before using context
+      if (!mounted) return;
+
+      // Navigate to StartScreen immediately upon successful registration
+      // Using pushReplacement to prevent going back to registration screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const StartScreen()),
       );
     } catch (e) {
-      // Display error to the user
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString().contains('email-already-in-use')
             ? 'This email is already registered.'
-            : 'Registration failed: ${e.toString()}'; // Show detailed error for debugging
+            : 'Registration failed. Please try again.';
       });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
   // -------------------------
@@ -106,7 +110,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                 ),
                 const SizedBox(height: 30),
 
-                // Name Field (Added for completeness with AuthService)
+                // Name Field
                 TextFormField(
                   controller: _nameController,
                   keyboardType: TextInputType.name,
@@ -229,6 +233,7 @@ class _SignUpState extends ConsumerState<SignUp> {
 
                 TextButton(
                   onPressed: () {
+                    // Navigate back to Login
                     Navigator.of(context).pop();
                   },
                   child: Text(

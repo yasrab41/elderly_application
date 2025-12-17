@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/auth_service.dart'; // 🚀 CRITICAL: Import the service file
-import 'signup.dart'; // Ensure this path is correct
+import '../services/auth_service.dart';
+import 'signup.dart';
+// Import required for navigation
+import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
+import 'package:elderly_prototype_app/features/authentication/screens/forgot_password.dart';
 
 class Login extends ConsumerStatefulWidget {
   const Login({super.key});
@@ -36,24 +39,33 @@ class _LoginState extends ConsumerState<Login> {
     });
 
     try {
-      // Use the newly defined authServiceProvider here
       final authService = ref.read(authServiceProvider);
       await authService.signInWithEmail(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Success is handled by the main.dart AuthGate watching the auth state.
+
+      // Check if widget is still in the tree before navigating
+      if (!mounted) return;
+
+      // Navigate to StartScreen on success
+      // We use pushReplacement so the user can't go 'back' to the login screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const StartScreen()),
+      );
     } catch (e) {
-      // Display error to the user
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString().contains('user-not-found')
             ? 'No user found for that email.'
             : 'Login failed. Please check your credentials.';
       });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
   // -------------------------
@@ -127,7 +139,25 @@ class _LoginState extends ConsumerState<Login> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 30),
+
+                // Forgot Password Button (Added)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) => const ForgotPassword()),
+                      );
+                    },
+                    child: const Text(
+                      'Forgot Password?',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10), // Adjusted spacing
 
                 // Error Message Display
                 if (_errorMessage != null)
@@ -186,7 +216,6 @@ class _LoginState extends ConsumerState<Login> {
 
                 TextButton(
                   onPressed: () {
-                    // Navigate to Sign Up screen
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => const SignUp()),
                     );
