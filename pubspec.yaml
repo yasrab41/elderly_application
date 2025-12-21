@@ -52,6 +52,7 @@ dependencies:
   permission_handler: ^11.3.1 # For requesting permissions
   fl_chart: ^0.66.0
 
+
 dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_test:

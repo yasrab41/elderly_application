@@ -55,11 +55,17 @@ class ProfileScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
+                  // 🚀 Professional Static Avatar
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                    child: Icon(Icons.person,
-                        size: 45, color: theme.colorScheme.primary),
+                    // backgroundImage line is removed because we are not using Firebase Storage
+                    child: Icon(
+                      Icons
+                          .person_rounded, // Using rounded version for a softer, modern look
+                      size: 50,
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
                   const SizedBox(height: 15),
                   Text(
@@ -70,10 +76,12 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     email,
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: Colors.grey[600]),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ],
               ),
