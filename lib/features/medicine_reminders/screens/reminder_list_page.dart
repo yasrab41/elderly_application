@@ -167,17 +167,17 @@ class ReminderListPage extends ConsumerWidget {
                   backgroundColor:
                       const Color(0xFF48352A), // Base Brown / Primary
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 2,
                 ),
-                icon: const Icon(Icons.add_circle_outline, size: 28),
+                icon: const Icon(Icons.add_circle_outline, size: 25),
                 label: const Text(
                   "Add Medicine",
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 17,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
                   ),
