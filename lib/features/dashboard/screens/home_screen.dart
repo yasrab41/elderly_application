@@ -1,23 +1,20 @@
-import 'dart:async'; // For Timer
-import 'package:elderly_prototype_app/features/health_tracking/screens/health_tracking_screen.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:vibration/vibration.dart';
-import 'package:permission_handler/permission_handler.dart'; // ⚠️ REQUIRED: Add to pubspec.yaml
+import 'package:permission_handler/permission_handler.dart';
 
-import 'package:elderly_prototype_app/core/app_theme.dart';
+// Feature Imports
 import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/emergency/screens/emergency_settings_screen.dart';
 import 'package:elderly_prototype_app/features/emergency/providers/contact_provider.dart';
-
-import 'package:elderly_prototype_app/features/dashboard/screens/fitness_screen_old.dart';
 import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.dart';
+import 'package:elderly_prototype_app/features/health_tracking/screens/health_tracking_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
 
-// --- 1. Changed to ConsumerStatefulWidget to handle Timer & "Safe Mode" state ---
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -26,20 +23,18 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // Color Palette
-  final Color _baseBrown = const Color(0xFF48352A);
-  final Color _lightBrown = const Color(0xFF7B6658);
-  final Color _lighterBrown = const Color(0xFFC0A597);
-  final Color _redAlert = const Color(0xFFEF5350);
-  final Color _greenSafe = const Color(0xFF4CAF50); // Green for Safe button
+  // Color Palette - Made const for performance
+  static const Color _baseBrown = Color(0xFF48352A);
+  static const Color _lightBrown = Color(0xFF7B6658);
+  static const Color _lighterBrown = Color(0xFFC0A597);
+  static const Color _redAlert = Color(0xFFEF5350);
+  static const Color _greenSafe = Color(0xFF4CAF50);
 
-  // --- STATE VARIABLES ---
-  bool _isEmergencyActive =
-      false; // Tracks if alert was sent (to show Safe button)
-  String _lastSentMessage = ""; // Stores the message to show in dialog
+  bool _isEmergencyActive = false;
+  String _lastSentMessage = "";
 
-  // Data for the GridView
-  final List<Map<String, dynamic>> _gridItems = const [
+  // Moved _gridItems to static/const to avoid recreation on every build
+  static const List<Map<String, dynamic>> _gridItems = [
     {
       'title': 'Emergency Contacts',
       'subtitle': AppStrings.sosSettingsSubtitle,
@@ -77,13 +72,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     },
   ];
 
-  // --- 2. PERMISSION CHECK ---
+  @override
+  void initState() {
+    super.initState();
+    // OPTIMIZATION: Check permissions silently in background without blocking UI build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPermissionsSilent();
+    });
+  }
+
+  // Non-blocking permission check
+  Future<void> _checkPermissionsSilent() async {
+    await [
+      Permission.location,
+      Permission.phone,
+      Permission.sms,
+    ].request();
+  }
+
   Future<bool> _checkPermissions() async {
-    // Request multiple permissions at once
     Map<Permission, PermissionStatus> statuses = await [
       Permission.location,
       Permission.phone,
-      Permission.sms, // Crucial for Android to send messages
+      Permission.sms,
     ].request();
 
     if (statuses[Permission.location]!.isDenied ||
@@ -100,14 +111,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return true;
   }
 
-  // --- 3. EMERGENCY LOGIC ---
-
   void _startEmergencySequence() async {
-    // 1. Check Permissions first
     bool hasPermissions = await _checkPermissions();
     if (!hasPermissions) return;
 
-    // 2. Check if contacts exist
     final contactsState = ref.read(contactNotifierProvider);
     final contacts = contactsState.maybeWhen(
       data: (c) => c,
@@ -123,15 +130,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return;
     }
 
-    // 3. Show Countdown Dialog
     if (mounted) {
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => _CountdownDialog(
           onFinished: () {
-            Navigator.pop(context); // Close countdown dialog
-            _executeEmergencyAlert(); // Execute Logic
+            Navigator.pop(context);
+            _executeEmergencyAlert();
           },
         ),
       );
@@ -139,46 +145,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _executeEmergencyAlert() async {
-    // A. Haptic Feedback
     if (await Vibration.hasVibrator() == true) {
       Vibration.vibrate(duration: 500);
     }
 
     try {
-      // B. Get Location
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
 
-      // Create Message
       String mapLink =
-          "https://maps.google.com/?q=${position.latitude},${position.longitude}";
+          "http://maps.google.com/?q=${position.latitude},${position.longitude}";
       String messageRaw = "${AppStrings.emergencyAlertMessage}\n $mapLink";
 
       setState(() {
         _lastSentMessage = messageRaw;
-        _isEmergencyActive = true; // Show "I'm Safe" button
+        _isEmergencyActive = true;
       });
 
-      // C. Get Contacts
       final contacts = ref.read(contactNotifierProvider).value ?? [];
-
-      // D. Send SMS Intent
       final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
-
-      // *** FIX FOR PLUS SIGNS ***
-      // We use encodeComponent (not QueryComponent) to strictly use %20
       final encodedMessage = Uri.encodeComponent(messageRaw);
-
-      // Manually construct the URI string to avoid Dart's auto-encoding behavior (which uses +)
       final Uri smsUri =
           Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
 
       if (await canLaunchUrl(smsUri)) {
-        // LaunchMode.externalApplication is safer for SMS apps
         await launchUrl(smsUri, mode: LaunchMode.externalApplication);
       }
 
-      // E. Call Primary Contact
       final primaryContact = contacts.firstWhere(
         (c) => c.isPrimary,
         orElse: () => contacts.first,
@@ -186,7 +179,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       await FlutterPhoneDirectCaller.callNumber(primaryContact.phoneNumber);
 
-      // F. Show Confirmation Dialog (What was sent)
       if (mounted) _showAlertSentDialog();
     } catch (e) {
       debugPrint("Error in SOS: $e");
@@ -198,16 +190,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  // --- 4. SAFE BUTTON LOGIC ---
   Future<void> _executeSafeAlert() async {
     try {
       final contacts = ref.read(contactNotifierProvider).value ?? [];
       String messageRaw =
           "I AM SAFE NOW. Please disregard the previous emergency alert.";
-
       final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
-
-      // *** FIX FOR PLUS SIGNS ***
       final encodedMessage = Uri.encodeComponent(messageRaw);
       final Uri smsUri =
           Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
@@ -217,7 +205,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
 
       setState(() {
-        _isEmergencyActive = false; // Hide Safe Button
+        _isEmergencyActive = false;
       });
 
       if (mounted) {
@@ -231,8 +219,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       debugPrint("Error sending safe alert: $e");
     }
   }
-
-  // --- DIALOGS ---
 
   void _showAlertSentDialog() {
     showDialog(
@@ -277,12 +263,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // --- BUILD METHOD ---
-
   @override
   Widget build(BuildContext context) {
-    // 🔥 FIX 1: Eagerly load contacts when Home Screen opens.
-    // This solves the "No contacts added yet" error on first click!
+    // Keep this watch, it ensures contacts are loaded for the UI
     ref.watch(contactNotifierProvider);
 
     return Scaffold(
@@ -290,21 +273,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          // 1. Curved Top Header
           _buildCurvedHeader(context),
-
-          // 2. Main Content
           SliverList(
             delegate: SliverChildListDelegate(
               [
                 _buildWelcomeStatusCard(),
-
-                // --- EMERGENCY SECTION ---
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
                   child: Column(
                     children: [
-                      // If Alert Sent, show Safe Button
                       if (_isEmergencyActive)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 15.0),
@@ -330,8 +307,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ),
                         ),
-
-                      // Emergency Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -355,21 +330,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                 ),
-
-                // Health Hub Title
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
                   child: Text(
                     'Your Health Hub',
                     style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                      color: _baseBrown,
-                    ),
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: _baseBrown),
                   ),
                 ),
-
-                // 3. GridView for Features
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: GridView.builder(
@@ -385,8 +355,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     itemCount: _gridItems.length,
                     itemBuilder: (context, index) {
                       final item = _gridItems[index];
-
                       VoidCallback onTapAction;
+
+                      // Routing logic
                       if (item['title'] == 'Medicine Reminders') {
                         onTapAction = () => Navigator.push(
                             context,
@@ -431,8 +402,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-
-  // --- WIDGET BUILDERS (Unchanged Helpers) ---
 
   Widget _buildCurvedHeader(BuildContext context) {
     return SliverAppBar(
@@ -493,11 +462,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF48352A))),
+                            color: _baseBrown)),
                     SizedBox(height: 4),
                     Text('You are doing great. Check your reminders.',
-                        style:
-                            TextStyle(color: Color(0xFF48352A), fontSize: 16)),
+                        style: TextStyle(color: _baseBrown, fontSize: 16)),
                   ],
                 ),
               ),
@@ -540,10 +508,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           fontWeight: FontWeight.bold,
                           color: Colors.black87)),
                   const SizedBox(height: 4),
-                  // Text(subtitle,
-                  //     style: TextStyle(fontSize: 14.0, color: Colors.grey[600]),
-                  //     maxLines: 2,
-                  //     overflow: TextOverflow.ellipsis),
                 ],
               ),
             ],
@@ -554,7 +518,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-// --- HELPER: SEPARATE WIDGET FOR TIMER TO PREVENT REBUILDS ---
 class _CountdownDialog extends StatefulWidget {
   final VoidCallback onFinished;
   const _CountdownDialog({required this.onFinished});

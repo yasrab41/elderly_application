@@ -1,4 +1,4 @@
-import 'package:elderly_prototype_app/features/dashboard/screens/profile_screen.dart';
+import 'package:elderly_prototype_app/features/dashboard/screens/profile_screen/profile_screen.dart';
 
 import 'package:elderly_prototype_app/features/dashboard/screens/home_screen.dart'
     as home;
@@ -24,7 +24,7 @@ class _StartScreenState extends State<StartScreen> {
     home.HomeScreen(),
     ReminderListPage(),
     FitnessScreen(),
-    const ProfileScreen(), // 3. Use ProfileScreen instead of SettingScreen
+    const ProfileScreen(),
   ];
 
   @override

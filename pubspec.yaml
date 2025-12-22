@@ -51,13 +51,13 @@ dependencies:
   vibration: ^3.1.4
   permission_handler: ^11.3.1 # For requesting permissions
   fl_chart: ^0.66.0
-
+  flutter_native_splash: ^2.4.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
-  flutter_native_splash: ^2.4.0
+  
 
 
 # For information on the generic Dart part of this file, see the
@@ -75,10 +75,7 @@ flutter:
   assets:
     - assets/images/
     # - assets/images/google.png
-    # - assets/images/apple1.png
-    # - assets/images/neck_stretch.jpg
-    # - assets/images/logo.png
-  #   - images/a_dot_ham.jpeg
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
   # For details regarding adding assets from package dependencies, see

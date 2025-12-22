@@ -6,6 +6,7 @@ import 'package:elderly_prototype_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -18,72 +19,86 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeApp();
+    _bootstrapApp();
   }
 
-  Future<void> _initializeApp() async {
-    // 1. Initialize Firebase
-    // We check if it's already initialized to avoid errors during hot reload
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+  Future<void> _bootstrapApp() async {
+    // ---------------------------------------------------------
+    // 1. REMOVE NATIVE SPLASH IMMEDIATELY
+    // ---------------------------------------------------------
+    // Do not await anything before this. This reveals your Flutter UI
+    // (the brown background + spinner) instantly.
+    FlutterNativeSplash.remove();
+
+    // ---------------------------------------------------------
+    // 2. PARALLEL INITIALIZATION
+    // ---------------------------------------------------------
+    // We use a try-catch so one failure doesn't crash the app startup.
+    try {
+      await Future.wait([
+        // Task A: Firebase
+        Firebase.apps.isEmpty
+            ? Firebase.initializeApp(
+                options: DefaultFirebaseOptions.currentPlatform)
+            : Future.value(),
+
+        // Task B: Notifications (The likely culprit of the 30s delay)
+        // We ensure this doesn't block the UI even if it's slow.
+        _initNotificationsSafe(),
+
+        // Task C: Minimum delay (so the spinner is visible for at least 1.5s)
+        Future.delayed(const Duration(milliseconds: 1500)),
+      ]);
+    } catch (e) {
+      debugPrint("Startup Error: $e");
     }
-
-    // 2. Initialize Notification Service (The heavy process)
-    await NotificationService().init();
-
-    // 3. (Optional) Artificial delay to show logo if loading is too fast
-    // await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
-    // 4. Check Authentication State
-    // We read the provider directly here to decide where to go
+    // ---------------------------------------------------------
+    // 3. NAVIGATE
+    // ---------------------------------------------------------
     final user = ref.read(authNotifierProvider);
-
-    // 5. Navigate to the correct screen
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) =>
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) =>
             user != null ? const StartScreen() : const Login(),
+        transitionDuration: const Duration(milliseconds: 800),
+        transitionsBuilder: (_, a, __, c) =>
+            FadeTransition(opacity: a, child: c),
       ),
     );
+  }
+
+  // Wrapper to prevent Notification errors from stopping app launch
+  Future<void> _initNotificationsSafe() async {
+    try {
+      // If this takes 30s, it runs in background while spinner spins
+      await NotificationService().init();
+    } catch (e) {
+      debugPrint("Notification Init Failed: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF48352A), // Your App Base Brown
+      backgroundColor: const Color(0xFF48352A),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon or Logo
-            const Icon(
-              Icons.health_and_safety,
-              size: 80,
-              color: Colors.white,
-            ),
+            const Icon(Icons.health_and_safety, size: 80, color: Colors.white),
             const SizedBox(height: 20),
             const Text(
               "HealthCare+",
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
             const SizedBox(height: 40),
-            // Loading Spinner
-            const CircularProgressIndicator(
-              color: Colors.white,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Loading your safe routes...",
-              style: TextStyle(color: Colors.white70),
-            )
+            const CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),
