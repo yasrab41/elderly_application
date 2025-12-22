@@ -480,7 +480,39 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   }
 
   Widget _buildLineChart(Color color) {
-    List<HealthRecord> chartData = _records.take(7).toList().reversed.toList();
+    // 1. Determine the Cutoff Date based on selection
+    final now = DateTime.now();
+    DateTime cutoffDate;
+
+    if (_timeRange == 'Week') {
+      cutoffDate = now.subtract(const Duration(days: 7));
+    } else if (_timeRange == 'Month') {
+      cutoffDate = now.subtract(const Duration(days: 30));
+    } else if (_timeRange == 'Year') {
+      cutoffDate = now.subtract(const Duration(days: 365));
+    } else {
+      cutoffDate = now.subtract(const Duration(days: 7));
+    }
+
+    // 2. Filter records dynamically
+    // Keep records newer than the cutoff, then sort Oldest -> Newest
+    List<HealthRecord> chartData =
+        _records.where((r) => r.timestamp.isAfter(cutoffDate)).toList();
+
+    // Sort logic: Ensure the graph draws from left (old) to right (new)
+    chartData.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    // Handle empty data case safely
+    if (chartData.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text("No data for this period",
+              style: TextStyle(color: Colors.grey)),
+        ),
+      );
+    }
+
     List<FlSpot> spots = chartData.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.value1);
     }).toList();
@@ -500,17 +532,19 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval: 1,
+              // 3. Dynamic Interval: Avoid label overlapping
+              interval: _getInterval(chartData.length),
               getTitlesWidget: (value, meta) {
                 int index = value.toInt();
                 if (index >= 0 && index < chartData.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      DateFormat('d').format(chartData[index].timestamp),
+                      // 4. Dynamic Date Format
+                      _getDateFormat(chartData[index].timestamp),
                       style: TextStyle(
                           color: Colors.grey[600],
-                          fontSize: 12,
+                          fontSize: 10,
                           fontWeight: FontWeight.bold),
                     ),
                   );
@@ -532,7 +566,8 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             color: color,
             barWidth: 4,
             isStrokeCapRound: true,
-            dotData: FlDotData(show: true),
+            // Only show dots if we have a small amount of data (cleaner look)
+            dotData: FlDotData(show: chartData.length < 15),
             belowBarData: BarAreaData(
               show: true,
               gradient: LinearGradient(
@@ -545,6 +580,26 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
         ],
       ),
     );
+  }
+
+  // --- HELPER METHODS ---
+
+  // Formats date based on view (e.g., "Mon" for Week, "Jan" for Year)
+  String _getDateFormat(DateTime date) {
+    if (_timeRange == 'Week') {
+      return DateFormat('E').format(date); // Mon, Tue
+    } else if (_timeRange == 'Month') {
+      return DateFormat('d').format(date); // 1, 5, 22
+    } else {
+      return DateFormat('MMM').format(date); // Jan, Feb
+    }
+  }
+
+  // Calculates interval to prevent text overlapping
+  double _getInterval(int length) {
+    if (length <= 7) return 1; // Show all labels
+    if (length <= 15) return 2; // Show every 2nd label
+    return (length / 5).ceilToDouble(); // Show roughly 5 labels total
   }
 
   double _getMaxY(List<HealthRecord> data) {
