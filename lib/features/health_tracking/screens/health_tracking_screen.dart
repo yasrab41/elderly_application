@@ -118,6 +118,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Get the currently selected metric data
     final metric = _metrics[_selectedMetric];
 
     return Scaffold(
@@ -129,56 +130,84 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
         elevation: 0,
         centerTitle: true,
         leading: const BackButton(color: Colors.white),
-        actions: [
-          // IconButton(
-          //   icon: Icon(Icons.add_circle, color: Colors.white, size: 30),
-          //   onPressed: () {
-          //     Navigator.of(context).push(MaterialPageRoute(
-          //       builder: (context) => const AddReminderPage(),
-          //     ));
-          //   },
-          // ),
-          Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              radius: 18,
-              child: IconButton(
-                icon: Icon(
-                  Icons.add,
-                  color: AppTheme.primaryColor,
-                  size: 20,
-                  fontWeight: FontWeight.bold,
+        // 2. REMOVED: The top-right action button is no longer needed
+        actions: const [],
+      ),
+
+      // 3. UX CHANGE: Use Column to layout content above the fixed button
+      body: Column(
+        children: [
+          // Scrollable Content (Takes up all remaining space)
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildMetricGrid(),
+                          const SizedBox(height: 25),
+                          _buildDashboardCard(metric),
+                          const SizedBox(height: 25),
+                          Text("Recent History",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 15),
+                          _buildHistoryList(),
+                          // Add padding at bottom so list isn't hidden by button
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
+
+          // 4. FIXED BOTTOM BUTTON
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.grey[50], // Match background
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  offset: const Offset(0, -2),
+                  blurRadius: 10,
                 ),
+              ],
+            ),
+            child: SafeArea(
+              child: ElevatedButton.icon(
                 onPressed: () => _showAddRecordDialog(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                ),
+                // Icon provides visual cue for "Add"
+                icon: const Icon(Icons.add_circle_outline, size: 28),
+                // Text dynamically updates based on selection
+                label: Text(
+                  "Add ${metric['label']}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildMetricGrid(),
-                    const SizedBox(height: 25),
-                    _buildDashboardCard(metric),
-                    const SizedBox(height: 25),
-                    Text("Recent History",
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 15),
-                    _buildHistoryList(),
-                  ],
-                ),
-              ),
-            ),
     );
   }
 
