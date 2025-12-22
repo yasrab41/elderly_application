@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_contacts/flutter_contacts.dart'; // Import this
 import '../../../core/constants.dart';
 import '../data/models/contact_model.dart';
 import '../providers/contact_provider.dart';
@@ -12,21 +13,21 @@ class EmergencySettingsScreen extends ConsumerWidget {
     final contactsState = ref.watch(contactNotifierProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light background
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         title: const Text(
           AppStrings.sosSettingsTitle,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF48352A), // Base Brown
-        iconTheme: const IconThemeData(color: Colors.white), // White back arrow
+        backgroundColor: const Color(0xFF48352A),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showContactDialog(context, ref, null),
         label: const Text('Add Contact', style: TextStyle(color: Colors.white)),
         icon: const Icon(Icons.person_add, color: Colors.white),
-        backgroundColor: const Color(0xFF48352A), // Base Brown
+        backgroundColor: const Color(0xFF48352A),
       ),
       body: contactsState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -72,7 +73,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                   leading: CircleAvatar(
                     backgroundColor: contact.isPrimary
                         ? Colors.red.shade100
-                        : const Color(0xFFF0EBE8), // Light brown tint
+                        : const Color(0xFFF0EBE8),
                     child: Icon(
                       contact.isPrimary ? Icons.star : Icons.person,
                       color: contact.isPrimary
@@ -143,7 +144,6 @@ class EmergencySettingsScreen extends ConsumerWidget {
   // --- Dialog for Adding OR Editing ---
   void _showContactDialog(
       BuildContext context, WidgetRef ref, EmergencyContact? contact) {
-    // 1. Create a GlobalKey to manage the Form State
     final formKey = GlobalKey<FormState>();
 
     final nameController = TextEditingController(text: contact?.name ?? '');
@@ -156,6 +156,48 @@ class EmergencySettingsScreen extends ConsumerWidget {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            // --- NEW: Function to Pick Contact ---
+            Future<void> pickContact() async {
+              // 1. Request Permission
+              if (await FlutterContacts.requestPermission()) {
+                // 2. Open Native Picker
+                // properties: true ensures we get phone numbers
+                final pickedContact = await FlutterContacts.openExternalPick();
+
+                if (pickedContact != null) {
+                  // 3. Update Name
+                  setState(() {
+                    nameController.text = pickedContact.displayName;
+                  });
+
+                  // 4. Update Phone (Clean the string)
+                  if (pickedContact.phones.isNotEmpty) {
+                    // Grab the first number
+                    String rawNumber = pickedContact.phones.first.number;
+                    // Remove generic formatting (spaces, brackets) but keep + and digits
+                    String cleanNumber =
+                        rawNumber.replaceAll(RegExp(r'[^0-9+]'), '');
+
+                    setState(() {
+                      phoneController.text = cleanNumber;
+                    });
+                  } else {
+                    // Handle case where contact has no phone number saved
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content:
+                            Text("Selected contact has no phone number.")));
+                  }
+                }
+              } else {
+                // Handle Permission Denied
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text(
+                          "Permission denied. Please allow contact access.")));
+                }
+              }
+            }
+
             return AlertDialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
@@ -167,11 +209,50 @@ class EmergencySettingsScreen extends ConsumerWidget {
               ),
               content: SingleChildScrollView(
                 child: Form(
-                  key: formKey, // Bind the key to the form
+                  key: formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // --- Name Field with Validation ---
+                      // --- NEW: Import Button (Visible only when Adding) ---
+                      if (contact == null) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: pickContact,
+                            icon: const Icon(Icons.contacts,
+                                color: Color(0xFF48352A)),
+                            label: const Text(
+                              "Import from Phone Contacts",
+                              style: TextStyle(
+                                  color: Color(0xFF48352A),
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              side: const BorderSide(color: Color(0xFF48352A)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Row(
+                          children: [
+                            Expanded(child: Divider()),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text("OR",
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                            ),
+                            Expanded(child: Divider()),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+
+                      // --- Name Field ---
                       TextFormField(
                         controller: nameController,
                         textCapitalization: TextCapitalization.words,
@@ -190,7 +271,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // --- Phone Field with Numeric Validation ---
+                      // --- Phone Field ---
                       TextFormField(
                         controller: phoneController,
                         keyboardType: TextInputType.phone,
@@ -204,7 +285,6 @@ class EmergencySettingsScreen extends ConsumerWidget {
                           if (value == null || value.trim().isEmpty) {
                             return 'Phone number is required';
                           }
-                          // Regex: Allow digits and optional leading +
                           final phoneRegExp = RegExp(r'^[+0-9]+$');
                           if (!phoneRegExp.hasMatch(value.trim())) {
                             return 'Enter a valid number (digits only)';
@@ -251,7 +331,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF48352A), // Base Brown
+                    backgroundColor: const Color(0xFF48352A),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
@@ -259,20 +339,17 @@ class EmergencySettingsScreen extends ConsumerWidget {
                         horizontal: 20, vertical: 10),
                   ),
                   onPressed: () {
-                    // 2. Validate the Form
                     if (!formKey.currentState!.validate()) {
-                      return; // Stop if invalid
+                      return;
                     }
 
                     if (contact == null) {
-                      // ADD NEW
                       ref.read(contactNotifierProvider.notifier).addContact(
                             nameController.text,
                             phoneController.text,
                             isPrimary,
                           );
                     } else {
-                      // UPDATE EXISTING
                       ref.read(contactNotifierProvider.notifier).updateContact(
                             contact.copyWith(
                               name: nameController.text,

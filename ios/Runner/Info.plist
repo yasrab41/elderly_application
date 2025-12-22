@@ -54,5 +54,8 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		
+		<key>NSContactsUsageDescription</key>
+        <string>We need access to your contacts to let you quickly add emergency contacts.</string>
 	</dict>
 </plist>
