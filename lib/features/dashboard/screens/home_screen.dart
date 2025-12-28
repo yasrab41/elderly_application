@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:elderly_prototype_app/features/water_reminder/screens/water_reminder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -64,9 +65,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'iconColor': Color(0xFFFF9800),
     },
     {
-      'title': 'Brain Games',
+      'title': 'Water Reminder',
       'subtitle': 'Keep your mind sharp',
-      'icon': Icons.lightbulb_outline,
+      'icon': Icons.water_drop_outlined,
       'color': Color(0xFFF3E5F5),
       'iconColor': Color(0xFF9C27B0),
     },
@@ -379,6 +380,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const HealthTrackingScreen()));
+                      } else if (item['title'] == 'Water Reminder') {
+                        onTapAction = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const WaterReminderScreen()));
                       } else {
                         onTapAction = () {};
                       }

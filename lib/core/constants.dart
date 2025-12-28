@@ -82,6 +82,26 @@ class AppStrings {
   static const String sys = 'Systolic';
   static const String dia = 'Diastolic';
   //--- End of Health Tracking Feature ---
+
+  // --- Start of Water Reminder Feature ---
+  static const String waterTitle = 'Water Reminder';
+  static const String goalLabel = 'Goal:';
+  static const String goalAchieved = '🎉 Great job! Goal achieved!';
+  static const String remindersTitle = 'Reminders';
+  static const String every = 'Every';
+  static const String hoursSuffix = 'hour(s)';
+  static const String disabled = 'Disabled';
+  static const String changeSettings = 'Change Settings';
+  static const String addWaterTitle = 'Add Water';
+  static const String noWaterLogged = 'No water logged today';
+  static const String todaysWater = "Today's Water";
+  static const String settingsTitle = 'Settings';
+  static const String remindMeEvery = 'Remind me every:';
+  static const String activeHoursTitle = 'Active Hours (No sleep disturbance):';
+  static const String vibrationTitle = 'Vibration';
+  static const String vibrationSubtitle = 'Vibrate on reminder';
+  static const String saveButton = 'Save';
+  // --- End of Water Reminder Feature ---
 }
 
 // --- Mock Exercise Data with more variety ---
