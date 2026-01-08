@@ -89,7 +89,7 @@ class DatabaseService {
       CREATE TABLE $waterSettingsTable (
         userId TEXT PRIMARY KEY,
         dailyGoal $intType,
-        intervalHours $intType,
+        intervalMinutes $intType,
         startTime $textType,
         endTime $textType,
         isEnabled $intType,

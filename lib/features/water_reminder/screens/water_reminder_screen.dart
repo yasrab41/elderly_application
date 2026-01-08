@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants.dart';
 import '../data/models/water_models.dart';
-// // 1. IMPORT YOUR NEW FILES
 import 'reminder_settings_modal.dart';
 import '../services/notification_service.dart';
 import '../services/water_notifier.dart';
@@ -90,8 +89,46 @@ class WaterReminderScreen extends ConsumerWidget {
     );
   }
 
+  // --- NEW: Helper to calculate countdown string ---
+  String _getNextReminderString(WaterSettings settings) {
+    if (!settings.isEnabled) return "Reminders disabled";
+
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day, settings.startTOD.hour,
+        settings.startTOD.minute);
+    final end = DateTime(now.year, now.month, now.day, settings.endTOD.hour,
+        settings.endTOD.minute);
+
+    DateTime currentSlot = start;
+
+    // Find next slot
+    while (currentSlot.isBefore(end)) {
+      if (currentSlot.isAfter(now)) {
+        final diff = currentSlot.difference(now);
+        if (diff.inHours > 0) {
+          return "Next: in ${diff.inHours}h ${diff.inMinutes % 60}m";
+        } else {
+          return "Next: in ${diff.inMinutes} min";
+        }
+      }
+      currentSlot =
+          currentSlot.add(Duration(minutes: settings.intervalMinutes));
+    }
+
+    return "Done for today";
+  }
+
   Widget _buildSettingsCard(
       BuildContext context, WaterState state, WaterNotifier notifier) {
+    // Calculate display text for interval
+    String intervalText;
+    if (state.settings.intervalMinutes < 60) {
+      intervalText = "${state.settings.intervalMinutes} min";
+    } else {
+      double hours = state.settings.intervalMinutes / 60;
+      intervalText = "${hours.toStringAsFixed(hours % 1 == 0 ? 0 : 1)} hour(s)";
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -110,12 +147,23 @@ class WaterReminderScreen extends ConsumerWidget {
                   const Text(AppStrings.remindersTitle,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 5),
+                  // Display Interval
                   Text(
                     state.settings.isEnabled
-                        ? "${AppStrings.every} ${state.settings.intervalHours} ${AppStrings.hoursSuffix} (${state.settings.soundType.toUpperCase()})"
+                        ? "Every $intervalText (${state.settings.soundType.toUpperCase()})"
                         : AppStrings.disabled,
-                    style: const TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.black87),
                   ),
+                  // NEW: Display Countdown
+                  if (state.settings.isEnabled)
+                    Text(
+                      _getNextReminderString(state.settings),
+                      style: const TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13),
+                    ),
                 ],
               ),
               Switch(
@@ -147,7 +195,6 @@ class WaterReminderScreen extends ConsumerWidget {
     );
   }
 
-  // --- CLEAN IMPLEMENTATION OF THE MODAL CALL ---
   void _openAdvancedSettings(
       BuildContext context, WaterState state, WaterNotifier notifier) {
     showModalBottomSheet(
@@ -155,38 +202,35 @@ class WaterReminderScreen extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ReminderSettingsModal(
-        // Pass current state values to the modal
+        // FIX: Pass minutes directly
+        currentInterval: state.settings.intervalMinutes.toDouble(),
         currentSound: state.settings.soundType,
         currentVibration: state.settings.isVibration,
-        currentInterval: state.settings.intervalHours,
+        currentActiveStart: state.settings.startTime,
+        currentActiveEnd: state.settings.endTime,
 
-        // Handle the Save callback
-        onSave: (sound, vibration, interval) {
-          final updatedSettings = state.settings.copyWith(
-            soundType: sound,
-            isVibration: vibration,
-            intervalHours: interval,
-          );
-
-          // Update the backend/state via Notifier
-          notifier.updateSettings(updatedSettings);
-
-          // Trigger actual notification scheduling
-          if (updatedSettings.isEnabled) {
-            NotificationService.scheduleNotification(
-              id: 101, // Unique ID for water
-              title: "Time to Drink Water!",
-              body: "Stay hydrated for your health.",
-              scheduledTime: DateTime.now().add(Duration(hours: interval)),
-              soundType: sound,
-            );
-          }
+        onSave: ({
+          required String startMode,
+          required String customStartTime,
+          required double intervalMinutes,
+          required String activeStart,
+          required String activeEnd,
+          required String sound,
+          required bool vibration,
+        }) {
+          // Pass data to notifier without rounding to hours
+          notifier.updateWaterSettings(
+              startMode: startMode,
+              customStartTime: customStartTime,
+              intervalMinutes: intervalMinutes,
+              activeStart: activeStart,
+              activeEnd: activeEnd,
+              sound: sound,
+              vibration: vibration);
         },
       ),
     );
   }
-
-  // ... (Keep _buildAddWaterSection and _buildHistoryList exactly as you have them)
 
   Widget _buildAddWaterSection(WaterNotifier notifier) {
     final amounts = [200, 250, 300, 500];

@@ -194,23 +194,13 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                   // Exercise Image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
+                    child: Image.asset(
                       exercise.imageUrl,
                       fit: BoxFit.cover,
                       height: 250,
                       width: double.infinity,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          height: 250,
-                          color: Colors.grey[200],
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        );
-                      },
+
+                      // Error handling (assets don't support loadingBuilder)
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           height: 250,

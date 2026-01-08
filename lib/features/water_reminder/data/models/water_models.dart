@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Model for individual water intake records
 class WaterLog {
   final int? id;
   final String userId;
-  final int amount; // in ml
+  final int amount;
   final DateTime timestamp;
 
   WaterLog({
@@ -35,21 +34,20 @@ class WaterLog {
   }
 }
 
-/// Model for water reminder preferences
 class WaterSettings {
   final String userId;
   final int dailyGoal;
-  final int intervalHours; // 1, 2, 3, or 4
-  final String startTime; // "08:00"
-  final String endTime; // "20:00"
+  final int intervalMinutes; // CHANGED FROM HOURS TO MINUTES
+  final String startTime;
+  final String endTime;
   final bool isEnabled;
   final bool isVibration;
-  final String soundType; // "normal" or "loud"
+  final String soundType;
 
   WaterSettings({
     required this.userId,
     this.dailyGoal = 2000,
-    this.intervalHours = 2,
+    this.intervalMinutes = 60, // Default 60 mins (1 hour)
     this.startTime = "08:00",
     this.endTime = "20:00",
     this.isEnabled = true,
@@ -57,11 +55,10 @@ class WaterSettings {
     this.soundType = "normal",
   });
 
-  /// Essential for Riverpod state updates
   WaterSettings copyWith({
     String? userId,
     int? dailyGoal,
-    int? intervalHours,
+    int? intervalMinutes,
     String? startTime,
     String? endTime,
     bool? isEnabled,
@@ -71,7 +68,7 @@ class WaterSettings {
     return WaterSettings(
       userId: userId ?? this.userId,
       dailyGoal: dailyGoal ?? this.dailyGoal,
-      intervalHours: intervalHours ?? this.intervalHours,
+      intervalMinutes: intervalMinutes ?? this.intervalMinutes,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       isEnabled: isEnabled ?? this.isEnabled,
@@ -84,7 +81,7 @@ class WaterSettings {
     return {
       'userId': userId,
       'dailyGoal': dailyGoal,
-      'intervalHours': intervalHours,
+      'intervalMinutes': intervalMinutes, // Save minutes
       'startTime': startTime,
       'endTime': endTime,
       'isEnabled': isEnabled ? 1 : 0,
@@ -97,7 +94,10 @@ class WaterSettings {
     return WaterSettings(
       userId: map['userId'] ?? '',
       dailyGoal: map['dailyGoal'] ?? 2000,
-      intervalHours: map['intervalHours'] ?? 2,
+      // Handle legacy data or new data
+      intervalMinutes: map['intervalMinutes'] ??
+          ((map['intervalHours'] != null) ? map['intervalHours'] * 60 : 60),
+
       startTime: map['startTime'] ?? "08:00",
       endTime: map['endTime'] ?? "20:00",
       isEnabled: (map['isEnabled'] ?? 1) == 1,
@@ -106,7 +106,6 @@ class WaterSettings {
     );
   }
 
-  // Helper to get TimeOfDay for UI Widgets
   TimeOfDay get startTOD {
     final parts = startTime.split(':');
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
@@ -118,8 +117,6 @@ class WaterSettings {
   }
 }
 
-/// A wrapper class to hold the entire state of the Water feature.
-/// This makes your ConsumerWidget much cleaner.
 class WaterState {
   final List<WaterLog> todayLogs;
   final WaterSettings settings;
