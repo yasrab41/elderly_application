@@ -88,8 +88,9 @@ class WaterNotifier extends StateNotifier<WaterState> {
   }
 
   Future<void> scheduleWaterReminders(WaterSettings settings) async {
-    // 1. Cancel IDs 2000-2050
-    for (int i = 2000; i < 2050; i++) {
+    // 1. Cancel a larger range of IDs to be safe
+    // Since we might schedule more notifications now, let's clear up to 2100
+    for (int i = 2000; i < 2100; i++) {
       await _notificationService.notificationsPlugin.cancel(i);
     }
 
@@ -121,11 +122,14 @@ class WaterNotifier extends StateNotifier<WaterState> {
           soundType: settings.soundType,
           vibration: settings.isVibration,
         );
+        //Only increment ID if we actually scheduled something!
+        notificationId++;
       }
+      // Move to next time slot
       currentSlot = currentSlot.add(step);
-      notificationId++;
-
-      if (notificationId > 2050) break;
+      // Safety Break: Stop if we run out of IDs (LocalNotifications has a limit per app)
+      // We increased this limit slightly, but now it only counts *valid* future notifications.
+      if (notificationId > 2100) break;
     }
   }
 }

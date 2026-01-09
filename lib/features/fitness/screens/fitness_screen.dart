@@ -177,7 +177,7 @@ class FitnessScreen extends ConsumerWidget {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF48352A), // Dark brown
-                    const Color(0xFF8B4513), // Medium brown
+                    const Color(0xFF7B6658), // Medium brown
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

@@ -416,12 +416,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       pinned: true,
       elevation: 10,
       shadowColor: _baseBrown,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.mic, color: Colors.white),
-          onPressed: () {},
-        ),
-      ],
+      // actions: [
+      //   IconButton(
+      //     icon: const Icon(Icons.mic, color: Colors.white),
+      //     onPressed: () {},
+      //   ),
+      // ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 35.0, bottom: 16.0),
         title: const Text(
