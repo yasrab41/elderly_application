@@ -94,15 +94,32 @@ class WaterReminderScreen extends ConsumerWidget {
     if (!settings.isEnabled) return "Reminders disabled";
 
     final now = DateTime.now();
+
+    // Parse the Start Time (This will now be "Start Now" time or "Custom" time)
     final start = DateTime(now.year, now.month, now.day, settings.startTOD.hour,
         settings.startTOD.minute);
+
     final end = DateTime(now.year, now.month, now.day, settings.endTOD.hour,
         settings.endTOD.minute);
 
+    // If the start time is in the future (e.g. Custom Start 6:00 PM and it's 2:00 PM)
+    if (start.isAfter(now)) {
+      final diff = start.difference(now);
+      if (diff.inHours > 0) {
+        return "Next: in ${diff.inHours}h ${diff.inMinutes % 60}m";
+      } else {
+        return "Next: in ${diff.inMinutes} min";
+      }
+    }
+
+    // If Start Time is in the past, calculate the next slot based on intervals
     DateTime currentSlot = start;
 
-    // Find next slot
+    // Safety check to prevent infinite loops if interval is 0
+    int interval = settings.intervalMinutes > 0 ? settings.intervalMinutes : 60;
+
     while (currentSlot.isBefore(end)) {
+      // We want the next slot that is strictly AFTER now
       if (currentSlot.isAfter(now)) {
         final diff = currentSlot.difference(now);
         if (diff.inHours > 0) {
@@ -111,8 +128,7 @@ class WaterReminderScreen extends ConsumerWidget {
           return "Next: in ${diff.inMinutes} min";
         }
       }
-      currentSlot =
-          currentSlot.add(Duration(minutes: settings.intervalMinutes));
+      currentSlot = currentSlot.add(Duration(minutes: interval));
     }
 
     return "Done for today";
@@ -220,8 +236,8 @@ class WaterReminderScreen extends ConsumerWidget {
         }) {
           // Pass data to notifier without rounding to hours
           notifier.updateWaterSettings(
-              startMode: startMode,
-              customStartTime: customStartTime,
+              // startMode: startMode,
+              // customStartTime: customStartTime,
               intervalMinutes: intervalMinutes,
               activeStart: activeStart,
               activeEnd: activeEnd,

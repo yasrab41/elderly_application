@@ -264,11 +264,25 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16))),
                   onPressed: () {
+                    // Logic to determine the actual Start Time based on user selection
+                    String finalStartTime;
+
+                    if (_startMode == 'now') {
+                      // If "Start Now", get the current time formatted as HH:mm
+                      final now = TimeOfDay.now();
+                      finalStartTime =
+                          "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+                    } else {
+                      // If "Custom", use the time picked from the time picker
+                      finalStartTime = _customStartTime;
+                    }
+
                     widget.onSave(
                       startMode: _startMode,
                       customStartTime: _customStartTime,
                       intervalMinutes: _selectedInterval,
-                      activeStart: _formatHour(_activeStartHour),
+                      // Pass the DETERMINED start time, not the slider value
+                      activeStart: finalStartTime,
                       activeEnd: _formatHour(_activeEndHour),
                       sound: _selectedSound,
                       vibration: _vibrationEnabled,

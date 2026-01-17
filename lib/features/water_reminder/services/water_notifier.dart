@@ -1,11 +1,10 @@
-import 'package:elderly_prototype_app/features/water_reminder/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../authentication/services/auth_service.dart';
 import '../../medicine_reminders/data/datasources/database_service.dart';
-
+import 'notification_service.dart';
 import '../data/models/water_models.dart';
 
 class WaterNotifier extends StateNotifier<WaterState> {
@@ -39,8 +38,6 @@ class WaterNotifier extends StateNotifier<WaterState> {
     scheduleWaterReminders(settings);
   }
 
-  String _formatCurrentTime() => DateFormat('HH:mm').format(DateTime.now());
-
   Future<void> addWater(int amount) async {
     final newLog = WaterLog(
       userId: _userId,
@@ -56,9 +53,8 @@ class WaterNotifier extends StateNotifier<WaterState> {
     await loadData();
   }
 
+  // --- FIX: Removed 'startMode' and 'customStartTime' ---
   Future<void> updateWaterSettings({
-    required String startMode,
-    required String customStartTime,
     required double intervalMinutes,
     required String activeStart,
     required String activeEnd,
@@ -66,10 +62,9 @@ class WaterNotifier extends StateNotifier<WaterState> {
     required bool vibration,
   }) async {
     final newSettings = state.settings.copyWith(
-      // FIX: Store exact minutes (no rounding to hours)
       intervalMinutes: intervalMinutes.toInt(),
+      // We accept the calculated string (e.g. "10:05") directly
       startTime: activeStart,
-      // startTime: startMode == 'now' ? _formatCurrentTime() : customStartTime,
       endTime: activeEnd,
       soundType: sound,
       isVibration: vibration,
@@ -88,8 +83,7 @@ class WaterNotifier extends StateNotifier<WaterState> {
   }
 
   Future<void> scheduleWaterReminders(WaterSettings settings) async {
-    // 1. Cancel a larger range of IDs to be safe
-    // Since we might schedule more notifications now, let's clear up to 2100
+    // 1. Cancel previous notifications
     for (int i = 2000; i < 2100; i++) {
       await _notificationService.notificationsPlugin.cancel(i);
     }
@@ -98,22 +92,57 @@ class WaterNotifier extends StateNotifier<WaterState> {
 
     final now = DateTime.now();
 
-    // 2. Setup timing logic
-    final start = DateTime(now.year, now.month, now.day, settings.startTOD.hour,
-        settings.startTOD.minute);
+    // This 'savedStart' is now correct (It is either Now or Custom Time)
+    final savedStart = DateTime(now.year, now.month, now.day,
+        settings.startTOD.hour, settings.startTOD.minute);
+
     final end = DateTime(now.year, now.month, now.day, settings.endTOD.hour,
         settings.endTOD.minute);
 
-    DateTime currentSlot = start;
-    int notificationId = 2000;
+    // If the saved start time is in the past (e.g. 8:00 AM), we start counting from Now
+    // If it's in the future (e.g. 6:00 PM), we wait for it.
+    DateTime baseTime = savedStart.isAfter(now) ? savedStart : now;
 
-    // FIX: Use minutes from model
+    // Exception: If the user explicitly chose "Custom Time" that is in the past,
+    // we align the grid to that past time.
+    // But for simplicity in this fix, relying on 'savedStart' as the anchor is best.
+    // If user selected "Start Now", savedStart is virtually identical to 'now'.
+
     final Duration step = Duration(minutes: settings.intervalMinutes);
 
-    // 3. Scheduling Loop
-    while (currentSlot.isBefore(end)) {
+    // Calculate the first notification time.
+    // If I click "Start Now" at 14:00 with 1 hour interval,
+    // the first notification should be at 15:00.
+    DateTime currentSlot;
+
+    if (savedStart.isAfter(now)) {
+      // If start time is future, that IS the first slot (or should we wait interval?)
+      // Usually, if I set "Start at 14:30", I expect a reminder at 14:30 or 14:30 + interval.
+      // Let's assume the first reminder is AT the start time for custom future times.
+      currentSlot = savedStart;
+    } else {
+      // If start time is Now/Past, add one interval.
+      // Example: Start Now (14:00) -> First alert 15:00.
+      // Example: Start 8:00 (Grid) -> Grid aligns to 8:00, find next slot after now.
+
+      // Recalculate grid based on strict Start Time anchor for consistency
+      currentSlot = savedStart;
+      while (currentSlot.isBefore(now)) {
+        currentSlot = currentSlot.add(step);
+      }
+    }
+
+    int notificationId = 2000;
+
+    // 4. Scheduling Loop
+    while (notificationId < 2100) {
+      // Stop if we pass the End Time
+      if (currentSlot.hour > end.hour ||
+          (currentSlot.hour == end.hour && currentSlot.minute > end.minute)) {
+        break;
+      }
+
       if (currentSlot.isAfter(now)) {
-        // FIX: UNCOMMENTED THE NOTIFICATION LOGIC
         await _notificationService.scheduleDailyDose(
           notificationId: notificationId,
           name: "Hydration Time",
@@ -122,18 +151,16 @@ class WaterNotifier extends StateNotifier<WaterState> {
           soundType: settings.soundType,
           vibration: settings.isVibration,
         );
-        //Only increment ID if we actually scheduled something!
         notificationId++;
       }
-      // Move to next time slot
+
+      // Move to next slot
       currentSlot = currentSlot.add(step);
-      // Safety Break: Stop if we run out of IDs (LocalNotifications has a limit per app)
-      // We increased this limit slightly, but now it only counts *valid* future notifications.
-      if (notificationId > 2100) break;
     }
   }
 }
 
+// Global Provider Definition
 final waterProvider = StateNotifierProvider<WaterNotifier, WaterState>((ref) {
   final user = ref.watch(authNotifierProvider);
   final userId = user?.uid ?? '';
