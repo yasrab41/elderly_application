@@ -54,6 +54,9 @@ dependencies:
   flutter_native_splash: ^2.4.0
   flutter_contacts: ^1.1.9
   audioplayers: ^5.2.1
+
+
+
 dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_test:

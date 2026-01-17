@@ -50,8 +50,7 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
   }
 
   Future<void> loadRemindersAndSchedule() async {
-    if (_userId.isEmpty) return; // Don't load if no user
-    // 5. Pass userId to DB call
+    if (_userId.isEmpty) return;
     state = await _dbService.readAllReminders(_userId);
     _isInitialLoadComplete = true;
 
@@ -68,6 +67,9 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
         name: dose.reminder.name,
         dosage: dose.reminder.dosage,
         time: dose.timeOfDay,
+        // PASS THE SETTINGS HERE
+        soundType: dose.reminder.soundType,
+        vibration: dose.reminder.isVibration,
       );
     }
   }
@@ -78,6 +80,9 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     required List<String> times,
     required DateTime startDate,
     required DateTime endDate,
+    // Add params
+    required String soundType,
+    required bool isVibration,
   }) async {
     final newReminder = MedicineReminder(
       name: name,
@@ -86,10 +91,11 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
       startDate: startDate,
       endDate: endDate,
       isActive: true,
+      // Save params
+      soundType: soundType,
+      isVibration: isVibration,
     );
-    // 6. Pass userId to DB call
     await _dbService.create(newReminder, _userId);
-
     await loadRemindersAndSchedule();
   }
 

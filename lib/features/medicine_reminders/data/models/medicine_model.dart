@@ -1,20 +1,17 @@
-import 'dart:convert'; // Required for encoding/decoding the list of times
+import 'dart:convert';
 
 class MedicineReminder {
   final int? id;
   final String name;
   final String dosage;
-
-  // --- NEW FIELDS ---
-  // Store times as a list of 'HH:mm' strings (e.g., "08:00", "20:00")
   final List<String> times;
   final DateTime startDate;
   final DateTime endDate;
-  // --- END NEW FIELDS ---
-
   final bool isActive;
-  // We'll use the reminder ID + time index for unique notification IDs,
-  // so 'notificationId' is no longer needed in the model itself.
+
+  // --- NEW FIELDS ---
+  final String soundType; // 'normal' or 'loud'
+  final bool isVibration;
 
   MedicineReminder({
     this.id,
@@ -24,19 +21,23 @@ class MedicineReminder {
     required this.startDate,
     required this.endDate,
     this.isActive = true,
+    // Default values
+    this.soundType = 'normal',
+    this.isVibration = true,
   });
 
-  // --- Utility Methods for Database Interaction ---
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
       'dosage': dosage,
-      'times':
-          jsonEncode(times), // Encode list of strings into a single JSON string
+      'times': jsonEncode(times),
       'startDate': startDate.toIso8601String(),
       'endDate': endDate.toIso8601String(),
       'isActive': isActive ? 1 : 0,
+      // Save new fields
+      'soundType': soundType,
+      'isVibration': isVibration ? 1 : 0,
     };
   }
 
@@ -45,11 +46,13 @@ class MedicineReminder {
       id: map['id'] as int?,
       name: map['name'] as String,
       dosage: map['dosage'] as String,
-      // Decode the JSON string back into a List<String>
       times: List<String>.from(jsonDecode(map['times'] as String)),
       startDate: DateTime.parse(map['startDate'] as String),
       endDate: DateTime.parse(map['endDate'] as String),
       isActive: map['isActive'] == 1,
+      // Load new fields with fallbacks
+      soundType: map['soundType'] ?? 'normal',
+      isVibration: (map['isVibration'] ?? 1) == 1,
     );
   }
 
@@ -61,6 +64,8 @@ class MedicineReminder {
     DateTime? startDate,
     DateTime? endDate,
     bool? isActive,
+    String? soundType,
+    bool? isVibration,
   }) {
     return MedicineReminder(
       id: id ?? this.id,
@@ -70,6 +75,8 @@ class MedicineReminder {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       isActive: isActive ?? this.isActive,
+      soundType: soundType ?? this.soundType,
+      isVibration: isVibration ?? this.isVibration,
     );
   }
 }

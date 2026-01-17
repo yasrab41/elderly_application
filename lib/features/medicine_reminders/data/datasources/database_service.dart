@@ -26,7 +26,7 @@ class DatabaseService {
     if (_database != null) return _database!;
     // If you have already run the app with 'reminders_v4.db',
     // change this to 'reminders_v5.db' to force creation of new water tables.
-    _database = await _initDB('reminders_v4.db');
+    _database = await _initDB('reminders_v5.db');
     return _database!;
   }
 
@@ -58,7 +58,9 @@ class DatabaseService {
         times $textType, 
         startDate $textType,
         endDate $textType,
-        isActive $boolType
+        isActive $boolType,
+        soundType $textType,    
+        isVibration $boolType   
       )
     ''');
 
