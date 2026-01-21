@@ -246,9 +246,9 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _buildSoundBox("Normal", Icons.volume_up, "normal"),
+                  _buildSoundBox("Ring", Icons.volume_up, "normal"),
                   const SizedBox(width: 15),
-                  _buildSoundBox("Loud", Icons.volume_up_outlined, "loud"),
+                  _buildSoundBox("Voice", Icons.volume_up_outlined, "loud"),
                 ],
               ),
 

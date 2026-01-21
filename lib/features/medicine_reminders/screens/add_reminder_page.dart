@@ -299,9 +299,9 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
               Row(
                 children: [
                   _buildSoundBox(
-                      "Normal", Icons.notifications, "normal", primary, accent),
+                      "Ring", Icons.notifications, "normal", primary, accent),
                   const SizedBox(width: 15),
-                  _buildSoundBox("Loud", Icons.notifications_active, "loud",
+                  _buildSoundBox("Voice", Icons.notifications_active, "loud",
                       primary, accent),
                 ],
               ),
