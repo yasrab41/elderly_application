@@ -44,6 +44,9 @@ class WaterSettings {
   final bool isVibration;
   final String soundType;
 
+  // --- NEW: Stores the specific "Start Now" or "Custom" time ---
+  final String? anchorTime;
+
   WaterSettings({
     required this.userId,
     this.dailyGoal = 2000,
@@ -53,6 +56,7 @@ class WaterSettings {
     this.isEnabled = true,
     this.isVibration = true,
     this.soundType = "normal",
+    this.anchorTime, // Initialize new field
   });
 
   WaterSettings copyWith({
@@ -64,6 +68,7 @@ class WaterSettings {
     bool? isEnabled,
     bool? isVibration,
     String? soundType,
+    String? anchorTime, // Add to copyWith
   }) {
     return WaterSettings(
       userId: userId ?? this.userId,
@@ -74,6 +79,7 @@ class WaterSettings {
       isEnabled: isEnabled ?? this.isEnabled,
       isVibration: isVibration ?? this.isVibration,
       soundType: soundType ?? this.soundType,
+      anchorTime: anchorTime ?? this.anchorTime, // Copy new field
     );
   }
 
@@ -87,6 +93,7 @@ class WaterSettings {
       'isEnabled': isEnabled ? 1 : 0,
       'isVibration': isVibration ? 1 : 0,
       'soundType': soundType,
+      'anchorTime': anchorTime, // Save to DB
     };
   }
 
@@ -103,6 +110,7 @@ class WaterSettings {
       isEnabled: (map['isEnabled'] ?? 1) == 1,
       isVibration: (map['isVibration'] ?? 1) == 1,
       soundType: map['soundType'] ?? "normal",
+      anchorTime: map['anchorTime'], // Load from DB
     );
   }
 
@@ -113,6 +121,13 @@ class WaterSettings {
 
   TimeOfDay get endTOD {
     final parts = endTime.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  // --- NEW: Helper for Anchor Time ---
+  TimeOfDay get anchorTOD {
+    if (anchorTime == null) return startTOD; // Fallback to start time if null
+    final parts = anchorTime!.split(':');
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
   }
 }

@@ -53,19 +53,22 @@ class WaterNotifier extends StateNotifier<WaterState> {
     await loadData();
   }
 
-  // --- FIX: Removed 'startMode' and 'customStartTime' ---
+  // --- FIX: Added 'anchorTime' parameter ---
   Future<void> updateWaterSettings({
     required double intervalMinutes,
     required String activeStart,
     required String activeEnd,
     required String sound,
     required bool vibration,
+    required String anchorTime, // <--- NEW PARAMETER
   }) async {
     final newSettings = state.settings.copyWith(
       intervalMinutes: intervalMinutes.toInt(),
-      // We accept the calculated string (e.g. "10:05") directly
+      // Gate: Active Hours
       startTime: activeStart,
       endTime: activeEnd,
+      // Phase: Start Now / Custom Time
+      anchorTime: anchorTime,
       soundType: sound,
       isVibration: vibration,
       isEnabled: true,
@@ -92,41 +95,26 @@ class WaterNotifier extends StateNotifier<WaterState> {
 
     final now = DateTime.now();
 
-    // This 'savedStart' is now correct (It is either Now or Custom Time)
-    final savedStart = DateTime(now.year, now.month, now.day,
+    // 2. Define Gates (Active Hours Window)
+    final gateStart = DateTime(now.year, now.month, now.day,
         settings.startTOD.hour, settings.startTOD.minute);
 
-    final end = DateTime(now.year, now.month, now.day, settings.endTOD.hour,
+    final gateEnd = DateTime(now.year, now.month, now.day, settings.endTOD.hour,
         settings.endTOD.minute);
 
-    // If the saved start time is in the past (e.g. 8:00 AM), we start counting from Now
-    // If it's in the future (e.g. 6:00 PM), we wait for it.
-    DateTime baseTime = savedStart.isAfter(now) ? savedStart : now;
-
-    // Exception: If the user explicitly chose "Custom Time" that is in the past,
-    // we align the grid to that past time.
-    // But for simplicity in this fix, relying on 'savedStart' as the anchor is best.
-    // If user selected "Start Now", savedStart is virtually identical to 'now'.
+    // 3. Define Anchor (The "Start Now" Phase)
+    final anchorTOD = settings.anchorTOD;
+    final anchorDate = DateTime(
+        now.year, now.month, now.day, anchorTOD.hour, anchorTOD.minute);
 
     final Duration step = Duration(minutes: settings.intervalMinutes);
 
-    // Calculate the first notification time.
-    // If I click "Start Now" at 14:00 with 1 hour interval,
-    // the first notification should be at 15:00.
-    DateTime currentSlot;
+    // 4. Align currentSlot to Anchor
+    DateTime currentSlot = anchorDate;
 
-    if (savedStart.isAfter(now)) {
-      // If start time is future, that IS the first slot (or should we wait interval?)
-      // Usually, if I set "Start at 14:30", I expect a reminder at 14:30 or 14:30 + interval.
-      // Let's assume the first reminder is AT the start time for custom future times.
-      currentSlot = savedStart;
-    } else {
-      // If start time is Now/Past, add one interval.
-      // Example: Start Now (14:00) -> First alert 15:00.
-      // Example: Start 8:00 (Grid) -> Grid aligns to 8:00, find next slot after now.
-
-      // Recalculate grid based on strict Start Time anchor for consistency
-      currentSlot = savedStart;
+    // If anchor is in the past, fast forward to the next future slot
+    // while maintaining the phase.
+    if (currentSlot.isBefore(now)) {
       while (currentSlot.isBefore(now)) {
         currentSlot = currentSlot.add(step);
       }
@@ -134,15 +122,22 @@ class WaterNotifier extends StateNotifier<WaterState> {
 
     int notificationId = 2000;
 
-    // 4. Scheduling Loop
+    // 5. Scheduling Loop
     while (notificationId < 2100) {
-      // Stop if we pass the End Time
-      if (currentSlot.hour > end.hour ||
-          (currentSlot.hour == end.hour && currentSlot.minute > end.minute)) {
+      // Stop if we pass the end of the Active Hours (Gate End)
+      if (currentSlot.isAfter(gateEnd)) {
         break;
       }
 
-      if (currentSlot.isAfter(now)) {
+      // Check Gate Validity: Is it AFTER Gate Start?
+      // (We already checked Gate End in the break condition)
+      bool isAfterStart = currentSlot.isAtSameMomentAs(gateStart) ||
+          currentSlot.isAfter(gateStart);
+
+      // Safety: Ensure it's in the future
+      bool isFuture = currentSlot.isAfter(now);
+
+      if (isAfterStart && isFuture) {
         await _notificationService.scheduleDailyDose(
           notificationId: notificationId,
           name: "Hydration Time",

@@ -89,38 +89,42 @@ class WaterReminderScreen extends ConsumerWidget {
     );
   }
 
-  // --- NEW: Helper to calculate countdown string ---
+  // --- FIX: Correct Countdown Logic (Decoupled) ---
   String _getNextReminderString(WaterSettings settings) {
     if (!settings.isEnabled) return "Reminders disabled";
 
     final now = DateTime.now();
 
-    // Parse the Start Time (This will now be "Start Now" time or "Custom" time)
-    final start = DateTime(now.year, now.month, now.day, settings.startTOD.hour,
-        settings.startTOD.minute);
-
-    final end = DateTime(now.year, now.month, now.day, settings.endTOD.hour,
+    // 1. Gates (Active Hours)
+    final gateStart = DateTime(now.year, now.month, now.day,
+        settings.startTOD.hour, settings.startTOD.minute);
+    final gateEnd = DateTime(now.year, now.month, now.day, settings.endTOD.hour,
         settings.endTOD.minute);
 
-    // If the start time is in the future (e.g. Custom Start 6:00 PM and it's 2:00 PM)
-    if (start.isAfter(now)) {
-      final diff = start.difference(now);
-      if (diff.inHours > 0) {
-        return "Next: in ${diff.inHours}h ${diff.inMinutes % 60}m";
-      } else {
-        return "Next: in ${diff.inMinutes} min";
-      }
+    // 2. Anchor (Start Now / Custom)
+    final anchorTOD = settings.anchorTOD;
+    DateTime currentSlot = DateTime(
+        now.year, now.month, now.day, anchorTOD.hour, anchorTOD.minute);
+
+    int interval = settings.intervalMinutes > 0 ? settings.intervalMinutes : 60;
+    final Duration step = Duration(minutes: interval);
+
+    // 3. Fast forward currentSlot to be > now
+    while (currentSlot.isBefore(now)) {
+      currentSlot = currentSlot.add(step);
     }
 
-    // If Start Time is in the past, calculate the next slot based on intervals
-    DateTime currentSlot = start;
+    // 4. Find the next slot that is inside the Gate
+    while (currentSlot.day == now.day) {
+      if (currentSlot.isAfter(gateEnd)) {
+        return "Done for today";
+      }
 
-    // Safety check to prevent infinite loops if interval is 0
-    int interval = settings.intervalMinutes > 0 ? settings.intervalMinutes : 60;
+      // Check if it's after start
+      bool isAfterStart = currentSlot.isAtSameMomentAs(gateStart) ||
+          currentSlot.isAfter(gateStart);
 
-    while (currentSlot.isBefore(end)) {
-      // We want the next slot that is strictly AFTER now
-      if (currentSlot.isAfter(now)) {
+      if (isAfterStart) {
         final diff = currentSlot.difference(now);
         if (diff.inHours > 0) {
           return "Next: in ${diff.inHours}h ${diff.inMinutes % 60}m";
@@ -128,7 +132,9 @@ class WaterReminderScreen extends ConsumerWidget {
           return "Next: in ${diff.inMinutes} min";
         }
       }
-      currentSlot = currentSlot.add(Duration(minutes: interval));
+
+      // If we are before gateStart, keep adding intervals until we hit the window
+      currentSlot = currentSlot.add(step);
     }
 
     return "Done for today";
@@ -171,7 +177,7 @@ class WaterReminderScreen extends ConsumerWidget {
                         : AppStrings.disabled,
                     style: const TextStyle(color: Colors.black87),
                   ),
-                  // NEW: Display Countdown
+                  // Display Countdown
                   if (state.settings.isEnabled)
                     Text(
                       _getNextReminderString(state.settings),
@@ -225,6 +231,7 @@ class WaterReminderScreen extends ConsumerWidget {
         currentActiveStart: state.settings.startTime,
         currentActiveEnd: state.settings.endTime,
 
+        // FIX: Accept anchorTime parameter here
         onSave: ({
           required String startMode,
           required String customStartTime,
@@ -233,16 +240,17 @@ class WaterReminderScreen extends ConsumerWidget {
           required String activeEnd,
           required String sound,
           required bool vibration,
+          required String anchorTime, // <--- NEW PARAMETER
         }) {
           // Pass data to notifier without rounding to hours
           notifier.updateWaterSettings(
-              // startMode: startMode,
-              // customStartTime: customStartTime,
               intervalMinutes: intervalMinutes,
               activeStart: activeStart,
               activeEnd: activeEnd,
               sound: sound,
-              vibration: vibration);
+              vibration: vibration,
+              anchorTime: anchorTime // <--- PASS TO NOTIFIER
+              );
         },
       ),
     );

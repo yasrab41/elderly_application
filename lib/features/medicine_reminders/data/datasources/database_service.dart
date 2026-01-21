@@ -96,7 +96,8 @@ class DatabaseService {
         endTime $textType,
         isEnabled $intType,
         isVibration $intType,
-        soundType $textType
+        soundType $textType,
+        anchorTime $textType  
       )
     ''');
   }

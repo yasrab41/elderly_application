@@ -11,6 +11,7 @@ class ReminderSettingsModal extends StatefulWidget {
     required String activeEnd,
     required String sound,
     required bool vibration,
+    required String anchorTime,
   }) onSave;
 
   final String currentSound;
@@ -264,26 +265,31 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16))),
                   onPressed: () {
-                    // Logic to determine the actual Start Time based on user selection
-                    String finalStartTime;
+                    // 1. Calculate the Anchor Time (The "Phase")
+                    String calculatedAnchorTime;
 
                     if (_startMode == 'now') {
-                      // If "Start Now", get the current time formatted as HH:mm
                       final now = TimeOfDay.now();
-                      finalStartTime =
+                      calculatedAnchorTime =
                           "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
                     } else {
-                      // If "Custom", use the time picked from the time picker
-                      finalStartTime = _customStartTime;
+                      calculatedAnchorTime = _customStartTime;
                     }
 
+                    // 2. Pass values separately
                     widget.onSave(
                       startMode: _startMode,
                       customStartTime: _customStartTime,
                       intervalMinutes: _selectedInterval,
-                      // Pass the DETERMINED start time, not the slider value
-                      activeStart: finalStartTime,
+
+                      // 🟢 ACTIVE START: Strictly from the Slider (e.g. 08:00)
+                      activeStart: _formatHour(_activeStartHour),
                       activeEnd: _formatHour(_activeEndHour),
+
+                      // 🟢 ANCHOR TIME: The "Start Now" time (e.g. 14:15)
+                      // We need to modify the onSave signature next
+                      anchorTime: calculatedAnchorTime,
+
                       sound: _selectedSound,
                       vibration: _vibrationEnabled,
                     );
