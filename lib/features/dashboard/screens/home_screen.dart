@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io'; // NEW: Required for platform checking
 import 'package:elderly_prototype_app/features/water_reminder/screens/water_reminder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:vibration/vibration.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:background_sms/background_sms.dart'; // NEW: Background SMS package
 
 // Feature Imports
 import 'package:elderly_prototype_app/core/constants.dart';
@@ -24,7 +26,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // Color Palette - Made const for performance
   static const Color _baseBrown = Color(0xFF48352A);
   static const Color _lightBrown = Color(0xFF7B6658);
   static const Color _lighterBrown = Color(0xFFC0A597);
@@ -34,7 +35,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isEmergencyActive = false;
   String _lastSentMessage = "";
 
-  // Moved _gridItems to static/const to avoid recreation on every build
   static const List<Map<String, dynamic>> _gridItems = [
     {
       'title': 'Emergency Contacts',
@@ -76,13 +76,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // OPTIMIZATION: Check permissions silently in background without blocking UI build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkPermissionsSilent();
     });
   }
 
-  // Non-blocking permission check
   Future<void> _checkPermissionsSilent() async {
     await [
       Permission.location,
@@ -98,9 +96,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       Permission.sms,
     ].request();
 
+    // DEBUG: Check what the phone actually says
+    print("SMS Permission: ${statuses[Permission.sms]}");
+    print("Location Permission: ${statuses[Permission.location]}");
     if (statuses[Permission.location]!.isDenied ||
         statuses[Permission.phone]!.isDenied ||
         statuses[Permission.sms]!.isDenied) {
+      print("SMS PERMISSION WAS DENIED BY USER");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -154,9 +156,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
 
+      // FIXED: Corrected string interpolation for latitude
       String mapLink =
-          "http://maps.google.com/?q=${position.latitude},${position.longitude}";
-      String messageRaw = "${AppStrings.emergencyAlertMessage}\n $mapLink";
+          "https://maps.google.com/?q=${position.latitude},${position.longitude}";
+      String messageRaw = "${AppStrings.emergencyAlertMessage}\n$mapLink";
+      // String messageRaw = "Help Me!";
 
       setState(() {
         _lastSentMessage = messageRaw;
@@ -164,14 +168,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       });
 
       final contacts = ref.read(contactNotifierProvider).value ?? [];
-      final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
-      final encodedMessage = Uri.encodeComponent(messageRaw);
-      final Uri smsUri =
-          Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
 
-      if (await canLaunchUrl(smsUri)) {
-        await launchUrl(smsUri, mode: LaunchMode.externalApplication);
+      // --- NEW LOGIC: SMS STRATEGY ---
+      if (Platform.isAndroid) {
+        // Send directly in background for Android
+        for (var contact in contacts) {
+          var status = await BackgroundSms.sendMessage(
+            phoneNumber: contact.phoneNumber,
+            message: messageRaw,
+          );
+          print("SMS Status for ${contact.phoneNumber}: $status");
+        }
+      } else {
+        // Use Intent for iOS
+        final recipientNumbers = contacts.map((c) => c.phoneNumber).join(',');
+        final encodedMessage = Uri.encodeComponent(messageRaw);
+        final Uri smsUri =
+            Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
+
+        if (await canLaunchUrl(smsUri)) {
+          await launchUrl(smsUri);
+        }
       }
+
+      // --- THE DELAY ---
+      // Wait 5 seconds to ensure message is processed before call starts
+      await Future.delayed(const Duration(seconds: 5));
 
       final primaryContact = contacts.firstWhere(
         (c) => c.isPrimary,
@@ -196,13 +218,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final contacts = ref.read(contactNotifierProvider).value ?? [];
       String messageRaw =
           "I AM SAFE NOW. Please disregard the previous emergency alert.";
-      final recipientNumbers = contacts.map((c) => c.phoneNumber).join(';');
-      final encodedMessage = Uri.encodeComponent(messageRaw);
-      final Uri smsUri =
-          Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
 
-      if (await canLaunchUrl(smsUri)) {
-        await launchUrl(smsUri, mode: LaunchMode.externalApplication);
+      if (Platform.isAndroid) {
+        for (var contact in contacts) {
+          await BackgroundSms.sendMessage(
+            phoneNumber: contact.phoneNumber,
+            message: messageRaw,
+          );
+        }
+      } else {
+        final recipientNumbers = contacts.map((c) => c.phoneNumber).join(',');
+        final encodedMessage = Uri.encodeComponent(messageRaw);
+        final Uri smsUri =
+            Uri.parse('sms:$recipientNumbers?body=$encodedMessage');
+
+        if (await canLaunchUrl(smsUri)) {
+          await launchUrl(smsUri);
+        }
       }
 
       setState(() {
@@ -266,7 +298,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Keep this watch, it ensures contacts are loaded for the UI
     ref.watch(contactNotifierProvider);
 
     return Scaffold(
@@ -358,7 +389,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       final item = _gridItems[index];
                       VoidCallback onTapAction;
 
-                      // Routing logic
                       if (item['title'] == 'Medicine Reminders') {
                         onTapAction = () => Navigator.push(
                             context,
@@ -416,12 +446,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       pinned: true,
       elevation: 10,
       shadowColor: _baseBrown,
-      // actions: [
-      //   IconButton(
-      //     icon: const Icon(Icons.mic, color: Colors.white),
-      //     onPressed: () {},
-      //   ),
-      // ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 35.0, bottom: 16.0),
         title: const Text(

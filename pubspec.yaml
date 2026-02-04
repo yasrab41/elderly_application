@@ -54,7 +54,7 @@ dependencies:
   flutter_native_splash: ^2.4.0
   flutter_contacts: ^1.1.9
   audioplayers: ^5.2.1
-
+  background_sms: ^0.0.4
 
 
 dev_dependencies:

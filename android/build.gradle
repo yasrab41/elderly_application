@@ -30,7 +30,29 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+
 // Task to clean the project
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
+}
+
+
+subprojects { project ->
+    def fixNamespace = { p ->
+        if (p.name == 'background_sms') {
+            p.android {
+                namespace 'com.j.background_sms'
+            }
+        }
+    }
+
+    // If the project is already evaluated, fix it now.
+    // Otherwise, wait for the evaluation to finish.
+    if (project.state.executed) {
+        fixNamespace(project)
+    } else {
+        project.afterEvaluate { 
+            fixNamespace(it)
+        }
+    }
 }
