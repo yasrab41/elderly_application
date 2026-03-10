@@ -7,7 +7,7 @@ import 'package:elderly_prototype_app/features/authentication/screens/login.dart
 // Import sub-screens (Assumed paths - put these in the same folder or organize as you prefer)
 import 'edit_profile_screen.dart';
 import 'account_screen.dart';
-import 'notifications_screen.dart';
+// import 'notifications_screen.dart';
 import 'instructions_screen.dart';
 import 'about_app_screen.dart';
 
@@ -108,16 +108,16 @@ class ProfileScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const AccountScreen())),
             ),
 
-            // 3. Notifications (Placeholder)
-            _ProfileTile(
-              icon: Icons.notifications_active_outlined,
-              title: 'Notifications',
-              subtitle: 'Reminders & Alerts',
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const NotificationsScreen())),
-            ),
+            // // 3. Notifications (Placeholder)
+            // _ProfileTile(
+            //   icon: Icons.notifications_active_outlined,
+            //   title: 'Notifications',
+            //   subtitle: 'Reminders & Alerts',
+            //   onTap: () => Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           builder: (_) => const NotificationsScreen())),
+            // ),
 
             const SizedBox(height: 25),
 

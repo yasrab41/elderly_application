@@ -160,7 +160,7 @@ class FitnessScreen extends ConsumerWidget {
       pinned: true,
       backgroundColor: const Color(0xFF8B4513).withOpacity(0.8), // Earthy Brown
       flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
+        titlePadding: const EdgeInsets.only(left: 16.0, bottom: 22.0),
         title: Text(
           AppStrings.fitnessTitle,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(

@@ -196,10 +196,10 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                     borderRadius: BorderRadius.circular(16),
                     child: Image.asset(
                       exercise.imageUrl,
-                      fit: BoxFit.cover,
-                      height: 250,
+                      fit: BoxFit
+                          .fitWidth, // Scales to fit the width, height adjusts naturally
+                      // height: 250, <-- Remove this line
                       width: double.infinity,
-
                       // Error handling (assets don't support loadingBuilder)
                       errorBuilder: (context, error, stackTrace) {
                         return Container(

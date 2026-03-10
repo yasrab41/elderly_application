@@ -116,7 +116,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 1,
     instructions:
         'Slow, controlled circles to relax neck and shoulders. Start slowly, clockwise then counter-clockwise. Do not rush or force movement.',
-    imageUrl: 'assets/images/neck_stretch.jpg',
+    imageUrl: 'assets/images/neck_circles.png',
   ),
   ExerciseModel(
     id: 'S2',
@@ -127,7 +127,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 1,
     instructions:
         'Inhale as you lift shoulders, exhale as you relax them down. 10 reps each direction.',
-    imageUrl: 'assets/images/neck_stretch.jpg',
+    imageUrl: 'assets/images/shoulder_roll.png',
   ),
   ExerciseModel(
     id: 'S3',
@@ -139,7 +139,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Sit up straight, gently twist to the left, holding for 30 seconds. Repeat right.',
-    imageUrl: 'assets/images/neck_stretch.jpg',
+    imageUrl: 'assets/images/seated_torso_twisted.jpg',
   ),
   ExerciseModel(
     id: 'S4',
@@ -150,7 +150,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 1,
     instructions:
         'Extend arms, gently pull fingers back towards body. Hold for 15 seconds.',
-    imageUrl: 'assets/images/neck_stretch.jpg',
+    imageUrl: 'assets/images/wrist_finger_stretches.jpg',
   ),
   ExerciseModel(
     id: 'S5',
@@ -160,8 +160,8 @@ final List<ExerciseModel> exercises = [
     duration: const Duration(minutes: 3),
     difficultyLevel: 1,
     instructions:
-        'Sit comfortably. Rotate each ankle clockwise and counter-clockwise 15 times.',
-    imageUrl: 'https://placehold.co/600x400/F7D9EA/C86DD7?text=Ankle+Rotations',
+        'Sit comfortably. Rotate each ankle clockwise and counterclockwise 15 times. Switch ankles and repeat the same steps.',
+    imageUrl: 'assets/images/ankle_rotation.png',
   ),
   ExerciseModel(
     id: 'S6',
@@ -172,7 +172,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 3,
     instructions:
         'Hold a chair. Bend one knee and gently pull heel toward glutes. Hold 20 seconds per side.',
-    imageUrl: 'https://placehold.co/600x400/F7D9EA/C86DD7?text=Quad+Stretch',
+    imageUrl: 'assets/images/standing_quads.png',
   ),
   ExerciseModel(
     id: 'S7',
@@ -183,8 +183,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Sit on the edge of a chair, one leg extended. Lean forward slightly from the hips until a stretch is felt.',
-    imageUrl:
-        'https://placehold.co/600x400/F7D9EA/C86DD7?text=Hamstring+Stretch',
+    imageUrl: 'assets/images/seated_hamstring.png',
   ),
 
   // --- STRENGTH (7 exercises) ---
@@ -198,7 +197,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Start seated. Lean forward slightly and push through your feet to stand up. Slowly return to the chair. Repeat 10 times.',
-    imageUrl: 'https://placehold.co/600x400/D7E9CD/5CB85C?text=Chair+Squats',
+    imageUrl: 'assets/images/chair_squats.png',
   ),
   ExerciseModel(
     id: 'T2',
@@ -209,7 +208,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Stand facing a wall, hands slightly wider than shoulders. Slowly bend elbows to lower chest toward wall, then push back. 12 repetitions.',
-    imageUrl: 'https://placehold.co/600x400/D7E9CD/5CB85C?text=Wall+Push-ups',
+    imageUrl: 'assets/images/wall_push_ups.png',
   ),
   ExerciseModel(
     id: 'T3',
@@ -220,7 +219,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 3,
     instructions:
         'Use light dumbbells or water bottles. Keep elbows close to sides. Curl slowly up and down. 3 sets of 10.',
-    imageUrl: 'https://placehold.co/600x400/D7E9CD/5CB85C?text=Bicep+Curls',
+    imageUrl: 'assets/images/bicep_curls.png',
   ),
   ExerciseModel(
     id: 'T4',
@@ -231,7 +230,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Hold a sturdy chair. Keep leg straight and lift it out to the side slowly. Lower slowly. 15 reps per leg.',
-    imageUrl: 'https://placehold.co/600x400/D7E9CD/5CB85C?text=Leg+Lifts',
+    imageUrl: 'assets/images/standing_leg_lifts.png',
   ),
   ExerciseModel(
     id: 'T5',
@@ -242,7 +241,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 1,
     instructions:
         'Hold onto a stable surface. Slowly lift heels, rising onto the balls of your feet. Lower slowly. 20 repetitions.',
-    imageUrl: 'https://placehold.co/600x400/D7E9CD/5CB85C?text=Calf+Raises',
+    imageUrl: 'assets/images/assisted_calf_raise.png',
   ),
   ExerciseModel(
     id: 'T6',
@@ -253,7 +252,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 4,
     instructions:
         'Start on hands and knees, then move to forearms. Keep back straight and engage core. Hold for 30 seconds.',
-    imageUrl: 'https://placehold.co/600x400/D7E9CD/5CB85C?text=Modified+Plank',
+    imageUrl: 'assets/images/plank_exercise.png',
   ),
   ExerciseModel(
     id: 'T7',
@@ -264,8 +263,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 3,
     instructions:
         'Use a light weight. Raise arm overhead, then bend elbow to lower weight behind head. Extend back up. 2 sets of 10 per arm.',
-    imageUrl:
-        'https://placehold.co/600x400/D7E9CD/5CB85C?text=Triceps+Extension',
+    imageUrl: 'assets/images/triceps_extension.png',
   ),
 
   // --- CARDIO (6 exercises) ---
@@ -277,8 +275,8 @@ final List<ExerciseModel> exercises = [
     duration: const Duration(minutes: 10),
     difficultyLevel: 1,
     instructions:
-        'Lift knees hip-height, swing arms naturally. Maintain a steady rhythm.',
-    imageUrl: 'https://placehold.co/600x400/D9F3F7/337AB7?text=Marching',
+        'Stand tall near a chair or wall for support. Slowly lift one knee toward hip height (or comfortable height). Lower the leg gently and switch sides. Swing arms naturally to improve balance and coordination. Maintain a slow, steady rhythm. Repetitions: 20-40 steps total or 1-2 minutes.',
+    imageUrl: 'assets/images/marching.png',
   ),
   ExerciseModel(
     id: 'C2',
@@ -289,7 +287,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Sit upright. Alternate punching arms straight out in front of you. Keep punches light and fast.',
-    imageUrl: 'https://placehold.co/600x400/D9F3F7/337AB7?text=Seated+Punching',
+    imageUrl: 'assets/images/seated_punching.png',
   ),
   ExerciseModel(
     id: 'C3',
@@ -300,7 +298,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 2,
     instructions:
         'Take a step to the right, bring the left foot to meet it. Repeat left. Keep moving briskly.',
-    imageUrl: 'https://placehold.co/600x400/D9F3F7/337AB7?text=Side+Steps',
+    imageUrl: 'assets/images/stepping_side_to_side.png',
   ),
   ExerciseModel(
     id: 'C4',
@@ -310,8 +308,8 @@ final List<ExerciseModel> exercises = [
     duration: const Duration(minutes: 7),
     difficultyLevel: 3,
     instructions:
-        'Step one foot out while raising arms overhead. Return to center. Alternate sides quickly.',
-    imageUrl: 'https://placehold.co/600x400/D9F3F7/337AB7?text=Step+Jacks',
+        'Tap on leg sideways away from your body. At the same time as doing this, sweep both your arms in a circular motion to above your head. Bring your arms down at the same time as your leg comes in and repeat with the other leg.',
+    imageUrl: 'assets/images/jumping_jack.png',
   ),
   ExerciseModel(
     id: 'C5',
@@ -322,7 +320,7 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 4,
     instructions:
         'Use a handrail for safety. Step up and down one step repeatedly. Take breaks as needed.',
-    imageUrl: 'https://placehold.co/600x400/D9F3F7/337AB7?text=Stair+Climbing',
+    imageUrl: 'assets/images/stair_climbing.png',
   ),
   ExerciseModel(
     id: 'C6',
@@ -333,6 +331,6 @@ final List<ExerciseModel> exercises = [
     difficultyLevel: 1,
     instructions:
         'Alternate tapping your heels out in front of you while swinging your arms. Maintain a steady pace.',
-    imageUrl: 'https://placehold.co/600x400/D9F3F7/337AB7?text=Heel+Digs',
+    imageUrl: 'assets/images/heel_dig.png',
   ),
 ];

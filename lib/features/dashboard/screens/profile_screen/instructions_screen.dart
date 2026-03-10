@@ -15,9 +15,11 @@ class InstructionsScreen extends StatelessWidget {
           _buildStep(Icons.sos, 'Emergency SOS',
               'In case of emergency, press the big Red Button to alert your family immediately.'),
           _buildStep(Icons.directions_walk, 'Fitness',
-              'We track your daily steps to help you stay active and healthy.'),
+              'Pick an exercise you want to do. Start the timer when you begin. When you finish, stop the timer and tap “Complete” to mark it done. You can choose from Strength, Stretching, or Cardio.'),
           _buildStep(Icons.favorite, 'Health Tracking',
               'You can log your blood pressure and weight to keep a history for your doctor.'),
+          _buildStep(Icons.water_drop, 'Water Reminder',
+              'We will remind you to drink water during the day. You can choose the times that suit you.'),
         ],
       ),
     );

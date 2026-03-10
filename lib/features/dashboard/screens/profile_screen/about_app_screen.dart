@@ -31,6 +31,7 @@ class AboutAppScreen extends StatelessWidget {
             _featureItem('Emergency SOS'),
             _featureItem('Fitness Tracking'),
             _featureItem('Health Monitoring'),
+            _featureItem('Water Reminder'),
 
             const SizedBox(height: 32),
             const Divider(),
