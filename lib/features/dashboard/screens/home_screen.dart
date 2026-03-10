@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io'; // NEW: Required for platform checking
+import 'package:elderly_prototype_app/features/brain_games/screens/brain_games_dashboard.dart';
 import 'package:elderly_prototype_app/features/water_reminder/screens/water_reminder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,8 +67,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     },
     {
       'title': 'Water Reminder',
-      'subtitle': 'Keep your mind sharp',
+      'subtitle': 'Be Hyderated',
       'icon': Icons.water_drop_outlined,
+      'color': Color(0xFFF3E5F5),
+      'iconColor': Color(0xFF2196F3),
+    },
+    {
+      'title': 'Brain Games',
+      'subtitle': 'Keep your mind sharp',
+      'icon': Icons.games_rounded,
       'color': Color(0xFFF3E5F5),
       'iconColor': Color(0xFF9C27B0),
     },
@@ -415,6 +423,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const WaterReminderScreen()));
+                      } else if (item['title'] == 'Brain Games') {
+                        onTapAction = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const BrainGamesDashboard()));
                       } else {
                         onTapAction = () {};
                       }

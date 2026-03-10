@@ -102,6 +102,23 @@ class AppStrings {
   static const String vibrationSubtitle = 'Vibrate on reminder';
   static const String saveButton = 'Save';
   // --- End of Water Reminder Feature ---
+
+  // --- Start Brain Games Feature ---
+  static const String brainGamesTitle = 'Brain Games';
+  static const String memoryMatchTitle = 'Memory Match';
+  static const String memoryMatchDesc =
+      'Find the matching pairs to keep your mind sharp.';
+  static const String movesCounter = 'Moves:';
+  static const String timeCounter = 'Time:';
+  static const String pairsFound = 'Pairs Found:';
+  static const String wellDone = 'Well Done!';
+  static const String gameCompleteMsg = 'You found all the matches!';
+  static const String playAgain = 'Play Again';
+  static const String quitGame = 'Quit';
+  static const String statsTitle = 'Your Progress';
+  static const String bestTime = 'Best Time';
+  static const String totalGames = 'Total Games Played';
+  // --- End Brain Games Feature ---
 }
 
 // --- Mock Exercise Data with more variety ---
