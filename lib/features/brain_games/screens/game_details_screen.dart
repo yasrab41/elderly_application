@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:elderly_prototype_app/core/constants.dart';
 import '../data/local_db/brain_games_db.dart';
 import 'memory_match_screen.dart';
+import 'word_search_screen.dart'; // Add this import at the top
 
 class GameDetailsScreen extends ConsumerStatefulWidget {
   final String gameTitle;
@@ -34,11 +35,19 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
 
   // Use this to refresh stats when returning from a game
   void _startGame(String difficulty) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (_) => MemoryMatchScreen(difficulty: difficulty)),
-    );
+    if (widget.gameTitle == AppStrings.memoryMatchTitle) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => MemoryMatchScreen(difficulty: difficulty)),
+      );
+    } else if (widget.gameTitle == AppStrings.wordSearchTitle) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => WordSearchScreen(difficulty: difficulty)),
+      );
+    }
     _loadStats(); // Refresh stats when user returns
   }
 
@@ -131,7 +140,7 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
                     style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue)),
+                        color: Colors.brown)),
                 const Divider(thickness: 1.5, height: 24),
 
                 // Overall Stats

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:elderly_prototype_app/core/constants.dart';
-import 'game_details_screen.dart'; // We will create this next
+import 'game_details_screen.dart';
 
 class BrainGamesDashboard extends StatelessWidget {
   const BrainGamesDashboard({super.key});
@@ -28,7 +28,7 @@ class BrainGamesDashboard extends StatelessWidget {
             title: AppStrings.wordSearchTitle,
             icon: Icons.manage_search_rounded,
             color: Colors.teal.shade600,
-            isActive: false, // Placeholder for your next game
+            isActive: true,
           ),
           const SizedBox(height: 16),
           _buildGameCard(

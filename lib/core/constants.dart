@@ -103,7 +103,7 @@ class AppStrings {
   static const String saveButton = 'Save';
   // --- End of Water Reminder Feature ---
 
-  // --- Start Brain Games Feature ---
+  // --- Start Memory Match Games Feature ---
   static const String brainGamesTitle = 'Brain Games';
   static const String memoryMatchTitle = 'Memory Match';
   static const String memoryMatchDesc =
@@ -128,7 +128,93 @@ class AppStrings {
   static const String bestTimeLabel = 'Fastest Win:';
   static const String totalWinsLabel = 'Total Wins:';
   static const String noStatsYet = 'Play a game to see your stats!';
-  // --- End Brain Games Feature ---
+  // --- End Memory match Feature ---
+
+  // --- Start Word Search Feature ---
+  static const String wordSearchDesc =
+      'Find the hidden words to train your focus.';
+  static const String wordsRemaining = 'Words Remaining:';
+  static const String wordsFound = 'Words Found:';
+  static const String tapFirstTapLast =
+      'Tap the first letter, then tap the last letter of a word.';
+
+  // Localized Word Categories (Easy, Medium, Hard)
+  static const List<String> easyWords = [
+    'CAT',
+    'DOG',
+    'BIRD',
+    'FISH',
+    'COW',
+    'APPLE',
+    'PLUM',
+    'PEAR',
+    'MILK',
+    'TEA',
+    'SUN',
+    'MOON',
+    'STAR',
+    'TREE',
+    'LEAF',
+    'HOME',
+    'BED',
+    'SOFA',
+    'BOOK',
+    'PEN'
+  ];
+
+  static const List<String> mediumWords = [
+    'RABBIT',
+    'TURTLE',
+    'MONKEY',
+    'SPIDER',
+    'BANANA',
+    'ORANGE',
+    'GRAPES',
+    'CHERRY',
+    'COFFEE',
+    'WATER',
+    'FLOWER',
+    'GARDEN',
+    'FOREST',
+    'RIVER',
+    'WINDOW',
+    'MIRROR',
+    'FAMILY',
+    'DOCTOR',
+    'NURSE',
+    'HEALTH'
+  ];
+
+  static const List<String> hardWords = [
+    'ELEPHANT',
+    'KANGAROO',
+    'CROCODILE',
+    'PINEAPPLE',
+    'STRAWBERRY',
+    'WATERMELON',
+    'BREAKFAST',
+    'MEDICINE',
+    'HOSPITAL',
+    'AMBULANCE',
+    'MOUNTAIN',
+    'WATERFALL',
+    'GRANDMOTHER',
+    'GRANDFATHER',
+    'TELEVISION',
+    'NEWSPAPER',
+    'FURNITURE'
+  ];
+  // --- End Word Search Feature ---
+
+  // --- Start Sudoku Game Feature ---
+  static const String sudokuDesc =
+      'Fill the grid with numbers without repeating them in rows, columns, or blocks.';
+  static const String hintsUsed = 'Hints Used:';
+  static const String hintButton = 'Hint';
+  static const String eraseButton = 'Erase';
+  static const String sudokuInstructions =
+      'Tap an empty square, then pick a number.';
+  // --- End Sudoku Game Feature ---
 }
 
 // --- Mock Exercise Data with more variety ---
