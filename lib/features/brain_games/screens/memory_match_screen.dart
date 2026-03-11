@@ -30,6 +30,49 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
     }
   }
 
+  // Future<void> _saveScoreAndShowDialog() async {
+  //   final user = ref.read(authNotifierProvider);
+  //   if (user != null) {
+  //     final stat = GameStat(
+  //       userId: user.uid,
+  //       gameName: 'Memory Match',
+  //       difficulty: widget.difficulty,
+  //       moves: _gameProvider.moves,
+  //       timeSeconds: _gameProvider.timeSeconds,
+  //       date: DateTime.now().toIso8601String(),
+  //     );
+  //     await BrainGamesDB.instance.insertStat(stat);
+  //   }
+
+  //   if (!mounted) return;
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) => AlertDialog(
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+  //       title: const Text(AppStrings.wellDone,
+  //           style: TextStyle(
+  //               fontSize: 28,
+  //               fontWeight: FontWeight.bold,
+  //               color: Colors.green)),
+  //       content: Text(
+  //           '${AppStrings.gameCompleteMsg}\n\n'
+  //           '${AppStrings.movesCounter} ${_gameProvider.moves}\n'
+  //           '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
+  //           style: const TextStyle(fontSize: 20)),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () {
+  //             Navigator.pop(context); // Close dialog
+  //             Navigator.pop(context); // Exit game
+  //           },
+  //           child:
+  //               const Text(AppStrings.quitGame, style: TextStyle(fontSize: 20)),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Future<void> _saveScoreAndShowDialog() async {
     final user = ref.read(authNotifierProvider);
     if (user != null) {
@@ -58,16 +101,33 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
         content: Text(
             '${AppStrings.gameCompleteMsg}\n\n'
             '${AppStrings.movesCounter} ${_gameProvider.moves}\n'
-            '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
+            '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s\n'
+            '${AppStrings.level} Completed: ${_gameProvider.currentLevel}',
             style: const TextStyle(fontSize: 20)),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Exit game
+              Navigator.pop(context); // Exit game back to details screen
             },
-            child:
-                const Text(AppStrings.quitGame, style: TextStyle(fontSize: 20)),
+            child: const Text(AppStrings.quitGame,
+                style: TextStyle(fontSize: 18, color: Colors.red)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              _gameProvider
+                  .resetForNextLevel(); // Resets board and increments level
+            },
+            child: const Text(AppStrings.continueGame,
+                style: TextStyle(fontSize: 18, color: Colors.white)),
           ),
         ],
       ),
@@ -102,9 +162,11 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${AppStrings.movesCounter} ${_gameProvider.moves}',
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text('${AppStrings.level} ${_gameProvider.currentLevel}',
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade700)),
                     Text(
                         '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
                         style: const TextStyle(

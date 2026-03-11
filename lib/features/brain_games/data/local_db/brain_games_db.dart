@@ -49,4 +49,33 @@ class BrainGamesDB {
       orderBy: 'date DESC',
     );
   }
+
+  // Fetches aggregated stats for a specific game and user
+  Future<Map<String, dynamic>> getGameStatsSummary(
+      String userId, String gameName) async {
+    final db = await instance.database;
+
+    // 1. Get Overall Totals (Wins, Total Time, Avg Time)
+    final overallResult = await db.rawQuery('''
+      SELECT 
+        COUNT(*) as totalWins,
+        SUM(timeSeconds) as totalTime,
+        AVG(timeSeconds) as avgTime
+      FROM memory_stats 
+      WHERE userId = ? AND gameName = ?
+    ''', [userId, gameName]);
+
+    // 2. Get Best Times grouped by Difficulty
+    final bestTimesResult = await db.rawQuery('''
+      SELECT difficulty, MIN(timeSeconds) as bestTime
+      FROM memory_stats
+      WHERE userId = ? AND gameName = ?
+      GROUP BY difficulty
+    ''', [userId, gameName]);
+
+    return {
+      'overview': overallResult.isNotEmpty ? overallResult.first : {},
+      'bestTimes': bestTimesResult,
+    };
+  }
 }

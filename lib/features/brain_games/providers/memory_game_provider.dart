@@ -14,6 +14,9 @@ class MemoryGameProvider extends ChangeNotifier {
   final String difficulty;
   final int totalPairs;
 
+  int currentLevel = 1;
+  bool isGameComplete = false;
+
   MemoryCard? _firstFlippedCard;
 
   MemoryGameProvider({required this.difficulty})
@@ -96,6 +99,7 @@ class MemoryGameProvider extends ChangeNotifier {
 
       if (pairsFound == totalPairs) {
         _timer?.cancel();
+        isGameComplete = true;
       }
     } else {
       // No match, delay and flip back
@@ -109,7 +113,18 @@ class MemoryGameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isGameComplete => pairsFound == totalPairs;
+  void resetForNextLevel() {
+    currentLevel++;
+    moves = 0;
+    pairsFound = 0;
+    timeSeconds = 0;
+    isGameComplete = false;
+    _firstFlippedCard = null;
+    isLocked = false;
+    _timer?.cancel();
+    _timer = null;
+    _initializeGame(); // This will reshuffle and generate a new board
+  }
 
   @override
   void dispose() {

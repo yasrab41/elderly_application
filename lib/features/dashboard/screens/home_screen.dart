@@ -48,8 +48,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'title': 'Medicine Reminders',
       'subtitle': 'Set medication schedules',
       'icon': Icons.medical_information_outlined,
-      'color': Color(0xFFE3F2FD),
-      'iconColor': Color(0xFF2196F3),
+      'color': Color(0xFFDADFFF),
+      'iconColor': Color(0xFF3F51B5),
     },
     {
       'title': 'Daily Exercises',

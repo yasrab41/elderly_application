@@ -118,6 +118,16 @@ class AppStrings {
   static const String statsTitle = 'Your Progress';
   static const String bestTime = 'Best Time';
   static const String totalGames = 'Total Games Played';
+  static const String wordSearchTitle = 'Word Search';
+  static const String sudokuTitle = 'Sudoku';
+  static const String comingSoon = 'Coming Soon';
+  static const String continueGame = 'Continue Next Level';
+  static const String level = 'Level';
+  static const String totalTimeLabel = 'Total Time Spent:';
+  static const String avgTimeLabel = 'Average Time:';
+  static const String bestTimeLabel = 'Fastest Win:';
+  static const String totalWinsLabel = 'Total Wins:';
+  static const String noStatsYet = 'Play a game to see your stats!';
   // --- End Brain Games Feature ---
 }
 
