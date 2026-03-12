@@ -98,142 +98,197 @@ class _WordSearchScreenState extends ConsumerState<WordSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Calculate responsive board size
+    final screenWidth = MediaQuery.of(context).size.width;
+    // The grid will take 95% of screen width, but we cap it at 500px for tablets
+    final double gridSizeDimension = (screenWidth * 0.95).clamp(280.0, 500.0);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('${AppStrings.wordSearchTitle} - ${widget.difficulty}'),
+        centerTitle: true,
       ),
-      body: ListenableBuilder(
-        listenable: _gameProvider,
-        builder: (context, _) {
-          return Column(
-            children: [
-              // Top Stats Bar
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('${AppStrings.level} ${_gameProvider.currentLevel}',
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal.shade700)),
-                    Text(
-                        '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-
-              // Instruction
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(AppStrings.tapFirstTapLast,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, color: Colors.black87)),
-              ),
-              const SizedBox(height: 16),
-
-              // The Grid
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: _gameProvider.gridSize,
-                        crossAxisSpacing: 4,
-                        mainAxisSpacing: 4,
-                      ),
-                      itemCount:
-                          _gameProvider.gridSize * _gameProvider.gridSize,
-                      itemBuilder: (context, index) {
-                        int x = index % _gameProvider.gridSize;
-                        int y = index ~/ _gameProvider.gridSize;
-                        Point currentPoint = Point(x, y);
-
-                        bool isFound =
-                            _gameProvider.foundCells.contains(currentPoint);
-                        bool isFirstTap =
-                            _gameProvider.firstTap == currentPoint;
-
-                        Color bgColor = Colors.grey.shade200;
-                        Color textColor = Colors.black87;
-
-                        if (isFound) {
-                          bgColor = Colors.teal.shade200;
-                          textColor = Colors.teal.shade900;
-                        } else if (isFirstTap) {
-                          bgColor = Colors.amber.shade300;
-                          textColor = Colors.black;
-                        }
-
-                        return GestureDetector(
-                          onTap: () => _gameProvider.handleCellTap(x, y),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: bgColor,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                  color: Colors.grey.shade400, width: 1),
-                            ),
-                            child: Center(
-                              child: Text(
-                                _gameProvider.grid[y][x],
-                                style: TextStyle(
-                                  fontSize: _gameProvider.gridSize > 6
-                                      ? 20
-                                      : 24, // Scale down slightly for harder levels
-                                  fontWeight: FontWeight.bold,
-                                  color: textColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
+      // 2. Wrap body in SafeArea and SingleChildScrollView for responsiveness
+      body: SafeArea(
+        child: ListenableBuilder(
+          listenable: _gameProvider,
+          builder: (context, _) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Top Stats Bar (Level & Timer)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${AppStrings.level} ${_gameProvider.currentLevel}',
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal.shade700),
+                        ),
+                        Text(
+                          '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
+                  const SizedBox(height: 16),
 
-              // Target Words List
-              Container(
-                padding: const EdgeInsets.all(16),
-                width: double.infinity,
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                  BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: const Offset(0, -4))
-                ]),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  alignment: WrapAlignment.center,
-                  children: _gameProvider.targetWords.map((word) {
-                    bool isFound = _gameProvider.foundWords.contains(word);
-                    return Chip(
-                      label: Text(word,
+                  // Instructions - Clear and readable
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Text(
+                      AppStrings.tapFirstTapLast,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.black87),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // 3. The Grid - Contained in a SizedBox to maintain square ratio
+                  Center(
+                    child: SizedBox(
+                      width: gridSizeDimension,
+                      height: gridSizeDimension,
+                      child: Container(
+                        padding: const EdgeInsets.all(4.0),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: Colors.teal.shade800, width: 2),
+                        ),
+                        child: GridView.builder(
+                          physics:
+                              const NeverScrollableScrollPhysics(), // Important!
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: _gameProvider.gridSize,
+                            crossAxisSpacing: 4,
+                            mainAxisSpacing: 4,
+                          ),
+                          itemCount:
+                              _gameProvider.gridSize * _gameProvider.gridSize,
+                          itemBuilder: (context, index) {
+                            int x = index % _gameProvider.gridSize;
+                            int y = index ~/ _gameProvider.gridSize;
+                            Point currentPoint = Point(x, y);
+
+                            bool isFound =
+                                _gameProvider.foundCells.contains(currentPoint);
+                            bool isFirstTap =
+                                _gameProvider.firstTap == currentPoint;
+
+                            Color bgColor = Colors.white;
+                            Color textColor = Colors.black87;
+
+                            if (isFound) {
+                              bgColor = Colors.teal.shade200;
+                              textColor = Colors.teal.shade900;
+                            } else if (isFirstTap) {
+                              bgColor = Colors.amber.shade300;
+                              textColor = Colors.black;
+                            }
+
+                            return GestureDetector(
+                              onTap: () => _gameProvider.handleCellTap(x, y),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: bgColor,
+                                  borderRadius: BorderRadius.circular(6),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 1,
+                                        offset: Offset(0, 1))
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _gameProvider.grid[y][x],
+                                    style: TextStyle(
+                                      // Scale font based on grid size to prevent overflow inside cells
+                                      fontSize:
+                                          _gameProvider.gridSize > 8 ? 18 : 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // 4. Target Words List - Wrapped for responsiveness
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Words to Find:",
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            decoration:
-                                isFound ? TextDecoration.lineThrough : null,
-                            color: isFound ? Colors.white : Colors.black87,
-                          )),
-                      backgroundColor:
-                          isFound ? Colors.teal : Colors.grey.shade200,
-                    );
-                  }).toList(),
-                ),
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          alignment: WrapAlignment.center,
+                          children: _gameProvider.targetWords.map((word) {
+                            bool isFound =
+                                _gameProvider.foundWords.contains(word);
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isFound
+                                    ? Colors.teal
+                                    : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isFound
+                                      ? Colors.teal.shade800
+                                      : Colors.grey.shade400,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Text(
+                                word,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: isFound
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color:
+                                      isFound ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                      height: 40), // Bottom padding for comfortable scrolling
+                ],
               ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

@@ -62,14 +62,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'title': 'Health Tracking',
       'subtitle': 'Track your health data',
       'icon': Icons.monitor_heart_outlined,
-      'color': Color.fromARGB(255, 234, 237, 255),
+      'color': Color(0xFFEAEDFF),
       'iconColor': Color(0xFF3F51B5),
     },
     {
       'title': 'Water Reminder',
       'subtitle': 'Be Hyderated',
       'icon': Icons.water_drop_outlined,
-      'color': Color.fromARGB(255, 207, 233, 255),
+      'color': Color.fromARGB(255, 219, 237, 252),
       'iconColor': Color(0xFF2196F3),
     },
     {

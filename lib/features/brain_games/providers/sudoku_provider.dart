@@ -7,6 +7,7 @@ class SudokuCell {
   int value = 0;
   bool isFixed = false;
   bool isConflict = false;
+  bool isHinted = false; // NEW: Tracks hint usage for distinct visual feedback
 }
 
 class SudokuProvider extends ChangeNotifier {
@@ -17,7 +18,7 @@ class SudokuProvider extends ChangeNotifier {
   late int blockH;
 
   List<List<SudokuCell>> grid = [];
-  List<List<int>> _solvedGrid = []; // Kept secret for hints
+  List<List<int>> _solvedGrid = []; // The perfect answer key
 
   int? selectedRow;
   int? selectedCol;
@@ -39,7 +40,6 @@ class SudokuProvider extends ChangeNotifier {
   }
 
   void _setupDifficultyParameters() {
-    // Dynamic sizing based on elderly accessibility
     switch (difficulty) {
       case 'Easy':
         gridSize = 4;
@@ -68,79 +68,63 @@ class SudokuProvider extends ChangeNotifier {
         gridSize, (_) => List.generate(gridSize, (_) => SudokuCell()));
     _solvedGrid = List.generate(gridSize, (_) => List.filled(gridSize, 0));
 
-    _fillDiagonalBlocks();
-    _solveSudoku(0, 0, grid);
+    // 1. Fill the first row randomly to ensure every puzzle is unique
+    List<int> firstRow = List.generate(gridSize, (i) => i + 1)..shuffle();
+    for (int c = 0; c < gridSize; c++) {
+      grid[0][c].value = firstRow[c];
+    }
 
-    // Save the solved state for the Hint feature
+    // 2. Solve the rest of the board to guarantee a 100% valid grid
+    _solveSudoku(1, 0, grid);
+
+    // 3. Save the perfect solution to the answer key and lock all cells initially
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
         _solvedGrid[r][c] = grid[r][c].value;
-        grid[r][c].isFixed = true; // Temporarily fix all
+        grid[r][c].isFixed = true;
       }
     }
 
-    // Remove cells based on difficulty
+    // 4. Dig holes to create the puzzle
     int cellsToRemove =
         difficulty == 'Easy' ? 6 : (difficulty == 'Medium' ? 16 : 40);
     int removed = 0;
     final random = Random();
 
+    // Loop until we remove the exact number of required cells
     while (removed < cellsToRemove) {
       int r = random.nextInt(gridSize);
       int c = random.nextInt(gridSize);
+
+      // If the cell hasn't been emptied yet, empty it and make it editable
       if (grid[r][c].value != 0) {
         grid[r][c].value = 0;
-        grid[r][c].isFixed = false;
+        grid[r][c].isFixed = false; // Cell is now open for user input
         removed++;
       }
     }
+
+    _validateBoard();
     notifyListeners();
   }
 
-  bool _fillDiagonalBlocks() {
-    for (int i = 0; i < gridSize; i += blockW) {
-      int hMultiplier = (i ~/ blockW) * blockH;
-      _fillBlock(hMultiplier, i);
-    }
-    return true;
-  }
-
-  void _fillBlock(int rowStart, int colStart) {
-    int num;
-    final random = Random();
-    for (int i = 0; i < blockH; i++) {
-      for (int j = 0; j < blockW; j++) {
-        do {
-          num = random.nextInt(gridSize) + 1;
-        } while (!_isSafeInBlock(rowStart, colStart, num));
-        grid[rowStart + i][colStart + j].value = num;
-      }
-    }
-  }
-
-  bool _isSafeInBlock(int rowStart, int colStart, int num) {
-    for (int i = 0; i < blockH; i++) {
-      for (int j = 0; j < blockW; j++) {
-        if (grid[rowStart + i][colStart + j].value == num) return false;
-      }
-    }
-    return true;
-  }
-
   bool _solveSudoku(int row, int col, List<List<SudokuCell>> targetGrid) {
-    if (row == gridSize - 1 && col == gridSize) return true;
-    if (col == gridSize) {
-      row++;
-      col = 0;
-    }
-    if (targetGrid[row][col].value != 0)
-      return _solveSudoku(row, col + 1, targetGrid);
+    if (row == gridSize) return true; // Reached the end successfully
 
-    for (int num = 1; num <= gridSize; num++) {
+    int nextRow = col == gridSize - 1 ? row + 1 : row;
+    int nextCol = col == gridSize - 1 ? 0 : col + 1;
+
+    if (targetGrid[row][col].value != 0) {
+      return _solveSudoku(nextRow, nextCol, targetGrid);
+    }
+
+    // Try numbers in random order for better puzzle variety
+    List<int> nums = List.generate(gridSize, (i) => i + 1)..shuffle();
+    for (int num in nums) {
       if (_isSafeToPlace(row, col, num, targetGrid)) {
         targetGrid[row][col].value = num;
-        if (_solveSudoku(row, col + 1, targetGrid)) return true;
-        targetGrid[row][col].value = 0;
+        if (_solveSudoku(nextRow, nextCol, targetGrid)) return true;
+        targetGrid[row][col].value = 0; // Backtrack
       }
     }
     return false;
@@ -148,15 +132,17 @@ class SudokuProvider extends ChangeNotifier {
 
   bool _isSafeToPlace(
       int row, int col, int num, List<List<SudokuCell>> targetGrid) {
+    // Check row and column
     for (int x = 0; x < gridSize; x++) {
       if (targetGrid[row][x].value == num) return false;
       if (targetGrid[x][col].value == num) return false;
     }
+    // Check block
     int startRow = row - (row % blockH);
     int startCol = col - (col % blockW);
     for (int i = 0; i < blockH; i++) {
       for (int j = 0; j < blockW; j++) {
-        if (targetGrid[i + startRow][j + startCol].value == num) return false;
+        if (targetGrid[startRow + i][startCol + j].value == num) return false;
       }
     }
     return true;
@@ -171,6 +157,8 @@ class SudokuProvider extends ChangeNotifier {
 
   void inputNumber(int num) {
     if (selectedRow == null || selectedCol == null || isGameComplete) return;
+
+    // Prevent overriding fixed cells or hinted cells
     if (grid[selectedRow!][selectedCol!].isFixed) return;
 
     grid[selectedRow!][selectedCol!].value = num;
@@ -181,6 +169,8 @@ class SudokuProvider extends ChangeNotifier {
 
   void eraseCell() {
     if (selectedRow == null || selectedCol == null || isGameComplete) return;
+
+    // Prevent erasing fixed cells or hinted cells
     if (grid[selectedRow!][selectedCol!].isFixed) return;
 
     grid[selectedRow!][selectedCol!].value = 0;
@@ -191,43 +181,81 @@ class SudokuProvider extends ChangeNotifier {
   void useHint() {
     if (isGameComplete) return;
 
-    // Find an empty or incorrect cell
+    // 1. If the user has a specific editable cell selected that is empty or wrong, hint that exact cell.
+    if (selectedRow != null && selectedCol != null) {
+      int r = selectedRow!;
+      int c = selectedCol!;
+      if (!grid[r][c].isFixed && grid[r][c].value != _solvedGrid[r][c]) {
+        _applyHint(r, c);
+        return;
+      }
+    }
+
+    // 2. Otherwise, find the first available empty or incorrect cell on the board.
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
         if (!grid[r][c].isFixed && grid[r][c].value != _solvedGrid[r][c]) {
-          grid[r][c].value = _solvedGrid[r][c];
-          grid[r][c].isFixed = true; // Lock the hinted cell
-          hintsUsed++;
-          selectedRow = r;
-          selectedCol = c;
-          _validateBoard();
-          _checkWinCondition();
-          notifyListeners();
+          _applyHint(r, c);
           return;
         }
       }
     }
   }
 
+  void _applyHint(int r, int c) {
+    grid[r][c].value = _solvedGrid[r][c];
+    grid[r][c].isFixed = true; // Lock it so they don't accidentally erase it
+    grid[r][c].isHinted = true; // Mark as hinted for UI coloring
+    hintsUsed++;
+    selectedRow = r;
+    selectedCol = c;
+
+    _validateBoard();
+    _checkWinCondition();
+    notifyListeners();
+  }
+
   void _validateBoard() {
-    // Reset conflicts
+    // Reset all conflicts
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
         grid[r][c].isConflict = false;
       }
     }
-    // Check for duplicates
+
+    // Safely identify all overlapping numbers
     for (int r = 0; r < gridSize; r++) {
       for (int c = 0; c < gridSize; c++) {
         int val = grid[r][c].value;
         if (val == 0) continue;
 
-        // Temporarily clear to check safety
-        grid[r][c].value = 0;
-        if (!_isSafeToPlace(r, c, val, grid)) {
-          grid[r][c].isConflict = true;
+        // Check row
+        for (int x = 0; x < gridSize; x++) {
+          if (x != c && grid[r][x].value == val) {
+            grid[r][c].isConflict = true;
+            grid[r][x].isConflict = true;
+          }
         }
-        grid[r][c].value = val;
+        // Check column
+        for (int x = 0; x < gridSize; x++) {
+          if (x != r && grid[x][c].value == val) {
+            grid[r][c].isConflict = true;
+            grid[x][c].isConflict = true;
+          }
+        }
+        // Check sub-block
+        int startRow = r - (r % blockH);
+        int startCol = c - (c % blockW);
+        for (int i = 0; i < blockH; i++) {
+          for (int j = 0; j < blockW; j++) {
+            int br = startRow + i;
+            int bc = startCol + j;
+            if ((br != r || bc != c) && grid[br][bc].value == val) {
+              grid[r][c].isConflict = true;
+              grid[br][bc].isConflict = true;
+            }
+          }
+        }
       }
     }
   }
