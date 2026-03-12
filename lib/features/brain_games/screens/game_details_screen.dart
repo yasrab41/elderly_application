@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:elderly_prototype_app/core/constants.dart';
 import '../data/local_db/brain_games_db.dart';
 import 'memory_match_screen.dart';
-import 'word_search_screen.dart'; // Add this import at the top
+import 'word_search_screen.dart';
+import 'sudoku_screen.dart';
 
 class GameDetailsScreen extends ConsumerStatefulWidget {
   final String gameTitle;
@@ -46,6 +47,12 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
         context,
         MaterialPageRoute(
             builder: (_) => WordSearchScreen(difficulty: difficulty)),
+      );
+    } else if (widget.gameTitle == AppStrings.sudokuTitle) {
+      // ADD THIS BLOCK
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => SudokuScreen(difficulty: difficulty)),
       );
     }
     _loadStats(); // Refresh stats when user returns

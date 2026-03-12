@@ -36,7 +36,7 @@ class BrainGamesDashboard extends StatelessWidget {
             title: AppStrings.sudokuTitle,
             icon: Icons.apps_rounded,
             color: Colors.orange.shade700,
-            isActive: false, // Placeholder for your next game
+            isActive: true,
           ),
         ],
       ),
