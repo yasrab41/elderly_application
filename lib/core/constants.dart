@@ -198,8 +198,8 @@ class AppStrings {
     'AMBULANCE',
     'MOUNTAIN',
     'WATERFALL',
-    'GRANDMOTHER',
-    'GRANDFATHER',
+    'COMMUNITY',
+    'ADVENTURE',
     'TELEVISION',
     'NEWSPAPER',
     'FURNITURE'

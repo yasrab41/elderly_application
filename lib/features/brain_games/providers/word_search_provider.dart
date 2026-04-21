@@ -18,6 +18,9 @@ class WordSearchProvider extends ChangeNotifier {
   final String difficulty;
 
   int gridSize = 6;
+  int _targetWordCount = 0; // Tracks how many words we NEED to place
+  List<String> _wordPool = []; // Holds the available words for the level
+
   List<String> targetWords = [];
   List<String> foundWords = [];
   List<List<String>> grid = [];
@@ -41,58 +44,84 @@ class WordSearchProvider extends ChangeNotifier {
   }
 
   void _setupDifficultyParameters() {
-    final random = Random();
-    List<String> wordPool = [];
-
     switch (difficulty) {
       case 'Easy':
         gridSize = 6;
-        wordPool = List.from(AppStrings.easyWords)..shuffle(random);
-        targetWords = wordPool.take(3).toList();
+        _targetWordCount = 3;
+        _wordPool = List.from(AppStrings.easyWords);
         break;
       case 'Medium':
         gridSize = 8;
-        wordPool = List.from(AppStrings.mediumWords)..shuffle(random);
-        targetWords = wordPool.take(5).toList();
+        _targetWordCount = 5;
+        _wordPool = List.from(AppStrings.mediumWords);
         break;
       case 'Hard':
         gridSize = 10;
-        wordPool = List.from(AppStrings.hardWords)..shuffle(random);
-        targetWords = wordPool.take(8).toList();
+        _targetWordCount = 8;
+        _wordPool = List.from(AppStrings.hardWords);
         break;
     }
   }
 
   void _generateGrid() {
     final random = Random();
-    grid = List.generate(gridSize, (_) => List.filled(gridSize, ' '));
+    bool boardGenerated = false;
 
-    // Define directions based on difficulty
-    List<Point> directions = [Point(1, 0), Point(0, 1)]; // Easy: Right, Down
-    if (difficulty == 'Medium')
-      directions.addAll([Point(-1, 0), Point(0, -1)]); // Add Left, Up
-    if (difficulty == 'Hard')
-      directions.addAll([
-        Point(1, 1),
-        Point(-1, -1),
-        Point(1, -1),
-        Point(-1, 1)
-      ]); // Add Diagonals
+    // Loop ensures we keep trying until a completely valid board is built
+    while (!boardGenerated) {
+      grid = List.generate(gridSize, (_) => List.filled(gridSize, ' '));
+      targetWords.clear();
+      _wordPool.shuffle(random); // Shuffle pool for fresh selection
 
-    for (String word in targetWords) {
-      bool placed = false;
-      int tries = 0;
-      while (!placed && tries < 100) {
-        Point dir = directions[random.nextInt(directions.length)];
-        int startX = random.nextInt(gridSize);
-        int startY = random.nextInt(gridSize);
+      // Define directions based on difficulty
+      List<Point> directions = [Point(1, 0), Point(0, 1)]; // Easy: Right, Down
 
-        if (_canPlaceWord(word, startX, startY, dir.x, dir.y)) {
-          _placeWord(word, startX, startY, dir.x, dir.y);
-          placed = true;
-        }
-        tries++;
+      if (difficulty == 'Medium') {
+        // Medium: Add forward diagonals
+        directions.addAll([Point(1, 1), Point(1, -1)]);
       }
+      if (difficulty == 'Hard') {
+        // Hard: All 8 directions (Backwards and all diagonals)
+        directions.addAll([
+          Point(-1, 0),
+          Point(0, -1),
+          Point(1, 1),
+          Point(-1, -1),
+          Point(1, -1),
+          Point(-1, 1)
+        ]);
+      }
+
+      // Try to place words until we hit our target count
+      for (String word in _wordPool) {
+        // Skip if word is mathematically impossible to place
+        if (word.length > gridSize) continue;
+
+        bool placed = false;
+        int tries = 0;
+
+        // Try up to 150 random spots/directions for this word
+        while (!placed && tries < 150) {
+          Point dir = directions[random.nextInt(directions.length)];
+          int startX = random.nextInt(gridSize);
+          int startY = random.nextInt(gridSize);
+
+          if (_canPlaceWord(word, startX, startY, dir.x, dir.y)) {
+            _placeWord(word, startX, startY, dir.x, dir.y);
+            targetWords.add(word); // Only add to list IF successfully placed
+            placed = true;
+          }
+          tries++;
+        }
+
+        // Stop checking words if we have enough for this level
+        if (targetWords.length == _targetWordCount) {
+          boardGenerated = true;
+          break;
+        }
+      }
+      // If we exit the loop and targetWords.length is less than _targetWordCount,
+      // boardGenerated remains false, and the while loop restarts with a blank grid.
     }
 
     // Fill empty spaces with random letters
@@ -108,15 +137,18 @@ class WordSearchProvider extends ChangeNotifier {
   }
 
   bool _canPlaceWord(String word, int x, int y, int dx, int dy) {
-    if (x + (word.length - 1) * dx < 0 ||
-        x + (word.length - 1) * dx >= gridSize) return false;
-    if (y + (word.length - 1) * dy < 0 ||
-        y + (word.length - 1) * dy >= gridSize) return false;
+    // Check if the end of the word goes out of bounds
+    int endX = x + (word.length - 1) * dx;
+    int endY = y + (word.length - 1) * dy;
 
+    if (endX < 0 || endX >= gridSize) return false;
+    if (endY < 0 || endY >= gridSize) return false;
+
+    // Check for collisions along the path
     for (int i = 0; i < word.length; i++) {
-      if (grid[y + i * dy][x + i * dx] != ' ' &&
-          grid[y + i * dy][x + i * dx] != word[i]) {
-        return false;
+      String currentCell = grid[y + i * dy][x + i * dx];
+      if (currentCell != ' ' && currentCell != word[i]) {
+        return false; // Collision with a different letter
       }
     }
     return true;
@@ -173,7 +205,7 @@ class WordSearchProvider extends ChangeNotifier {
       currentSelection.add(Point(cx, cy));
     }
 
-    // Check forward and backward
+    // Check forward and backward to allow the user to swipe in reverse
     String reversedWord = selectedWord.split('').reversed.join('');
 
     if ((targetWords.contains(selectedWord) &&
