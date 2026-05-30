@@ -69,7 +69,7 @@ class NotificationService {
     }
 
     await notificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: (details) {
         debugPrint('Notification tapped: ${details.payload}');
       },
@@ -132,11 +132,11 @@ class NotificationService {
       );
 
       await notificationsPlugin.zonedSchedule(
-        notificationId,
-        'Time to take $name!',
-        'Dosage: $dosage',
-        scheduledDate,
-        notificationDetails,
+        id: notificationId,
+        title: 'Time to take $name!',
+        body: 'Dosage: $dosage',
+        scheduledDate: scheduledDate,
+        notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
       debugPrint('Scheduled ($soundType) for $name at $scheduledDate');
@@ -147,7 +147,7 @@ class NotificationService {
     if (reminder.id == null) return;
     for (int i = 0; i < reminder.times.length; i++) {
       final notificationId = (reminder.id! * 100) + i;
-      await notificationsPlugin.cancel(notificationId);
+      await notificationsPlugin.cancel(id:notificationId);
     }
   }
 

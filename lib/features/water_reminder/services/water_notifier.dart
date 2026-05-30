@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../authentication/services/auth_service.dart';
 import '../../medicine_reminders/data/datasources/database_service.dart';
@@ -88,7 +87,7 @@ class WaterNotifier extends StateNotifier<WaterState> {
   Future<void> scheduleWaterReminders(WaterSettings settings) async {
     // 1. Cancel previous notifications
     for (int i = 2000; i < 2100; i++) {
-      await _notificationService.notificationsPlugin.cancel(i);
+      await _notificationService.notificationsPlugin.cancel(id: i);
     }
 
     if (!settings.isEnabled) return;

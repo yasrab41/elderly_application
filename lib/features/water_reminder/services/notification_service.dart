@@ -30,10 +30,11 @@ class NotificationService {
         InitializationSettings(android: androidSettings, iOS: iosSettings);
 
     // 3. Initialize Plugin
-    await notificationsPlugin.initialize(settings,
+    await notificationsPlugin.initialize(
+        settings: settings,
         onDidReceiveNotificationResponse: (details) {
-      debugPrint('Water Notification tapped: ${details.payload}');
-    });
+          debugPrint('Water Notification tapped: ${details.payload}');
+        });
 
     // 4. Android Specific Setup (CRITICAL FIXES HERE)
     final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
@@ -140,13 +141,12 @@ class NotificationService {
     // 6. Schedule
     // We use zonedSchedule with exactAllowWhileIdle (Same as your Medicine app)
     await notificationsPlugin.zonedSchedule(
-      notificationId,
-      name,
-      dosage,
-      scheduledDate,
-      details,
+      id: notificationId,
+      title: name,
+      body: dosage,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-
       matchDateTimeComponents: DateTimeComponents.time, // Repeats daily
     );
 
