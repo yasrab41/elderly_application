@@ -68,6 +68,43 @@ class _LoginState extends ConsumerState<Login> {
       }
     }
   }
+
+  // --- NEW: Logic for "Sign in with Google" ---
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      // If the user cancelled the Google picker, AuthNotifier just returns
+      // without signing anyone in — ref.read(authNotifierProvider) will
+      // still be null in that case, so only navigate if we actually have a
+      // signed-in user now.
+      final user = ref.read(authNotifierProvider);
+      if (user == null) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const StartScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Google sign-in failed. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
   // -------------------------
 
   @override
@@ -212,7 +249,56 @@ class _LoginState extends ConsumerState<Login> {
                     const Expanded(child: Divider()),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
+
+                // --- NEW: Sign in with Google button ---
+                OutlinedButton(
+                  onPressed: _isLoading ? null : _handleGoogleSignIn,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(color: Colors.grey.shade400),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Simple "G" badge — no external image asset needed,
+                      // so this can't fail to build from a missing file.
+                      Container(
+                        width: 22,
+                        height: 22,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.fromBorderSide(
+                            BorderSide(color: Color(0xFFDADCE0), width: 1),
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'G',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF4285F4), // Google blue
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Sign in with Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
 
                 TextButton(
                   onPressed: () {
@@ -222,8 +308,8 @@ class _LoginState extends ConsumerState<Login> {
                   },
                   child: Text(
                     "Don't have an account? Sign Up",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ],

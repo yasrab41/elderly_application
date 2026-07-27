@@ -1,11 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 // 1. Define the Notifier
 class AuthNotifier extends StateNotifier<User?> {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  // FIX: one shared GoogleSignIn instance, reused by both sign-in and
+  // sign-out, so signing out actually clears the cached Google account too.
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Initial state is set to the current user (if logged in) or null.
   AuthNotifier(this._auth, this._firestore) : super(_auth.currentUser) {
@@ -67,15 +71,38 @@ class AuthNotifier extends StateNotifier<User?> {
   }
 
   // --- Sign In with Google Method ---
+  // FIX: previously called _auth.signInWithPopup(googleProvider), which is
+  // a web-only Firebase Auth method with no Android implementation. This
+  // now uses the standard native flow: the google_sign_in package shows the
+  // on-device account picker, then its tokens are exchanged for a Firebase
+  // credential.
   Future<void> signInWithGoogle() async {
     try {
-      final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-      final userCredential = await _auth.signInWithPopup(googleProvider);
+      // Step 1: native Google account picker. Returns null if the user
+      // cancels, which is a normal outcome, not an error.
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        return;
+      }
 
+      // Step 2: get the auth tokens for the chosen Google account.
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Step 3: build a Firebase credential from those tokens.
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Step 4: sign in to Firebase with that credential.
+      final userCredential = await _auth.signInWithCredential(credential);
       final user = userCredential.user;
 
-      if (user != null && userCredential.additionalUserInfo!.isNewUser) {
-        // If it's a new Google user, save them to Firestore
+      if (user != null &&
+          (userCredential.additionalUserInfo?.isNewUser ?? false)) {
+        // If it's a new Google user, save them to Firestore, same as a
+        // brand-new email/password sign-up.
         await _firestore.collection('users').doc(user.uid).set({
           'uid': user.uid,
           'email': user.email,
@@ -94,6 +121,12 @@ class AuthNotifier extends StateNotifier<User?> {
   // --- Sign Out Method ---
   Future<void> signOut() async {
     try {
+      // FIX: also sign out of Google, not just Firebase. Without this, the
+      // Google account picker can silently skip straight back to the same
+      // account next time, instead of letting the user choose again.
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.signOut();
+      }
       await _auth.signOut();
       // Explicitly set state to null on sign out
       state = null;
@@ -113,8 +146,7 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, User?>(
   },
 );
 
-// 3. 🚀 CRITICAL FIX: Add a new provider to expose the Notifier (AuthService/AuthNotifier)
-// This is the provider the UI will call methods on (e.g., signIn, signUp).
+// 3. This is the provider the UI calls methods on (e.g., signIn, signUp).
 final authServiceProvider = Provider<AuthNotifier>(
   (ref) => ref.read(authNotifierProvider.notifier),
 );
