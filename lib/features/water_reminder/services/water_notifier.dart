@@ -109,20 +109,25 @@ class WaterNotifier extends StateNotifier<WaterState> {
 
     final Duration step = Duration(minutes: settings.intervalMinutes);
 
-    // 4. Align currentSlot to Anchor
+    // --- FIX: no more fast-forwarding the anchor to "now" ---
+    // The previous version advanced currentSlot until it was after `now`,
+    // and separately required each slot to be `isFuture` before scheduling
+    // it. Together, that meant any slot earlier in the day than whatever
+    // moment the app happened to be reopened was never scheduled at
+    // all — not even as a recurring alarm — so it could never fire on any
+    // day. Since scheduleDailyDose() already uses
+    // matchDateTimeComponents.time (see notification_service.dart), each
+    // individual slot is capable of rolling forward to its next valid
+    // occurrence on its own. So the full, fixed daily pattern (anchor to
+    // gateEnd, every `step`) is scheduled every time, regardless of what
+    // time it currently is — a slot whose time-of-day has already passed
+    // today will simply have its first firing tomorrow instead of today,
+    // and will recur normally after that.
     DateTime currentSlot = anchorDate;
-
-    // If anchor is in the past, fast forward to the next future slot
-    // while maintaining the phase.
-    if (currentSlot.isBefore(now)) {
-      while (currentSlot.isBefore(now)) {
-        currentSlot = currentSlot.add(step);
-      }
-    }
 
     int notificationId = 2000;
 
-    // 5. Scheduling Loop
+    // 4. Scheduling Loop
     while (notificationId < 2100) {
       // Stop if we pass the end of the Active Hours (Gate End)
       if (currentSlot.isAfter(gateEnd)) {
@@ -134,10 +139,7 @@ class WaterNotifier extends StateNotifier<WaterState> {
       bool isAfterStart = currentSlot.isAtSameMomentAs(gateStart) ||
           currentSlot.isAfter(gateStart);
 
-      // Safety: Ensure it's in the future
-      bool isFuture = currentSlot.isAfter(now);
-
-      if (isAfterStart && isFuture) {
+      if (isAfterStart) {
         await _notificationService.scheduleDailyDose(
           notificationId: notificationId,
           name: "Hydration Time",

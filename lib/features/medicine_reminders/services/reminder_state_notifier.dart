@@ -15,10 +15,8 @@ class MedicineDose {
   final String timeStr;
   final TimeOfDay timeOfDay;
 
-  MedicineDose({
-    required this.reminder,
-    required this.timeStr,
-  }) : timeOfDay = TimeOfDay(
+  MedicineDose({required this.reminder, required this.timeStr})
+      : timeOfDay = TimeOfDay(
           hour: int.parse(timeStr.split(':')[0]),
           minute: int.parse(timeStr.split(':')[1]),
         );
@@ -54,13 +52,28 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
     state = await _dbService.readAllReminders(_userId);
     _isInitialLoadComplete = true;
 
-    await _notificationService.cancelAllNotifications();
+    // --- FIX: scoped cancellation instead of cancelAllNotifications() ---
+    // The previous call to _notificationService.cancelAllNotifications()
+    // invoked the plugin's cancelAll(), which cancels every pending
+    // notification for the app — including the Water Reminder module's
+    // scheduled alarms, since both modules share the same underlying
+    // Android notification manager. Cancelling only this module's own
+    // reminders (across every reminder currently on file, not just today's)
+    // achieves the same "start from a clean slate" behavior without
+    // affecting Hydration Reminders.
+    for (final reminder in state) {
+      await _notificationService.cancelMedicineReminders(reminder);
+    }
+
     final dosesForToday = todaysDoses;
 
     for (final dose in dosesForToday) {
       final reminderId = dose.reminder.id!;
       final timeIndex = dose.reminder.times.indexOf(dose.timeStr);
-      final notificationId = (reminderId * 100) + timeIndex;
+      final notificationId = NotificationService.notificationIdFor(
+        reminderId,
+        timeIndex,
+      );
 
       await _notificationService.scheduleDailyDose(
         notificationId: notificationId,
@@ -100,8 +113,9 @@ class ReminderStateNotifier extends StateNotifier<List<MedicineReminder>> {
   }
 
   Future<void> updateReminder(MedicineReminder updatedReminder) async {
-    final originalReminder =
-        state.firstWhere((r) => r.id == updatedReminder.id);
+    final originalReminder = state.firstWhere(
+      (r) => r.id == updatedReminder.id,
+    );
     await _notificationService.cancelMedicineReminders(originalReminder);
 
     // 7. Pass userId to DB call
