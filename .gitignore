@@ -1,3 +1,6 @@
+# My gemini key
+.env
+
 # Miscellaneous
 *.class
 *.log

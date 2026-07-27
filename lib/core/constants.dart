@@ -103,6 +103,12 @@ class AppStrings {
   static const String saveButton = 'Save';
   // --- End of Water Reminder Feature ---
 
+  // --- Start of chatbot Feature ---
+  static const String chatbotTitle = "AI Assistant";
+  static const String askSomething = "Type your question here...";
+  static const String chatError = "I'm having trouble connecting. Try again?";
+  // --- End of chatbot Feature ---
+
   // --- Start Memory Match Games Feature ---
   static const String brainGamesTitle = 'Brain Games';
   static const String memoryMatchTitle = 'Memory Match';

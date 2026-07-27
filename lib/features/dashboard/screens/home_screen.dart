@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io'; // NEW: Required for platform checking
+import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/features/brain_games/screens/brain_games_dashboard.dart';
+import 'package:elderly_prototype_app/features/chatbot/screens/chatbot_screen.dart';
 import 'package:elderly_prototype_app/features/water_reminder/screens/water_reminder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +20,9 @@ import 'package:elderly_prototype_app/features/emergency/providers/contact_provi
 import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.dart';
 import 'package:elderly_prototype_app/features/health_tracking/screens/health_tracking_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
+
+import 'package:provider/provider.dart' as provider; // Add 'as provider'
+import 'package:elderly_prototype_app/features/chatbot/providers/chat_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -78,6 +83,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'icon': Icons.games_rounded,
       'color': Color(0xFFF3E5F5),
       'iconColor': Color(0xFF9C27B0),
+    },
+    {
+      'title': 'AI Assistant',
+      'subtitle': 'Ask your quries',
+      'icon': Icons.support_agent,
+      'color': Color.fromARGB(255, 243, 226, 233),
+      'iconColor': Color.fromARGB(255, 176, 39, 119),
     },
   ];
 
@@ -428,6 +440,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const BrainGamesDashboard()));
+                      } else if (item['title'] == 'AI Assistant') {
+                        final currentUser = ref.read(authNotifierProvider);
+                        final userId = currentUser?.uid ?? "guest_user";
+
+                        onTapAction = () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => provider.ChangeNotifierProvider(
+                                  // Use the prefix here
+                                  create: (_) =>
+                                      ChatProvider(currentUserId: userId),
+                                  child: ChatbotScreen(),
+                                ),
+                              ),
+                            );
                       } else {
                         onTapAction = () {};
                       }

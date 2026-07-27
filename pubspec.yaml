@@ -55,7 +55,9 @@ dependencies:
   flutter_contacts: ^1.1.9
   audioplayers: ^5.2.1
   background_sms: ^0.0.4
-
+  http: ^1.1.0
+  flutter_dotenv: ^5.1.0
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -79,6 +81,7 @@ flutter:
   assets:
     - assets/images/
     - assets/sounds/
+    - .env
     # - assets/images/google.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -3,17 +3,21 @@ import 'package:elderly_prototype_app/features/dashboard/screens/splash_screen.d
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // ADD THIS
 
-void main() {
+Future<void> main() async {
   // 1. Ensure bindings are initialized so we can communicate with the OS
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. PRESERVE NATIVE SPLASH
+  // 2. Load .env BEFORE anything else uses it
+  await dotenv.load(fileName: ".env");
+
+  // 3. PRESERVE NATIVE SPLASH
   // This keeps the native logo on screen until we are ready to remove it.
   // This prevents the "white screen" flash between Native -> Flutter.
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  // 3. RUN APP INSTANTLY
+  // 4. RUN APP INSTANTLY
   // No await Firebase. No await Database. Just run the UI.
   runApp(const ProviderScope(child: MyApp()));
 }
