@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import 'signup.dart';
 // Import required for navigation
@@ -95,7 +96,18 @@ class _LoginState extends ConsumerState<Login> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Google sign-in failed. Please try again.';
+        // FIX: give a specific, actionable message when this Google
+        // account's email is already registered with a password instead
+        // of the generic "failed, try again" (which would otherwise be
+        // shown here too, leaving the user stuck with no way forward).
+        if (e is FirebaseAuthException &&
+            e.code == 'account-exists-with-different-credential') {
+          _errorMessage =
+              'An account already exists for this email using a password. '
+              'Please log in with your email and password instead.';
+        } else {
+          _errorMessage = 'Google sign-in failed. Please try again.';
+        }
       });
     } finally {
       if (mounted) {
@@ -308,8 +320,8 @@ class _LoginState extends ConsumerState<Login> {
                   },
                   child: Text(
                     "Don't have an account? Sign Up",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                 ),
               ],

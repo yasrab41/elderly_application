@@ -16,21 +16,51 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   final _formkey = GlobalKey<FormState>();
 
-  resetPassword() async {
+  Future<void> resetPassword() async {
     try {
+      // NOTE: an earlier version of this method tried to detect
+      // Google-only accounts first via fetchSignInMethodsForEmail(), but
+      // that method has been removed from current versions of the
+      // firebase_auth package (yours is ^6.1.1) — it doesn't compile
+      // against it. There isn't a reliable client-side replacement, since
+      // newer Firebase projects intentionally don't expose this
+      // information (to prevent email enumeration). Sending a reset email
+      // to a Google-only account isn't harmful, though: Firebase treats it
+      // as adding a password as an additional sign-in method for that
+      // account, rather than an error, so this still leaves the user with
+      // a working path forward instead of a dead end.
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-        "Password Reset Email has been sent !",
-        style: TextStyle(fontSize: 20.0),
-      )));
+
+      if (!mounted) return;
+      // FIX: wording no longer confirms an account exists (a small but
+      // deliberate security practice — matches how Firebase's own hosted
+      // UI phrases this), while still being clear about what to do next.
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+          "If an account exists for this email, a password reset link "
+          "has been sent.",
+          style: TextStyle(fontSize: 18.0),
+        ),
+      ));
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       if (e.code == "user-not-found") {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        // Kept for Firebase projects without enumeration protection,
+        // where this error can still be thrown directly.
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
           "No user found for that email.",
           style: TextStyle(fontSize: 20.0),
         )));
+      } else {
+        // FIX: previously any other error was silently swallowed with no
+        // feedback at all (e.g. "invalid-email", "too-many-requests").
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "Something went wrong: ${e.message ?? e.code}",
+            style: const TextStyle(fontSize: 18.0),
+          ),
+        ));
       }
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 // Import required for navigation
 import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
@@ -105,7 +106,18 @@ class _SignUpState extends ConsumerState<SignUp> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Google sign-in failed. Please try again.';
+        // FIX: same specific message as login.dart — someone tapping
+        // "Sign up with Google" with an email that already has a
+        // password-based account needs to be told to log in instead, not
+        // shown a generic failure with no way forward.
+        if (e is FirebaseAuthException &&
+            e.code == 'account-exists-with-different-credential') {
+          _errorMessage =
+              'An account already exists for this email using a password. '
+              'Please log in with your email and password instead.';
+        } else {
+          _errorMessage = 'Google sign-in failed. Please try again.';
+        }
       });
     } finally {
       if (mounted) {
