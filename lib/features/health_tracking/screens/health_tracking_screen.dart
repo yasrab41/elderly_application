@@ -31,6 +31,11 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
       'normalRange': '90-120 mmHg',
       'minNormal': 90,
       'maxNormal': 120,
+      // FIX: added so the diastolic reading is actually evaluated too,
+      // not just displayed. 60-80 mmHg is the standard clinical normal
+      // range for diastolic pressure.
+      'minNormalDiastolic': 60,
+      'maxNormalDiastolic': 80,
       // Specific Dialog Text
       'inputLabel': 'Systolic', // Special case for BP
       'hintText': '120',
@@ -84,7 +89,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
       'unit': AppStrings.unitSteps,
       'icon': Icons.directions_walk,
       'color': Colors.green,
-      'normalRange': '8000-10000 steps',
+      'normalRange': '8000-15000 steps',
       'minNormal': 8000,
       'maxNormal': 15000,
       'inputLabel': 'Steps (count)',
@@ -295,6 +300,15 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     if (latestVal != null) {
       isNormal =
           latestVal >= metric['minNormal'] && latestVal <= metric['maxNormal'];
+      // FIX: blood pressure now also checks the diastolic value (value2),
+      // not just systolic. A reading only counts as Normal if both
+      // numbers are in range.
+      if (_selectedMetric == 'bp' && latestVal2 != null) {
+        final bool diastolicNormal =
+            latestVal2 >= metric['minNormalDiastolic'] &&
+                latestVal2 <= metric['maxNormalDiastolic'];
+        isNormal = isNormal && diastolicNormal;
+      }
     }
 
     return Container(
@@ -632,6 +646,14 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
         final metric = _metrics[_selectedMetric];
         bool isNormal = record.value1 >= metric['minNormal'] &&
             record.value1 <= metric['maxNormal'];
+        // FIX: same diastolic check as the dashboard card above, applied
+        // to each history entry too.
+        if (_selectedMetric == 'bp' && record.value2 != null) {
+          final bool diastolicNormal =
+              record.value2! >= metric['minNormalDiastolic'] &&
+                  record.value2! <= metric['maxNormalDiastolic'];
+          isNormal = isNormal && diastolicNormal;
+        }
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),

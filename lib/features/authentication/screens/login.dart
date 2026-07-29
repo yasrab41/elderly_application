@@ -320,8 +320,8 @@ class _LoginState extends ConsumerState<Login> {
                   },
                   child: Text(
                     "Don't have an account? Sign Up",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ],
