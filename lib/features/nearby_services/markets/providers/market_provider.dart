@@ -13,6 +13,7 @@ class MarketState {
   final MarketCategory? selectedCategory; // null = All
   final String searchQuery;
   final DateTime? lastUpdated;
+  final bool shopsFetchFailed;
 
   const MarketState({
     this.isLoading = false,
@@ -21,6 +22,7 @@ class MarketState {
     this.selectedCategory,
     this.searchQuery = '',
     this.lastUpdated,
+    this.shopsFetchFailed = false,
   });
 
   MarketState copyWith({
@@ -32,6 +34,7 @@ class MarketState {
     String? searchQuery,
     DateTime? lastUpdated,
     bool clearError = false,
+    bool? shopsFetchFailed,
   }) {
     return MarketState(
       isLoading: isLoading ?? this.isLoading,
@@ -41,6 +44,7 @@ class MarketState {
           clearCategory ? null : (selectedCategory ?? this.selectedCategory),
       searchQuery: searchQuery ?? this.searchQuery,
       lastUpdated: lastUpdated ?? this.lastUpdated,
+      shopsFetchFailed: shopsFetchFailed ?? this.shopsFetchFailed,
     );
   }
 }
@@ -65,6 +69,7 @@ class MarketNotifier extends StateNotifier<MarketState> {
 
       var bazaars = <MarketFacilityModel>[];
       var shops = <MarketFacilityModel>[];
+      var shopsFailed = false;
 
       try {
         bazaars = await _repository.getBazaars(forceRefresh: forceRefresh);
@@ -74,7 +79,9 @@ class MarketNotifier extends StateNotifier<MarketState> {
           latitude: position.latitude,
           longitude: position.longitude,
         );
-      } catch (_) {}
+      } catch (_) {
+        shopsFailed = true;
+      }
 
       final combined = [...bazaars, ...shops];
       if (combined.isEmpty) {
@@ -96,6 +103,7 @@ class MarketNotifier extends StateNotifier<MarketState> {
         isLoading: false,
         facilities: withDistance,
         lastUpdated: DateTime.now(),
+        shopsFetchFailed: shopsFailed,
       );
     } on LocationServiceDisabledException {
       state = state.copyWith(

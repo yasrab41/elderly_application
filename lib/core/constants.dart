@@ -302,6 +302,8 @@ class AppStrings {
       'Could not load market information. Please check your internet connection and try again.';
   static const String marketsGenericError =
       'Something went wrong while loading markets. Please try again.';
+  static const String shopsPartialFailureMessage =
+      'Supermarkets, bakeries, and other shops could not be loaded right now. Weekly bazaars are still shown below. Pull down to try again.';
   static const String weeklyBazaarFallbackBadge = 'Weekly Market';
   static const String dayMonShort = 'Mon';
   static const String dayTueShort = 'Tue';

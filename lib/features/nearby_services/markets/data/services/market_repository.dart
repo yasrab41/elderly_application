@@ -23,7 +23,10 @@ const Map<String, int> _turkishDayToIso = {
 class MarketRepository {
   static const String _bazaarsUrl =
       'https://openapi.izmir.bel.tr/api/ibb/cbs/pazaryerleri';
-  static const String _overpassUrl = 'https://overpass-api.de/api/interpreter';
+  static const List<String> _overpassMirrors = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+  ];
   static const List<String> _shopTags = [
     'supermarket',
     'convenience',
@@ -153,22 +156,44 @@ class MarketRepository {
 
   Future<List<MarketFacilityModel>> _fetchShopsFromOverpass(
       double lat, double lon, int radiusMeters) async {
-    final clauses = _shopTags
-        .map((tag) => 'node["shop"="$tag"](around:$radiusMeters,$lat,$lon);')
-        .join();
-    final query = '[out:json][timeout:25];($clauses);out body;';
-    final uri = Uri.parse('$_overpassUrl?data=${Uri.encodeComponent(query)}');
+    // A single regex-based filter is dramatically cheaper for Overpass's
+    // free public server than 6 separate around() filters (one per shop
+    // type) — the previous approach was timing out under normal load.
+    final tagPattern = _shopTags.join('|');
+    final query = '[out:json][timeout:25];'
+        '(node["shop"~"^($tagPattern)\$"](around:$radiusMeters,$lat,$lon);'
+        ');out body;';
+    final encodedQuery = Uri.encodeComponent(query);
 
-    final response = await http.get(uri).timeout(const Duration(seconds: 30));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load shop data (${response.statusCode})');
+    Exception? lastError;
+    for (final baseUrl in _overpassMirrors) {
+      try {
+        final uri = Uri.parse('$baseUrl?data=$encodedQuery');
+        final response =
+            await http.get(uri).timeout(const Duration(seconds: 30));
+        debugPrint('[MarketRepository] Overpass ($baseUrl) status: '
+            '${response.statusCode}, body length: ${response.bodyBytes.length}');
+        if (response.statusCode != 200) {
+          throw Exception(
+              'Overpass returned ${response.statusCode} from $baseUrl');
+        }
+        return _parseOverpassResponse(response.bodyBytes);
+      } catch (e) {
+        debugPrint('[MarketRepository] Overpass mirror $baseUrl FAILED: $e');
+        lastError = e is Exception ? e : Exception(e.toString());
+        // Try the next mirror.
+      }
     }
+    throw lastError ?? Exception('All Overpass mirrors failed');
+  }
 
-    final decoded =
-        jsonDecode(utf8.decode(response.bodyBytes, allowMalformed: true))
-            as Map<String, dynamic>;
+  List<MarketFacilityModel> _parseOverpassResponse(List<int> bodyBytes) {
+    final decoded = jsonDecode(utf8.decode(bodyBytes, allowMalformed: true))
+        as Map<String, dynamic>;
     final elements =
         (decoded['elements'] as List? ?? []).cast<Map<String, dynamic>>();
+    debugPrint(
+        '[MarketRepository] Overpass returned ${elements.length} raw elements.');
 
     final shops = <MarketFacilityModel>[];
     for (final element in elements) {

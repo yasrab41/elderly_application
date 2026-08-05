@@ -129,9 +129,35 @@ class _MarketsScreenState extends ConsumerState<MarketsScreen> {
         child: Column(
           children: [
             _buildFilters(state, notifier),
+            if (state.shopsFetchFailed) _buildShopsFailedBanner(),
             Expanded(child: _buildBody(state, notifier)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildShopsFailedBanner() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFFB74D)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.wifi_off_rounded,
+              color: Color(0xFFE65100), size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              AppStrings.shopsPartialFailureMessage,
+              style: const TextStyle(fontSize: 14, color: Color(0xFF8D4E00)),
+            ),
+          ),
+        ],
       ),
     );
   }
