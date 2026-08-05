@@ -259,6 +259,31 @@ class AppStrings {
       'Could not open Maps. Please make sure a maps app is installed.';
   static const String lastUpdatedLabel = 'Last updated';
   // --- End Nearby Bus Stops Feature ---
+
+  // --- Start Nearby Healthcare Feature ---
+  static const String nearbyHealthcareTitle = 'Nearby Healthcare';
+  static const String nearbyHealthcareHubSubtitle =
+      'Find hospitals, health centers and open pharmacies close to you';
+  static const String callButton = 'Call';
+  static const String emergencyBannerText = 'Medical emergency? Call 112 now.';
+  static const String emergencyCallButton = 'Call 112';
+  static const String categoryAll = 'All';
+  static const String categoryHospitals = 'Hospitals';
+  static const String categoryFamilyHealthCenters = 'Health Centers';
+  static const String categoryPharmacies = 'Open Pharmacies';
+  static const String openNowBadge = 'Open Now';
+  static const String searchHealthcareHint = 'Search by name...';
+  static const String noHealthcareResultsFound =
+      'No healthcare facilities found nearby.';
+  static const String locatingHealthcareMessage = 'Finding your location...';
+  static const String healthcareResultsFoundLabel = 'closest to you';
+  static const String healthcareDataUnavailableMessage =
+      'Could not load healthcare facility information. Please check your internet connection and try again.';
+  static const String healthcareGenericError =
+      'Something went wrong while loading healthcare facilities. Please try again.';
+  static const String callErrorMessage =
+      'Could not start the call. Please dial the number manually.';
+  // --- End Nearby Healthcare Feature ---
 }
 
 // --- Mock Exercise Data with more variety ---

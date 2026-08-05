@@ -9,10 +9,14 @@ class NearbyPlaceCard extends StatelessWidget {
   final Color iconBackgroundColor;
   final Color iconColor;
   final String title;
+  final String? subtitle;
+  final String? statusBadgeText;
+  final Color? statusBadgeColor;
   final List<String>? tags;
   final String distanceLabel;
   final String walkingTimeLabel;
   final VoidCallback onDirectionsPressed;
+  final VoidCallback? onCallPressed;
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
 
@@ -25,7 +29,11 @@ class NearbyPlaceCard extends StatelessWidget {
     required this.distanceLabel,
     required this.walkingTimeLabel,
     required this.onDirectionsPressed,
+    this.subtitle,
+    this.statusBadgeText,
+    this.statusBadgeColor,
     this.tags,
+    this.onCallPressed,
     this.isFavorite = false,
     this.onFavoriteToggle,
   });
@@ -54,13 +62,53 @@ class NearbyPlaceCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 14),
                 Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          if (statusBadgeText != null) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: statusBadgeColor ?? Colors.green,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                statusBadgeText!,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      if (subtitle != null && subtitle!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 if (onFavoriteToggle != null)
@@ -120,25 +168,68 @@ class NearbyPlaceCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: onDirectionsPressed,
-                icon: const Icon(Icons.navigation_rounded),
-                label: Text(
-                  AppStrings.getDirectionsButton,
-                  style: const TextStyle(
-                      fontSize: 17, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: iconColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+            if (onCallPressed != null)
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onCallPressed,
+                      icon: const Icon(Icons.call_rounded),
+                      label: Text(
+                        AppStrings.callButton,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: iconColor,
+                        side: BorderSide(color: iconColor, width: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: onDirectionsPressed,
+                      icon: const Icon(Icons.navigation_rounded),
+                      label: Text(
+                        AppStrings.getDirectionsButton,
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: iconColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            else
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: onDirectionsPressed,
+                  icon: const Icon(Icons.navigation_rounded),
+                  label: Text(
+                    AppStrings.getDirectionsButton,
+                    style: const TextStyle(
+                        fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: iconColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

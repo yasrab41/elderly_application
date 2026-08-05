@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:elderly_prototype_app/core/constants.dart';
 import '../bus_stops/screens/bus_stops_screen.dart';
+import '../healthcare/screens/healthcare_screen.dart';
 
 class NearbyServicesHubScreen extends StatelessWidget {
   const NearbyServicesHubScreen({super.key});
@@ -38,10 +39,12 @@ class NearbyServicesHubScreen extends StatelessWidget {
             const SizedBox(height: 18),
             _NearbyServiceButton(
               icon: Icons.local_hospital_rounded,
-              label: AppStrings.nearbyHospitalsTitle,
+              label: AppStrings.nearbyHealthcareTitle,
               color: const Color(0xFFE53935),
-              enabled: false,
-              onTap: () => _showComingSoon(context),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HealthcareScreen()),
+              ),
             ),
             const SizedBox(height: 18),
             _NearbyServiceButton(
