@@ -221,6 +221,44 @@ class AppStrings {
   static const String sudokuInstructions =
       'Tap an empty square, then pick a number.';
   // --- End Sudoku Game Feature ---
+
+  // --- Start Nearby Services Hub Feature ---
+  static const String nearbyServicesTitle = 'Nearby Services';
+  static const String nearbyServicesGridSubtitle =
+      'Bus stops, hospitals & markets';
+  static const String nearbyServicesHubSubtitle =
+      'Find help and places close to you';
+  static const String nearbyHospitalsTitle = 'Nearby Hospitals';
+  static const String nearbyMarketsTitle = 'Nearby Markets';
+  static const String comingSoonLabel = 'Coming Soon';
+  static const String comingSoonMessage =
+      'This feature will be available soon.';
+  // --- End Nearby Services Hub Feature ---
+
+  // --- Start Nearby Bus Stops Feature ---
+  static const String nearbyBusStopsTitle = 'Nearby Bus Stops';
+  static const String nearbyBusStopsSubtitle = 'Find buses close to you';
+  static const String locatingMessage = 'Finding your location...';
+  static const String busStopsFoundLabel = 'closest stops near you';
+  static const String getDirectionsButton = 'Get Directions';
+  static const String retryButton = 'Try Again';
+  static const String openLocationSettingsButton = 'Open Location Settings';
+  static const String openAppSettingsButton = 'Open App Settings';
+  static const String locationServiceDisabledMessage =
+      'Location is turned off on your phone. Please turn it on to find bus stops near you.';
+  static const String locationPermissionDeniedMessage =
+      'This app needs permission to see your location to find nearby bus stops.';
+  static const String locationPermissionDeniedForeverMessage =
+      'Location permission was denied. Please allow it from your phone settings to use this feature.';
+  static const String busStopsGenericError =
+      'Something went wrong while loading bus stops. Please try again.';
+  static const String busStopsDataUnavailableMessage =
+      'Could not load bus stop information. Please check your internet connection and try again.';
+  static const String noBusStopsFound = 'No bus stops found nearby.';
+  static const String directionsErrorMessage =
+      'Could not open Maps. Please make sure a maps app is installed.';
+  static const String lastUpdatedLabel = 'Last updated';
+  // --- End Nearby Bus Stops Feature ---
 }
 
 // --- Mock Exercise Data with more variety ---

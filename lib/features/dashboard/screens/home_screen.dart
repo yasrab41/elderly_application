@@ -20,6 +20,7 @@ import 'package:elderly_prototype_app/features/emergency/providers/contact_provi
 import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.dart';
 import 'package:elderly_prototype_app/features/health_tracking/screens/health_tracking_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
+import 'package:elderly_prototype_app/features/nearby_services/screens/nearby_services_hub_screen.dart';
 
 import 'package:provider/provider.dart' as provider; // Add 'as provider'
 import 'package:elderly_prototype_app/features/chatbot/providers/chat_provider.dart';
@@ -90,6 +91,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'icon': Icons.support_agent,
       'color': Color.fromARGB(255, 243, 226, 233),
       'iconColor': Color.fromARGB(255, 176, 39, 119),
+    },
+    {
+      'title': AppStrings.nearbyServicesTitle,
+      'subtitle': AppStrings.nearbyServicesGridSubtitle,
+      'icon': Icons.map_rounded,
+      'color': Color(0xFFE0F7FA),
+      'iconColor': Color(0xFF00838F),
     },
   ];
 
@@ -455,6 +463,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                               ),
                             );
+                      } else if (item['title'] ==
+                          AppStrings.nearbyServicesTitle) {
+                        onTapAction = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const NearbyServicesHubScreen()));
                       } else {
                         onTapAction = () {};
                       }
