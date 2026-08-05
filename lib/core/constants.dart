@@ -284,6 +284,33 @@ class AppStrings {
   static const String callErrorMessage =
       'Could not start the call. Please dial the number manually.';
   // --- End Nearby Healthcare Feature ---
+
+  // --- Start Nearby Markets Feature ---
+  static const String marketsHubSubtitle =
+      'Find supermarkets, grocers, bakeries, and weekly bazaars close to you';
+  static const String categorySupermarkets = 'Supermarkets';
+  static const String categoryGroceryConvenience = 'Grocery & Convenience';
+  static const String categoryBakeries = 'Bakeries';
+  static const String categoryButchers = 'Butchers';
+  static const String categoryGreengrocers = 'Greengrocers';
+  static const String categoryWeeklyBazaars = 'Weekly Bazaars';
+  static const String searchMarketsHint = 'Search by name...';
+  static const String noMarketsResultsFound = 'No markets found nearby.';
+  static const String locatingMarketsMessage = 'Finding your location...';
+  static const String marketsResultsFoundLabel = 'closest to you';
+  static const String marketsDataUnavailableMessage =
+      'Could not load market information. Please check your internet connection and try again.';
+  static const String marketsGenericError =
+      'Something went wrong while loading markets. Please try again.';
+  static const String weeklyBazaarFallbackBadge = 'Weekly Market';
+  static const String dayMonShort = 'Mon';
+  static const String dayTueShort = 'Tue';
+  static const String dayWedShort = 'Wed';
+  static const String dayThuShort = 'Thu';
+  static const String dayFriShort = 'Fri';
+  static const String daySatShort = 'Sat';
+  static const String daySunShort = 'Sun';
+  // --- End Nearby Markets Feature ---
 }
 
 // --- Mock Exercise Data with more variety ---

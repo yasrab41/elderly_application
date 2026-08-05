@@ -3,15 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:elderly_prototype_app/core/constants.dart';
 import '../bus_stops/screens/bus_stops_screen.dart';
 import '../healthcare/screens/healthcare_screen.dart';
+import '../markets/screens/markets_screen.dart';
 
 class NearbyServicesHubScreen extends StatelessWidget {
   const NearbyServicesHubScreen({super.key});
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppStrings.comingSoonMessage)),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +46,10 @@ class NearbyServicesHubScreen extends StatelessWidget {
               icon: Icons.shopping_cart_rounded,
               label: AppStrings.nearbyMarketsTitle,
               color: const Color(0xFF43A047),
-              enabled: false,
-              onTap: () => _showComingSoon(context),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MarketsScreen()),
+              ),
             ),
           ],
         ),
@@ -66,20 +63,18 @@ class _NearbyServiceButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
-  final bool enabled;
 
   const _NearbyServiceButton({
     required this.icon,
     required this.label,
     required this.color,
     required this.onTap,
-    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: enabled ? color.withOpacity(0.12) : Colors.grey.shade200,
+      color: color.withOpacity(0.12),
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
@@ -93,7 +88,7 @@ class _NearbyServiceButton extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: enabled ? color : Colors.grey,
+                  color: color,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: Colors.white, size: 32),
@@ -102,33 +97,15 @@ class _NearbyServiceButton extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: enabled ? Colors.black87 : Colors.black45,
+                    color: Colors.black87,
                   ),
                 ),
               ),
-              if (!enabled)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    AppStrings.comingSoonLabel,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
-              else
-                const Icon(Icons.chevron_right_rounded,
-                    color: Colors.black38, size: 28),
+              const Icon(Icons.chevron_right_rounded,
+                  color: Colors.black38, size: 28),
             ],
           ),
         ),
