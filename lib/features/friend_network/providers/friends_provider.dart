@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:elderly_prototype_app/core/constants.dart';
 import '../data/models/social_models.dart';
 import '../data/services/friend_repository.dart';
+import '../data/services/messaging_repository.dart';
 
 class FriendsState {
   final bool isLoading;
@@ -37,12 +39,25 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
   FriendsNotifier() : super(const FriendsState());
 
   final FriendRepository _repository = FriendRepository();
+  final MessagingRepository _messagingRepository = MessagingRepository();
 
   Future<void> loadAll() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final requests = await _repository.getIncomingRequests();
-      final friends = await _repository.getFriends();
+      var friends = await _repository.getFriends();
+
+      final previews = await _messagingRepository
+          .getConversationPreviews(friends.map((f) => f.friendUid).toList());
+      friends = friends.map((f) {
+        final preview = previews[f.friendUid];
+        if (preview == null) return f;
+        return f.copyWithMessagePreview(
+          lastMessageText: preview['lastMessageText'] as String?,
+          lastMessageAt: (preview['lastMessageAt'] as Timestamp?)?.toDate(),
+        );
+      }).toList();
+
       state = state.copyWith(
         isLoading: false,
         incomingRequests: requests,

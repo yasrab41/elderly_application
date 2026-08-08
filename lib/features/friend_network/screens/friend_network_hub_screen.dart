@@ -10,6 +10,7 @@ import '../providers/friend_profile_provider.dart';
 import '../providers/friends_provider.dart';
 import '../widgets/friend_person_card.dart';
 import '../widgets/safety_actions_sheet.dart';
+import 'conversation_screen.dart';
 import 'edit_friend_profile_screen.dart';
 
 class FriendNetworkHubScreen extends ConsumerStatefulWidget {
@@ -217,13 +218,18 @@ class _FriendNetworkHubScreenState
   }
 
   Widget _buildFriendCard(FriendshipModel friend) {
+    final hasPreview = friend.lastMessageText != null;
+    final subtitle = hasPreview
+        ? friend.lastMessageText
+        : (friend.since != null
+            ? '${AppStrings.sinceFriendsLabel} ${friend.since!.day}/${friend.since!.month}/${friend.since!.year}'
+            : null);
+
     return FriendPersonCard(
       avatarId: friend.friendAvatarId,
       name: friend.friendName,
       isTrusted: friend.isTrustedContact,
-      subtitle: friend.since != null
-          ? '${AppStrings.sinceFriendsLabel} ${friend.since!.day}/${friend.since!.month}/${friend.since!.year}'
-          : null,
+      subtitle: subtitle,
       onMoreOptions: () => showPersonOptionsSheet(
         context,
         isTrusted: friend.isTrustedContact,
@@ -253,7 +259,28 @@ class _FriendNetworkHubScreenState
           );
         }),
       ),
-      actions: const [],
+      actions: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ConversationScreen(
+                  friendUid: friend.friendUid,
+                  friendName: friend.friendName,
+                  friendAvatarId: friend.friendAvatarId,
+                ),
+              ),
+            ).then((_) => ref.read(friendsProvider.notifier).loadAll()),
+            icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+            label: Text(AppStrings.messageButton),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF48352A),
+              side: const BorderSide(color: Color(0xFF48352A)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

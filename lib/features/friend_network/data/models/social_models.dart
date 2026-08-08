@@ -85,6 +85,8 @@ class FriendshipModel {
   final int friendAvatarId;
   final DateTime? since;
   final bool isTrustedContact;
+  final String? lastMessageText;
+  final DateTime? lastMessageAt;
 
   const FriendshipModel({
     required this.pairId,
@@ -93,5 +95,23 @@ class FriendshipModel {
     required this.friendAvatarId,
     this.since,
     this.isTrustedContact = false,
+    this.lastMessageText,
+    this.lastMessageAt,
   });
+
+  FriendshipModel copyWithMessagePreview({
+    String? lastMessageText,
+    DateTime? lastMessageAt,
+  }) {
+    return FriendshipModel(
+      pairId: pairId,
+      friendUid: friendUid,
+      friendName: friendName,
+      friendAvatarId: friendAvatarId,
+      since: since,
+      isTrustedContact: isTrustedContact,
+      lastMessageText: lastMessageText ?? this.lastMessageText,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+    );
+  }
 }

@@ -265,8 +265,7 @@ class AppStrings {
   static const String nearbyHealthcareHubSubtitle =
       'Find hospitals, health centers and open pharmacies close to you';
   static const String callButton = 'Call';
-  static const String emergencyBannerText =
-      'Medical emergency? Call 112 now.';
+  static const String emergencyBannerText = 'Medical emergency? Call 112 now.';
   static const String emergencyCallButton = 'Call 112';
   static const String categoryAll = 'All';
   static const String categoryHospitals = 'Hospitals';
@@ -317,8 +316,7 @@ class AppStrings {
 
   // --- Start Friend Network Feature (Step 1: Profile) ---
   static const String friendNetworkTitle = 'Friend Network';
-  static const String friendNetworkHubSubtitle =
-      'Connect with people near you';
+  static const String friendNetworkHubSubtitle = 'Connect with people near you';
   static const String myFriendsTitle = 'My Friends';
   static const String nearbyPeopleTitle = 'Nearby People';
   static const String setupProfilePrompt =
@@ -406,6 +404,23 @@ class AppStrings {
   static const String discoverabilityOffNotice =
       'Turn on "Show my profile to nearby people" in your profile to discover people near you.';
   // --- End Friend Network Feature (Step 2: Friends, Discovery, Safety) ---
+
+  // --- Start Friend Network Feature (Step 3: Messaging) ---
+  static const String messageButton = 'Message';
+  static const String quickRepliesLabel = 'Quick Replies';
+  static const String messageInputHint = 'Type a message...';
+  static const String noMessagesYetMessage = 'No messages yet. Say hello!';
+  static const String messageSendErrorMessage =
+      'Could not send message. Please try again.';
+  static const String templateHello = 'Hello!';
+  static const String templateHowAreYou = 'How are you?';
+  static const String templateAreYouAvailable = 'Are you available today?';
+  static const String templateLetsWalk = "Let's walk together";
+  static const String templateLetsHaveTea = "Let's have tea or coffee";
+  static const String templateThankYou = 'Thank you!';
+  static const String templateSeeYouSoon = 'See you soon';
+  static const String templateRunningLate = "I'll be a little late";
+  // --- End Friend Network Feature (Step 3: Messaging) ---
 }
 
 // --- Mock Exercise Data with more variety ---
