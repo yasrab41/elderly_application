@@ -163,17 +163,28 @@ class MarketRepository {
     final query = '[out:json][timeout:25];'
         '(node["shop"~"^($tagPattern)\$"](around:$radiusMeters,$lat,$lon);'
         ');out body;';
-    final encodedQuery = Uri.encodeComponent(query);
 
     Exception? lastError;
     for (final baseUrl in _overpassMirrors) {
       try {
-        final uri = Uri.parse('$baseUrl?data=$encodedQuery');
-        final response =
-            await http.get(uri).timeout(const Duration(seconds: 30));
+        // POST (not GET) — overpass-api.de's server applies Apache content
+        // negotiation to GET requests on this path and can return 406.
+        // POST with the query as a form field is Overpass's documented,
+        // recommended method and avoids that entirely.
+        final response = await http.post(
+          Uri.parse(baseUrl),
+          headers: {
+            'User-Agent':
+                'HealthCarePlusApp/1.0 (Flutter; Izmir Guzelbahce elderly-assistance thesis app)',
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: {'data': query},
+        ).timeout(const Duration(seconds: 30));
         debugPrint('[MarketRepository] Overpass ($baseUrl) status: '
             '${response.statusCode}, body length: ${response.bodyBytes.length}');
         if (response.statusCode != 200) {
+          debugPrint('[MarketRepository] Response body: ${response.body}');
           throw Exception(
               'Overpass returned ${response.statusCode} from $baseUrl');
         }
