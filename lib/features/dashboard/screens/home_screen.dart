@@ -21,6 +21,7 @@ import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.da
 import 'package:elderly_prototype_app/features/health_tracking/screens/health_tracking_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
 import 'package:elderly_prototype_app/features/nearby_services/screens/nearby_services_hub_screen.dart';
+import 'package:elderly_prototype_app/features/friend_network/screens/friend_network_hub_screen.dart';
 
 import 'package:provider/provider.dart' as provider; // Add 'as provider'
 import 'package:elderly_prototype_app/features/chatbot/providers/chat_provider.dart';
@@ -98,6 +99,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       'icon': Icons.map_rounded,
       'color': Color(0xFFE0F7FA),
       'iconColor': Color(0xFF00838F),
+    },
+    {
+      'title': AppStrings.friendNetworkTitle,
+      'subtitle': AppStrings.friendNetworkHubSubtitle,
+      'icon': Icons.people_alt_rounded,
+      'color': Color(0xFFF3E5F5),
+      'iconColor': Color(0xFF8E24AA),
     },
   ];
 
@@ -470,6 +478,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             MaterialPageRoute(
                                 builder: (_) =>
                                     const NearbyServicesHubScreen()));
+                      } else if (item['title'] ==
+                          AppStrings.friendNetworkTitle) {
+                        onTapAction = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const FriendNetworkHubScreen()));
                       } else {
                         onTapAction = () {};
                       }

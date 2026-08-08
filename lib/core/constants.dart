@@ -265,7 +265,8 @@ class AppStrings {
   static const String nearbyHealthcareHubSubtitle =
       'Find hospitals, health centers and open pharmacies close to you';
   static const String callButton = 'Call';
-  static const String emergencyBannerText = 'Medical emergency? Call 112 now.';
+  static const String emergencyBannerText =
+      'Medical emergency? Call 112 now.';
   static const String emergencyCallButton = 'Call 112';
   static const String categoryAll = 'All';
   static const String categoryHospitals = 'Hospitals';
@@ -313,6 +314,98 @@ class AppStrings {
   static const String daySatShort = 'Sat';
   static const String daySunShort = 'Sun';
   // --- End Nearby Markets Feature ---
+
+  // --- Start Friend Network Feature (Step 1: Profile) ---
+  static const String friendNetworkTitle = 'Friend Network';
+  static const String friendNetworkHubSubtitle =
+      'Connect with people near you';
+  static const String myFriendsTitle = 'My Friends';
+  static const String nearbyPeopleTitle = 'Nearby People';
+  static const String setupProfilePrompt =
+      'Set up your Friend Network profile to get started.';
+  static const String setupProfileButton = 'Set Up Profile';
+  static const String editProfileFriendNetworkButton = 'Edit Profile';
+  static const String chooseAvatarLabel = 'Choose an Avatar';
+  static const String bioLabel = 'About You';
+  static const String bioHint = 'Tell others a little about yourself...';
+  static const String ageRangeLabel = 'Age Range';
+  static const String genderLabel = 'Gender (optional)';
+  static const String interestsLabel = 'Your Interests';
+  static const String interestsHint = 'Select as many as you like';
+  static const String languagesLabel = 'Languages You Speak';
+  static const String discoverableLabel = 'Show my profile to nearby people';
+  static const String discoverableDescription =
+      'When on, other nearby users can find you and send a friend request. Your exact location is never shown — only a general area.';
+  static const String genderMale = 'Male';
+  static const String genderFemale = 'Female';
+  static const String genderPreferNotToSay = 'Prefer not to say';
+  static const String saveProfileButton = 'Save Profile';
+  static const String profileSavedMessage = 'Your profile has been saved.';
+  static const String profileSaveErrorMessage =
+      'Could not save your profile. Please check your connection and try again.';
+  static const String ageRange50s = '50-59';
+  static const String ageRange60s = '60-69';
+  static const String ageRange70s = '70-79';
+  static const String ageRange80s = '80-89';
+  static const String ageRange90Plus = '90+';
+  static const String interestWalking = 'Walking';
+  static const String interestGardening = 'Gardening';
+  static const String interestReading = 'Reading';
+  static const String interestCooking = 'Cooking';
+  static const String interestPainting = 'Painting';
+  static const String interestCrochet = 'Crochet';
+  static const String interestMusic = 'Music';
+  static const String interestExercise = 'Exercise';
+  static const String interestChess = 'Chess';
+  static const String interestVolunteering = 'Volunteering';
+  static const String languageTurkish = 'Turkish';
+  static const String languageEnglish = 'English';
+  static const String languageOther = 'Other';
+  static const String comingInNextStepLabel = 'Coming in the next update';
+  // --- End Friend Network Feature (Step 1: Profile) ---
+
+  // --- Start Friend Network Feature (Step 2: Friends, Discovery, Safety) ---
+  static const String friendRequestsTitle = 'Friend Requests';
+  static const String acceptButton = 'Accept';
+  static const String declineButton = 'Decline';
+  static const String addButton = 'Add';
+  static const String requestedButton = 'Requested';
+  static const String removeFriendButton = 'Remove Friend';
+  static const String blockUserButton = 'Block User';
+  static const String reportUserButton = 'Report User';
+  static const String cancelButton = 'Cancel';
+  static const String trustedContactLabel = 'Trusted Contact';
+  static const String markAsTrustedContact = 'Mark as Trusted Contact';
+  static const String unmarkTrustedContact = 'Remove Trusted Contact';
+  static const String moreOptionsLabel = 'More Options';
+  static const String confirmRemoveFriendMessage =
+      'Remove this person from your friends?';
+  static const String confirmBlockUserMessage =
+      'Block this person? They will no longer be able to contact you or appear in your nearby people list.';
+  static const String reportReasonInappropriate = 'Inappropriate Behavior';
+  static const String reportReasonFakeProfile = 'Fake Profile';
+  static const String reportReasonSpam = 'Spam or Scam';
+  static const String reportReasonOther = 'Other';
+  static const String reportSubmittedMessage =
+      'Thank you. Your report has been submitted.';
+  static const String noFriendsYetMessage =
+      "You haven't added any friends yet.";
+  static const String noNearbyPeopleMessage =
+      'No nearby people found right now.';
+  static const String friendNetworkGenericError =
+      'Something went wrong. Please try again.';
+  static const String friendRequestSentMessage = 'Friend request sent.';
+  static const String distanceVeryClose = 'Very close';
+  static const String distanceNearby = 'Nearby';
+  static const String distanceInIzmir = 'In İzmir';
+  static const String distanceFurtherAway = 'Further away';
+  static const String distanceUnknown = 'Distance unknown';
+  static const String yesConfirmButton = 'Yes';
+  static const String noCancelButton = 'No';
+  static const String sinceFriendsLabel = 'Friends since';
+  static const String discoverabilityOffNotice =
+      'Turn on "Show my profile to nearby people" in your profile to discover people near you.';
+  // --- End Friend Network Feature (Step 2: Friends, Discovery, Safety) ---
 }
 
 // --- Mock Exercise Data with more variety ---
