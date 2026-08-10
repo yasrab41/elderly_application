@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:elderly_prototype_app/core/constants.dart';
+import 'package:elderly_prototype_app/core/providers/avatar_provider.dart';
+import 'package:elderly_prototype_app/core/widgets/avatar_picker.dart';
 import '../data/models/friend_profile_model.dart';
 import '../providers/friend_profile_provider.dart';
 
@@ -15,7 +17,6 @@ class EditFriendProfileScreen extends ConsumerStatefulWidget {
 
 class _EditFriendProfileScreenState
     extends ConsumerState<EditFriendProfileScreen> {
-  late int _avatarId;
   late TextEditingController _bioController;
   AgeRangeOption? _ageRange;
   String? _gender;
@@ -44,7 +45,6 @@ class _EditFriendProfileScreenState
   ];
 
   void _loadFromProfile(FriendProfileModel profile) {
-    _avatarId = profile.avatarId;
     _bioController = TextEditingController(text: profile.bio);
     _ageRange = profile.ageRange;
     _gender = profile.gender;
@@ -62,7 +62,6 @@ class _EditFriendProfileScreenState
 
   Future<void> _save() async {
     final draft = FriendProfileModel(
-      avatarId: _avatarId,
       bio: _bioController.text.trim(),
       ageRange: _ageRange,
       gender: _gender,
@@ -71,8 +70,10 @@ class _EditFriendProfileScreenState
       discoverable: _discoverable,
     );
 
-    final success =
-        await ref.read(friendProfileProvider.notifier).saveProfile(draft);
+    final avatarId = ref.read(avatarProvider);
+    final success = await ref
+        .read(friendProfileProvider.notifier)
+        .saveProfile(draft, avatarId: avatarId);
     if (!mounted) return;
 
     if (success) {
@@ -88,8 +89,20 @@ class _EditFriendProfileScreenState
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Deferred via addPostFrameCallback deliberately - see
+    // friend_network_hub_screen.dart for why calling this directly in
+    // initState caused a rebuild-loop regression.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(avatarProvider.notifier).loadIfNeeded();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final state = ref.watch(friendProfileProvider);
+    final avatarId = ref.watch(avatarProvider);
 
     if (!_initialized && !state.isLoading) {
       _loadFromProfile(state.profile);
@@ -102,7 +115,7 @@ class _EditFriendProfileScreenState
           : ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                _buildAvatarPicker(),
+                _buildAvatarPicker(avatarId),
                 const SizedBox(height: 28),
                 _buildSectionLabel(AppStrings.bioLabel),
                 const SizedBox(height: 10),
@@ -219,35 +232,15 @@ class _EditFriendProfileScreenState
     );
   }
 
-  Widget _buildAvatarPicker() {
+  Widget _buildAvatarPicker(int avatarId) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionLabel(AppStrings.chooseAvatarLabel),
         const SizedBox(height: 14),
-        Wrap(
-          spacing: 14,
-          runSpacing: 14,
-          children: List.generate(avatarOptions.length, (index) {
-            final option = avatarOptions[index];
-            final isSelected = _avatarId == index;
-            return GestureDetector(
-              onTap: () => setState(() => _avatarId = index),
-              child: Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: option.color.withOpacity(isSelected ? 1 : 0.25),
-                  shape: BoxShape.circle,
-                  border: isSelected
-                      ? Border.all(color: const Color(0xFF48352A), width: 3)
-                      : null,
-                ),
-                child: Icon(option.icon,
-                    color: isSelected ? Colors.white : option.color, size: 32),
-              ),
-            );
-          }),
+        AvatarPicker(
+          selectedId: avatarId,
+          onSelected: (id) => ref.read(avatarProvider.notifier).setAvatar(id),
         ),
       ],
     );

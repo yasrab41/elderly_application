@@ -403,6 +403,8 @@ class AppStrings {
   static const String sinceFriendsLabel = 'Friends since';
   static const String discoverabilityOffNotice =
       'Turn on "Show my profile to nearby people" in your profile to discover people near you.';
+  static const String discoverableStatusOn = 'Discoverable';
+  static const String discoverableStatusOff = 'Not Visible';
   // --- End Friend Network Feature (Step 2: Friends, Discovery, Safety) ---
 
   // --- Start Friend Network Feature (Step 3: Messaging) ---

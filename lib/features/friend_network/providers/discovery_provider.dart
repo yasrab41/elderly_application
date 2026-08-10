@@ -42,26 +42,29 @@ class DiscoveryNotifier extends StateNotifier<DiscoveryState> {
   final FriendRepository _friendRepository = FriendRepository();
   final LocationService _locationService = LocationService();
 
-  Future<void> loadNearbyPeople() async {
+  Future<void> loadNearbyPeople({required Set<String> excludedUids}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final position = await _locationService.getCurrentPosition();
-      final allProfiles = await _discoveryRepository.getDiscoverableProfiles();
+      // Kick off everything that doesn't depend on anything else at once,
+      // instead of awaiting each one in turn — this alone cuts the wait
+      // roughly in half versus doing them sequentially.
+      final positionFuture = _locationService.getCurrentPosition();
+      final profilesFuture = _discoveryRepository.getDiscoverableProfiles();
+      final blockedFuture = _friendRepository.getBlockedUids();
+      final blockedByFuture = _friendRepository.getBlockedByUids();
+      final pendingOutgoingFuture = _friendRepository.getOutgoingPendingUids();
 
-      final friends = await _friendRepository.getFriends();
-      final friendUids = friends.map((f) => f.friendUid).toSet();
-      final blockedUids = await _friendRepository.getBlockedUids();
-      final blockedByUids = await _friendRepository.getBlockedByUids();
-      final pendingOutgoing = await _friendRepository.getOutgoingPendingUids();
-      final incoming = await _friendRepository.getIncomingRequests();
-      final pendingIncoming = incoming.map((r) => r.fromUid).toSet();
+      final position = await positionFuture;
+      final allProfiles = await profilesFuture;
+      final blockedUids = await blockedFuture;
+      final blockedByUids = await blockedByFuture;
+      final pendingOutgoing = await pendingOutgoingFuture;
 
       final filtered = allProfiles.where((p) {
-        return !friendUids.contains(p.uid) &&
+        return !excludedUids.contains(p.uid) &&
             !blockedUids.contains(p.uid) &&
             !blockedByUids.contains(p.uid) &&
-            !pendingOutgoing.contains(p.uid) &&
-            !pendingIncoming.contains(p.uid);
+            !pendingOutgoing.contains(p.uid);
       }).toList();
 
       final withDistance = filtered.map((p) {

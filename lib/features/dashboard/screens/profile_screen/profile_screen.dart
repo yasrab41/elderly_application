@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/features/authentication/screens/login.dart';
+import 'package:elderly_prototype_app/core/providers/avatar_provider.dart';
+import 'package:elderly_prototype_app/core/models/avatar_options.dart';
+import 'package:elderly_prototype_app/core/widgets/avatar_picker.dart';
 
 // Import sub-screens (Assumed paths - put these in the same folder or organize as you prefer)
 import 'edit_profile_screen.dart';
@@ -11,13 +14,28 @@ import 'account_screen.dart';
 import 'instructions_screen.dart';
 import 'about_app_screen.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(avatarProvider.notifier).loadIfNeeded();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final User? user = ref.watch(authNotifierProvider);
     final theme = Theme.of(context);
+    final avatarId = ref.watch(avatarProvider);
+    final avatar = avatarOptions[avatarId];
 
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -55,16 +73,34 @@ class ProfileScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  // 🚀 Professional Static Avatar
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                    // backgroundImage line is removed because we are not using Firebase Storage
-                    child: Icon(
-                      Icons
-                          .person_rounded, // Using rounded version for a softer, modern look
-                      size: 50,
-                      color: theme.colorScheme.primary,
+                  // Shared avatar - tap to change, syncs everywhere
+                  // (Friend Network, this screen) since it's the same
+                  // stored field either way.
+                  GestureDetector(
+                    onTap: () => _showQuickAvatarPicker(context, avatarId),
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: avatar.color,
+                          child:
+                              Icon(avatar.icon, size: 42, color: Colors.white),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(Icons.edit_rounded,
+                                size: 14, color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -169,6 +205,38 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showQuickAvatarPicker(BuildContext context, int currentAvatarId) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Choose an Avatar',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 18),
+              AvatarPicker(
+                selectedId: currentAvatarId,
+                onSelected: (id) {
+                  ref.read(avatarProvider.notifier).setAvatar(id);
+                  Navigator.pop(ctx);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

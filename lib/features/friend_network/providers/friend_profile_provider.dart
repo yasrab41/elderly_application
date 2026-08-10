@@ -56,7 +56,8 @@ class FriendProfileNotifier extends StateNotifier<FriendProfileState> {
   /// Saves the given profile. If discoverable is being turned on, first
   /// fetches a coarse location — rounded to ~1km — so it's never precise
   /// enough to pinpoint an address.
-  Future<bool> saveProfile(FriendProfileModel draft) async {
+  Future<bool> saveProfile(FriendProfileModel draft,
+      {required int avatarId}) async {
     state = state.copyWith(isSaving: true, clearError: true);
     try {
       var toSave = draft;
@@ -74,7 +75,7 @@ class FriendProfileNotifier extends StateNotifier<FriendProfileState> {
         }
       }
 
-      await _repository.saveMyProfile(toSave);
+      await _repository.saveMyProfile(toSave, avatarId: avatarId);
       state = state.copyWith(isSaving: false, profile: toSave);
       return true;
     } catch (_) {

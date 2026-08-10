@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
+import 'package:elderly_prototype_app/core/providers/avatar_provider.dart';
+import 'package:elderly_prototype_app/core/widgets/avatar_picker.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -22,6 +24,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (user != null) {
       _nameController.text = user.displayName ?? '';
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(avatarProvider.notifier).loadIfNeeded();
+    });
   }
 
   @override
@@ -93,6 +98,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 40),
+
+                // Avatar Picker
+                const Text(
+                  'Avatar',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'This is used across the whole app, including Friend Network.',
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+                const SizedBox(height: 14),
+                AvatarPicker(
+                  selectedId: ref.watch(avatarProvider),
+                  onSelected: (id) =>
+                      ref.read(avatarProvider.notifier).setAvatar(id),
+                ),
+                const SizedBox(height: 30),
 
                 // Name Field
                 TextFormField(

@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:elderly_prototype_app/core/constants.dart';
+import 'package:elderly_prototype_app/core/models/avatar_options.dart';
+import 'package:elderly_prototype_app/core/providers/avatar_provider.dart';
 import '../data/models/friend_profile_model.dart';
 import '../data/models/social_models.dart';
 import '../data/services/distance_bucket.dart';
@@ -23,18 +26,58 @@ class FriendNetworkHubScreen extends ConsumerStatefulWidget {
 
 class _FriendNetworkHubScreenState
     extends ConsumerState<FriendNetworkHubScreen> {
+  // Starts true (no async needed to set it) so build()'s very first pass
+  // already shows the loading spinner — this is what actually solves the
+  // "flash of stale content" problem, safely, without needing to mutate
+  // any Riverpod provider state before the widget tree has finished its
+  // first build (which is what caused the rebuild-loop regression).
+  bool _isInitialLoad = true;
+
   @override
   void initState() {
     super.initState();
+    // Deferred via addPostFrameCallback deliberately: mutating provider
+    // state synchronously during initState — before the first frame has
+    // been built — can trigger cascading rebuild-during-build errors with
+    // Riverpod. Waiting until after the first frame is the safe pattern.
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadEverything());
   }
 
   Future<void> _loadEverything() async {
-    await ref.read(friendProfileProvider.notifier).loadMyProfile();
-    await ref.read(friendsProvider.notifier).loadAll();
+    if (mounted && _isInitialLoad) {
+      setState(() => _isInitialLoad = false);
+    }
+
+    // Fire these concurrently rather than awaiting one at a time — this
+    // alone cuts the total wait roughly in half or more.
+    final avatarFuture = ref.read(avatarProvider.notifier).loadIfNeeded();
+    final profileFuture =
+        ref.read(friendProfileProvider.notifier).loadMyProfile();
+    final friendsFuture = ref.read(friendsProvider.notifier).loadAll();
+
+    try {
+      await Future.wait([avatarFuture, profileFuture, friendsFuture]);
+    } catch (e) {
+      // Each individual loader already catches its own errors and settles
+      // into a safe state; this outer catch exists purely so an unexpected
+      // failure in any one of them can never leave this function - or the
+      // screen - stuck. Nothing further to do here.
+      debugPrint('[FriendNetworkHubScreen] _loadEverything FAILED: $e');
+      return;
+    }
+
     final myProfile = ref.read(friendProfileProvider).profile;
     if (myProfile.discoverable) {
-      await ref.read(discoveryProvider.notifier).loadNearbyPeople();
+      // Reuse the friends/requests data we just loaded instead of having
+      // Discovery redundantly re-fetch and re-resolve all of it again.
+      final friendsState = ref.read(friendsProvider);
+      final excludedUids = {
+        ...friendsState.friends.map((f) => f.friendUid),
+        ...friendsState.incomingRequests.map((r) => r.fromUid),
+      };
+      await ref
+          .read(discoveryProvider.notifier)
+          .loadNearbyPeople(excludedUids: excludedUids);
     }
   }
 
@@ -52,7 +95,8 @@ class _FriendNetworkHubScreenState
     final friendsState = ref.watch(friendsProvider);
     final discoveryState = ref.watch(discoveryProvider);
 
-    final isLoading = profileState.isLoading || friendsState.isLoading;
+    final isLoading =
+        _isInitialLoad || profileState.isLoading || friendsState.isLoading;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppStrings.friendNetworkTitle)),
@@ -72,8 +116,9 @@ class _FriendNetworkHubScreenState
                   ),
                   const SizedBox(height: 16),
                   profileState.profile.hasBeenSetUp
-                      ? _buildProfileSummaryCard(profileState.profile)
-                      : _buildSetupPromptCard(),
+                      ? _buildProfileSummaryCard(
+                          profileState.profile, ref.watch(avatarProvider))
+                      : _buildSetupPromptCard(ref.watch(avatarProvider)),
                   const SizedBox(height: 26),
                   if (friendsState.incomingRequests.isNotEmpty) ...[
                     _sectionHeader(AppStrings.friendRequestsTitle),
@@ -146,7 +191,8 @@ class _FriendNetworkHubScreenState
     );
   }
 
-  Widget _buildSetupPromptCard() {
+  Widget _buildSetupPromptCard(int avatarId) {
+    final avatar = avatarOptions[avatarId];
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -156,9 +202,14 @@ class _FriendNetworkHubScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.person_add_alt_1_rounded,
-              size: 36, color: Color(0xFF48352A)),
-          const SizedBox(height: 12),
+          Container(
+            width: 56,
+            height: 56,
+            decoration:
+                BoxDecoration(color: avatar.color, shape: BoxShape.circle),
+            child: Icon(avatar.icon, color: Colors.white, size: 30),
+          ),
+          const SizedBox(height: 14),
           Text(AppStrings.setupProfilePrompt,
               style:
                   const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
@@ -184,33 +235,142 @@ class _FriendNetworkHubScreenState
     );
   }
 
-  Widget _buildProfileSummaryCard(FriendProfileModel profile) {
+  Widget _buildProfileSummaryCard(FriendProfileModel profile, int avatarId) {
+    final avatar = avatarOptions[avatarId];
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Colors.grey.shade300),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              profile.discoverable
-                  ? AppStrings.discoverableLabel
-                  : AppStrings.setupProfileButton,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: profile.discoverable
-                    ? const Color(0xFF43A047)
-                    : Colors.black45,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration:
+                    BoxDecoration(color: avatar.color, shape: BoxShape.circle),
+                child: Icon(avatar.icon, color: Colors.white, size: 34),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (profile.ageRange != null)
+                      Text(
+                        profile.ageRange!.label,
+                        style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87),
+                      ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: profile.discoverable
+                            ? const Color(0xFFE8F5E9)
+                            : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            profile.discoverable
+                                ? Icons.visibility_rounded
+                                : Icons.visibility_off_rounded,
+                            size: 14,
+                            color: profile.discoverable
+                                ? const Color(0xFF2E7D32)
+                                : Colors.black45,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              profile.discoverable
+                                  ? AppStrings.discoverableStatusOn
+                                  : AppStrings.discoverableStatusOff,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: profile.discoverable
+                                    ? const Color(0xFF2E7D32)
+                                    : Colors.black45,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: _openEditProfile,
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFF48352A).withOpacity(0.08),
+                ),
+                icon: const Icon(Icons.edit_rounded,
+                    color: Color(0xFF48352A), size: 20),
+                tooltip: AppStrings.editProfileFriendNetworkButton,
+              ),
+            ],
+          ),
+          if (profile.bio.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Text(
+              profile.bio,
+              style: const TextStyle(fontSize: 15, color: Colors.black87),
+            ),
+          ],
+          if (profile.interests.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: profile.interests
+                  .map((interest) => Chip(
+                        label: Text(interest,
+                            style: const TextStyle(fontSize: 12)),
+                        backgroundColor: const Color(0xFFF3E5F5),
+                        padding: EdgeInsets.zero,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ))
+                  .toList(),
+            ),
+          ],
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _openEditProfile,
+              icon: const Icon(Icons.edit_rounded, size: 18),
+              label: Text(AppStrings.editProfileFriendNetworkButton),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF48352A),
+                side: const BorderSide(color: Color(0xFF48352A)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
-          ),
-          TextButton(
-            onPressed: _openEditProfile,
-            child: Text(AppStrings.editProfileFriendNetworkButton),
           ),
         ],
       ),

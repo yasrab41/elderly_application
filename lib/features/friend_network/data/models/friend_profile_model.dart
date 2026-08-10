@@ -1,5 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:elderly_prototype_app/core/constants.dart';
+import 'package:elderly_prototype_app/core/models/avatar_options.dart';
+
+// Re-exported so existing files that import avatarOptions/AvatarOption from
+// this file (screens, widgets) keep working unchanged — the avatar system
+// now lives in core/ since it's shared with the main Profile screen too.
+export 'package:elderly_prototype_app/core/models/avatar_options.dart';
 
 enum AgeRangeOption { fifties, sixties, seventies, eighties, ninetyPlus }
 
@@ -20,27 +25,7 @@ extension AgeRangeOptionLabel on AgeRangeOption {
   }
 }
 
-/// 8 simple, distinct avatar options (icon + color) — no photo upload,
-/// no external image assets, nothing to moderate.
-class AvatarOption {
-  final IconData icon;
-  final Color color;
-  const AvatarOption(this.icon, this.color);
-}
-
-const List<AvatarOption> avatarOptions = [
-  AvatarOption(Icons.face_rounded, Color(0xFF1E88E5)),
-  AvatarOption(Icons.face_3_rounded, Color(0xFFE53935)),
-  AvatarOption(Icons.face_4_rounded, Color(0xFF43A047)),
-  AvatarOption(Icons.face_6_rounded, Color(0xFFFB8C00)),
-  AvatarOption(Icons.person_rounded, Color(0xFF8E24AA)),
-  AvatarOption(Icons.person_2_rounded, Color(0xFF00897B)),
-  AvatarOption(Icons.person_3_rounded, Color(0xFF6D4C41)),
-  AvatarOption(Icons.person_4_rounded, Color(0xFFC2185B)),
-];
-
 class FriendProfileModel {
-  final int avatarId;
   final String bio;
   final AgeRangeOption? ageRange;
   final String? gender;
@@ -52,7 +37,6 @@ class FriendProfileModel {
   final String? district;
 
   const FriendProfileModel({
-    this.avatarId = 0,
     this.bio = '',
     this.ageRange,
     this.gender,
@@ -67,7 +51,6 @@ class FriendProfileModel {
   bool get hasBeenSetUp => bio.isNotEmpty || interests.isNotEmpty;
 
   FriendProfileModel copyWith({
-    int? avatarId,
     String? bio,
     AgeRangeOption? ageRange,
     String? gender,
@@ -79,7 +62,6 @@ class FriendProfileModel {
     String? district,
   }) {
     return FriendProfileModel(
-      avatarId: avatarId ?? this.avatarId,
       bio: bio ?? this.bio,
       ageRange: ageRange ?? this.ageRange,
       gender: gender ?? this.gender,
@@ -95,7 +77,6 @@ class FriendProfileModel {
   factory FriendProfileModel.fromMap(Map<String, dynamic>? map) {
     if (map == null) return const FriendProfileModel();
     return FriendProfileModel(
-      avatarId: (map['avatarId'] as num?)?.toInt() ?? 0,
       bio: map['bio'] as String? ?? '',
       ageRange: map['ageRange'] != null
           ? AgeRangeOption.values.firstWhere(
@@ -117,7 +98,6 @@ class FriendProfileModel {
   Map<String, dynamic> toUserDocMap() {
     return {
       'friendProfile': {
-        'avatarId': avatarId,
         'bio': bio,
         'ageRange': ageRange?.name,
         'gender': gender,
@@ -136,6 +116,7 @@ class FriendProfileModel {
   /// location, nothing beyond what a nearby-people card needs to show.
   Map<String, dynamic> toPublicProfileMap({
     required String name,
+    required int avatarId,
   }) {
     return {
       'name': name,

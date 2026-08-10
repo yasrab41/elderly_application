@@ -52,13 +52,17 @@ class MessagingRepository {
   /// friend uids — used to show a message preview on the friends list.
   Future<Map<String, Map<String, dynamic>>> getConversationPreviews(
       List<String> friendUids) async {
-    final result = <String, Map<String, dynamic>>{};
-    for (final friendUid in friendUids) {
+    final entries = await Future.wait(friendUids.map((friendUid) async {
       final id = conversationId(friendUid);
       final doc = await _firestore.collection('conversations').doc(id).get();
-      final data = doc.data();
+      return MapEntry(friendUid, doc.data());
+    }));
+
+    final result = <String, Map<String, dynamic>>{};
+    for (final entry in entries) {
+      final data = entry.value;
       if (data != null && data['lastMessageText'] != null) {
-        result[friendUid] = data;
+        result[entry.key] = data;
       }
     }
     return result;

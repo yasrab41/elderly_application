@@ -25,7 +25,8 @@ class FriendProfileRepository {
   /// Saves the profile to the private doc, and mirrors the safe subset to
   /// the public doc only if discoverable is on — otherwise removes the
   /// public doc entirely so nothing is left visible to other users.
-  Future<void> saveMyProfile(FriendProfileModel profile) async {
+  Future<void> saveMyProfile(FriendProfileModel profile,
+      {required int avatarId}) async {
     final uid = _uid;
     final currentUser = _auth.currentUser;
     final name = currentUser?.displayName?.trim();
@@ -40,6 +41,7 @@ class FriendProfileRepository {
       await publicDoc.set(
         profile.toPublicProfileMap(
           name: (name != null && name.isNotEmpty) ? name : 'HealthCare+ User',
+          avatarId: avatarId,
         ),
       );
     } else {
