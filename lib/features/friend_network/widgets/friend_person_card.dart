@@ -8,6 +8,7 @@ class FriendPersonCard extends StatelessWidget {
   final List<String>? tags;
   final String? trailingLabel;
   final bool isTrusted;
+  final bool isUnread;
   final List<Widget> actions;
   final VoidCallback? onMoreOptions;
 
@@ -20,6 +21,7 @@ class FriendPersonCard extends StatelessWidget {
     this.tags,
     this.trailingLabel,
     this.isTrusted = false,
+    this.isUnread = false,
     this.onMoreOptions,
   });
 
@@ -51,6 +53,17 @@ class FriendPersonCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
+                          if (isUnread) ...[
+                            Container(
+                              width: 9,
+                              height: 9,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF8E24AA),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
                           Flexible(
                             child: Text(
                               name,
@@ -70,8 +83,12 @@ class FriendPersonCard extends StatelessWidget {
                           subtitle!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 14, color: Colors.black54),
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: isUnread ? Colors.black87 : Colors.black54,
+                              fontWeight: isUnread
+                                  ? FontWeight.w600
+                                  : FontWeight.normal),
                         ),
                       if (trailingLabel != null) ...[
                         const SizedBox(height: 2),

@@ -87,6 +87,7 @@ class FriendshipModel {
   final bool isTrustedContact;
   final String? lastMessageText;
   final DateTime? lastMessageAt;
+  final bool isUnreadMessage;
 
   const FriendshipModel({
     required this.pairId,
@@ -97,11 +98,13 @@ class FriendshipModel {
     this.isTrustedContact = false,
     this.lastMessageText,
     this.lastMessageAt,
+    this.isUnreadMessage = false,
   });
 
   FriendshipModel copyWithMessagePreview({
     String? lastMessageText,
     DateTime? lastMessageAt,
+    bool? isUnreadMessage,
   }) {
     return FriendshipModel(
       pairId: pairId,
@@ -112,6 +115,7 @@ class FriendshipModel {
       isTrustedContact: isTrustedContact,
       lastMessageText: lastMessageText ?? this.lastMessageText,
       lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      isUnreadMessage: isUnreadMessage ?? this.isUnreadMessage,
     );
   }
 }

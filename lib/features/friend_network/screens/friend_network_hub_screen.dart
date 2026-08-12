@@ -389,6 +389,7 @@ class _FriendNetworkHubScreenState
       avatarId: friend.friendAvatarId,
       name: friend.friendName,
       isTrusted: friend.isTrustedContact,
+      isUnread: friend.isUnreadMessage,
       subtitle: subtitle,
       onMoreOptions: () => showPersonOptionsSheet(
         context,

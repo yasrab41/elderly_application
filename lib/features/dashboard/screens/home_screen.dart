@@ -22,6 +22,7 @@ import 'package:elderly_prototype_app/features/health_tracking/screens/health_tr
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
 import 'package:elderly_prototype_app/features/nearby_services/screens/nearby_services_hub_screen.dart';
 import 'package:elderly_prototype_app/features/friend_network/screens/friend_network_hub_screen.dart';
+import 'package:elderly_prototype_app/features/friend_network/providers/notifications_provider.dart';
 
 import 'package:provider/provider.dart' as provider; // Add 'as provider'
 import 'package:elderly_prototype_app/features/chatbot/providers/chat_provider.dart';
@@ -489,6 +490,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         onTapAction = () {};
                       }
 
+                      final isFriendNetworkTile =
+                          item['title'] == AppStrings.friendNetworkTitle;
+
                       return _buildFeatureCard(
                         item['title'],
                         item['subtitle'],
@@ -496,6 +500,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         item['color'],
                         item['iconColor'],
                         onTapAction,
+                        badgeCount: isFriendNetworkTile
+                            ? watchTotalNotificationCount(ref)
+                            : 0,
                       );
                     },
                   ),
@@ -577,8 +584,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildFeatureCard(String title, String subtitle, IconData icon,
-      Color bgColor, Color iconColor, VoidCallback onTap) {
-    return Card(
+      Color bgColor, Color iconColor, VoidCallback onTap,
+      {int badgeCount = 0}) {
+    final card = Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       color: bgColor,
@@ -614,6 +622,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
       ),
+    );
+
+    if (badgeCount <= 0) return card;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        card,
+        Positioned(
+          top: -6,
+          right: -6,
+          child: Container(
+            padding: const EdgeInsets.all(5),
+            constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE53935),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+            child: Center(
+              child: Text(
+                badgeCount > 9 ? '9+' : '$badgeCount',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

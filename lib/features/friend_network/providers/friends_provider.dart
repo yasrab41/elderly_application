@@ -55,6 +55,7 @@ class FriendsNotifier extends StateNotifier<FriendsState> {
         return f.copyWithMessagePreview(
           lastMessageText: preview['lastMessageText'] as String?,
           lastMessageAt: (preview['lastMessageAt'] as Timestamp?)?.toDate(),
+          isUnreadMessage: _messagingRepository.isUnreadForMe(preview),
         );
       }).toList();
 

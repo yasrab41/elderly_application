@@ -38,6 +38,11 @@ class MessagingRepository {
       'participants': [_uid, friendUid],
       'lastMessageText': content,
       'lastMessageAt': FieldValue.serverTimestamp(),
+      // Whoever didn't send this message now has something unread.
+      // A plain nullable field (not an array) because Firestore doesn't
+      // allow two array-contains filters in one query, and this only ever
+      // needs to hold at most one uid in a 1-on-1 conversation.
+      'unreadFor': friendUid,
     }, SetOptions(merge: true));
 
     await conversationRef.collection('messages').add({
@@ -46,6 +51,22 @@ class MessagingRepository {
       'content': content,
       'sentAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  /// Call when the user opens a conversation, so it stops counting toward
+  /// their unread badge.
+  Future<void> markConversationAsRead(String friendUid) async {
+    final id = conversationId(friendUid);
+    await _firestore.collection('conversations').doc(id).set(
+      {'unreadFor': null},
+      SetOptions(merge: true),
+    );
+  }
+
+  /// Whether the given conversation preview data has an unread message
+  /// waiting for the *current* user specifically (not the friend).
+  bool isUnreadForMe(Map<String, dynamic>? previewData) {
+    return previewData != null && previewData['unreadFor'] == _uid;
   }
 
   /// Returns {friendUid: {lastMessageText, lastMessageAt}} for the given

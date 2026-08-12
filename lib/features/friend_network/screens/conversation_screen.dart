@@ -40,6 +40,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Plain Firestore call on a plain StatefulWidget - no Riverpod provider
+    // state involved, so calling this directly here carries none of the
+    // risk the hub screen's initState previously had.
+    _repository.markConversationAsRead(widget.friendUid);
+  }
+
+  @override
   void dispose() {
     _textController.dispose();
     super.dispose();
