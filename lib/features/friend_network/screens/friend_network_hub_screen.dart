@@ -11,6 +11,7 @@ import '../data/services/distance_bucket.dart';
 import '../providers/discovery_provider.dart';
 import '../providers/friend_profile_provider.dart';
 import '../providers/friends_provider.dart';
+import '../providers/notifications_provider.dart';
 import '../widgets/friend_person_card.dart';
 import '../widgets/safety_actions_sheet.dart';
 import 'conversation_screen.dart';
@@ -91,6 +92,21 @@ class _FriendNetworkHubScreenState
 
   @override
   Widget build(BuildContext context) {
+    // React to the same live counts the Home screen badge uses: whenever a
+    // new friend request or message arrives while this screen is already
+    // open, re-fetch so the Friend Requests list / unread dots update on
+    // their own, instead of only refreshing on manual pull-to-refresh.
+    // ref.listen is for side effects (not rebuilding UI directly), which is
+    // exactly what we want here - it's safe to call on every build, and it
+    // won't loop: these count streams only change when the underlying
+    // Firestore documents change, not when we merely re-fetch other data.
+    ref.listen<AsyncValue<int>>(pendingRequestsCountProvider, (_, __) {
+      if (!_isInitialLoad) _loadEverything();
+    });
+    ref.listen<AsyncValue<int>>(unreadConversationsCountProvider, (_, __) {
+      if (!_isInitialLoad) _loadEverything();
+    });
+
     final profileState = ref.watch(friendProfileProvider);
     final friendsState = ref.watch(friendsProvider);
     final discoveryState = ref.watch(discoveryProvider);
