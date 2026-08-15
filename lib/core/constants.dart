@@ -1,7 +1,18 @@
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
+import 'package:elderly_prototype_app/core/localization/app_language.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 
 class AppStrings {
-  static const String appTitle = 'Elderly Care App';
+  /// Returns [en] or [tr] depending on the currently active language.
+  /// This is the one helper every localized string in this class uses —
+  /// existing call sites (AppStrings.xxx) never need to change, only the
+  /// definitions here do.
+  static String _t({required String en, required String tr}) {
+    return AppLanguageController.current == AppLanguage.turkish ? tr : en;
+  }
+
+  static String get appTitle =>
+      _t(en: 'Elderly Care App', tr: 'Yaşlı Bakım Uygulaması');
   static const String fitnessTitle = 'Daily Exercises';
   static const String filterAll = 'All';
   static const String exercisesCompleted = 'exercises completed';
@@ -223,7 +234,8 @@ class AppStrings {
   // --- End Sudoku Game Feature ---
 
   // --- Start Nearby Services Hub Feature ---
-  static const String nearbyServicesTitle = 'Nearby Services';
+  static String get nearbyServicesTitle =>
+      _t(en: 'Nearby Services', tr: 'Yakındaki Hizmetler');
   static const String nearbyServicesGridSubtitle =
       'Bus stops, hospitals & markets';
   static const String nearbyServicesHubSubtitle =
@@ -240,8 +252,9 @@ class AppStrings {
   static const String nearbyBusStopsSubtitle = 'Find buses close to you';
   static const String locatingMessage = 'Finding your location...';
   static const String busStopsFoundLabel = 'closest stops near you';
-  static const String getDirectionsButton = 'Get Directions';
-  static const String retryButton = 'Try Again';
+  static String get getDirectionsButton =>
+      _t(en: 'Get Directions', tr: 'Yol Tarifi Al');
+  static String get retryButton => _t(en: 'Try Again', tr: 'Tekrar Dene');
   static const String openLocationSettingsButton = 'Open Location Settings';
   static const String openAppSettingsButton = 'Open App Settings';
   static const String locationServiceDisabledMessage =
@@ -315,7 +328,8 @@ class AppStrings {
   // --- End Nearby Markets Feature ---
 
   // --- Start Friend Network Feature (Step 1: Profile) ---
-  static const String friendNetworkTitle = 'Friend Network';
+  static String get friendNetworkTitle =>
+      _t(en: 'Friend Network', tr: 'Arkadaş Ağı');
   static const String friendNetworkHubSubtitle = 'Connect with people near you';
   static const String myFriendsTitle = 'My Friends';
   static const String nearbyPeopleTitle = 'Nearby People';

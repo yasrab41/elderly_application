@@ -21,6 +21,8 @@ import 'package:elderly_prototype_app/features/fitness/screens/fitness_screen.da
 import 'package:elderly_prototype_app/features/health_tracking/screens/health_tracking_screen.dart';
 import 'package:elderly_prototype_app/features/medicine_reminders/screens/reminder_list_page.dart';
 import 'package:elderly_prototype_app/features/nearby_services/screens/nearby_services_hub_screen.dart';
+import 'package:elderly_prototype_app/core/localization/app_language.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 import 'package:elderly_prototype_app/features/friend_network/screens/friend_network_hub_screen.dart';
 import 'package:elderly_prototype_app/features/friend_network/providers/notifications_provider.dart';
 
@@ -44,71 +46,75 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isEmergencyActive = false;
   String _lastSentMessage = "";
 
-  static const List<Map<String, dynamic>> _gridItems = [
-    {
-      'title': 'Emergency Contacts',
-      'subtitle': AppStrings.sosSettingsSubtitle,
-      'icon': Icons.admin_panel_settings_outlined,
-      'color': Color(0xFFFCE4EC),
-      'iconColor': Color(0xFFE91E63),
-    },
-    {
-      'title': 'Medicine Reminders',
-      'subtitle': 'Set medication schedules',
-      'icon': Icons.medical_information_outlined,
-      'color': Color(0xFFE8F5E9),
-      'iconColor': Color(0xFF4CAF50),
-    },
-    {
-      'title': 'Daily Exercises',
-      'subtitle': 'Simple fitness routines',
-      'icon': Icons.directions_run_outlined,
-      'color': Color(0xFFFFF3E0),
-      'iconColor': Color(0xFFFF9800),
-    },
-    {
-      'title': 'Health Tracking',
-      'subtitle': 'Track your health data',
-      'icon': Icons.monitor_heart_outlined,
-      'color': Color(0xFFEAEDFF),
-      'iconColor': Color(0xFF3F51B5),
-    },
-    {
-      'title': 'Water Reminder',
-      'subtitle': 'Be Hyderated',
-      'icon': Icons.water_drop_outlined,
-      'color': Color.fromARGB(255, 219, 237, 252),
-      'iconColor': Color(0xFF2196F3),
-    },
-    {
-      'title': 'Brain Games',
-      'subtitle': 'Keep your mind sharp',
-      'icon': Icons.games_rounded,
-      'color': Color(0xFFF3E5F5),
-      'iconColor': Color(0xFF9C27B0),
-    },
-    {
-      'title': 'AI Assistant',
-      'subtitle': 'Ask your quries',
-      'icon': Icons.support_agent,
-      'color': Color.fromARGB(255, 243, 226, 233),
-      'iconColor': Color.fromARGB(255, 176, 39, 119),
-    },
-    {
-      'title': AppStrings.nearbyServicesTitle,
-      'subtitle': AppStrings.nearbyServicesGridSubtitle,
-      'icon': Icons.map_rounded,
-      'color': Color(0xFFE0F7FA),
-      'iconColor': Color(0xFF00838F),
-    },
-    {
-      'title': AppStrings.friendNetworkTitle,
-      'subtitle': AppStrings.friendNetworkHubSubtitle,
-      'icon': Icons.people_alt_rounded,
-      'color': Color(0xFFF3E5F5),
-      'iconColor': Color(0xFF8E24AA),
-    },
-  ];
+  // Not const anymore: some entries reference AppStrings getters that
+  // resolve based on the current language, not fixed compile-time values.
+  // A getter (re-evaluated on every access) instead of a static const field
+  // is required both to compile and to actually pick up language changes.
+  List<Map<String, dynamic>> get _gridItems => [
+        {
+          'title': 'Emergency Contacts',
+          'subtitle': AppStrings.sosSettingsSubtitle,
+          'icon': Icons.admin_panel_settings_outlined,
+          'color': Color(0xFFFCE4EC),
+          'iconColor': Color(0xFFE91E63),
+        },
+        {
+          'title': 'Medicine Reminders',
+          'subtitle': 'Set medication schedules',
+          'icon': Icons.medical_information_outlined,
+          'color': Color(0xFFE8F5E9),
+          'iconColor': Color(0xFF4CAF50),
+        },
+        {
+          'title': 'Daily Exercises',
+          'subtitle': 'Simple fitness routines',
+          'icon': Icons.directions_run_outlined,
+          'color': Color(0xFFFFF3E0),
+          'iconColor': Color(0xFFFF9800),
+        },
+        {
+          'title': 'Health Tracking',
+          'subtitle': 'Track your health data',
+          'icon': Icons.monitor_heart_outlined,
+          'color': Color(0xFFEAEDFF),
+          'iconColor': Color(0xFF3F51B5),
+        },
+        {
+          'title': 'Water Reminder',
+          'subtitle': 'Be Hyderated',
+          'icon': Icons.water_drop_outlined,
+          'color': Color.fromARGB(255, 219, 237, 252),
+          'iconColor': Color(0xFF2196F3),
+        },
+        {
+          'title': 'Brain Games',
+          'subtitle': 'Keep your mind sharp',
+          'icon': Icons.games_rounded,
+          'color': Color(0xFFF3E5F5),
+          'iconColor': Color(0xFF9C27B0),
+        },
+        {
+          'title': 'AI Assistant',
+          'subtitle': 'Ask your quries',
+          'icon': Icons.support_agent,
+          'color': Color.fromARGB(255, 243, 226, 233),
+          'iconColor': Color.fromARGB(255, 176, 39, 119),
+        },
+        {
+          'title': AppStrings.nearbyServicesTitle,
+          'subtitle': AppStrings.nearbyServicesGridSubtitle,
+          'icon': Icons.map_rounded,
+          'color': Color(0xFFE0F7FA),
+          'iconColor': Color(0xFF00838F),
+        },
+        {
+          'title': AppStrings.friendNetworkTitle,
+          'subtitle': AppStrings.friendNetworkHubSubtitle,
+          'icon': Icons.people_alt_rounded,
+          'color': Color(0xFFF3E5F5),
+          'iconColor': Color(0xFF8E24AA),
+        },
+      ];
 
   @override
   void initState() {
@@ -523,6 +529,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       pinned: true,
       elevation: 10,
       shadowColor: _baseBrown,
+      // TEMPORARY — testing the language mechanism for Step 1. Will be
+      // removed once the real Language setting is added to the Profile
+      // screen in Step 3.
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.translate_rounded, color: Colors.white),
+          tooltip: 'TEMP: toggle EN/TR',
+          onPressed: () {
+            final next = AppLanguageController.isTurkish
+                ? AppLanguage.english
+                : AppLanguage.turkish;
+            AppLanguageController.setLanguage(next);
+          },
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 35.0, bottom: 16.0),
         title: const Text(
