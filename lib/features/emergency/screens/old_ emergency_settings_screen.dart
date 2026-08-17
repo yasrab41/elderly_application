@@ -15,12 +15,12 @@ class EmergencySettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.sosSettingsTitle),
+        title: Text(AppStrings.sosSettingsTitle),
         backgroundColor: Colors.white,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showContactDialog(context, ref, null),
-        label: const Text(AppStrings.addContactTitle),
+        label: Text(AppStrings.addContactTitle),
         icon: const Icon(Icons.add),
         backgroundColor: const Color(0xFF48352A), // Base Brown
       ),
@@ -29,7 +29,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (contacts) {
           if (contacts.isEmpty) {
-            return const Center(child: Text(AppStrings.noContacts));
+            return Center(child: Text(AppStrings.noContacts));
           }
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -97,20 +97,20 @@ class EmergencySettingsScreen extends ConsumerWidget {
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                           labelText: AppStrings.contactNameHint),
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                           labelText: AppStrings.contactPhoneHint),
                     ),
                     const SizedBox(height: 15),
                     SwitchListTile(
-                      title: const Text(AppStrings.isPrimaryLabel),
-                      subtitle: const Text(AppStrings.isPrimaryHint,
+                      title: Text(AppStrings.isPrimaryLabel),
+                      subtitle: Text(AppStrings.isPrimaryHint,
                           style: TextStyle(fontSize: 11)),
                       value: isPrimary,
                       activeColor: Colors.red,
@@ -160,7 +160,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                     }
                     Navigator.pop(context);
                   },
-                  child: const Text(
+                  child: Text(
                     AppStrings.saveLabel,
                     style: TextStyle(
                       fontSize: 16,

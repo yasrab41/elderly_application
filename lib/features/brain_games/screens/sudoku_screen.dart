@@ -50,7 +50,7 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(AppStrings.wellDone,
+        title: Text(AppStrings.wellDone,
             style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text(AppStrings.quitGame,
+            child: Text(AppStrings.quitGame,
                 style: TextStyle(fontSize: 18, color: Colors.red)),
           ),
           ElevatedButton(
@@ -81,7 +81,7 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
               Navigator.pop(context);
               _gameProvider.resetForNextLevel();
             },
-            child: const Text(AppStrings.continueGame,
+            child: Text(AppStrings.continueGame,
                 style: TextStyle(fontSize: 18, color: Colors.white)),
           ),
         ],
@@ -141,7 +141,7 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
                   const SizedBox(height: 16),
 
                   // Instructions
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24.0),
                     child: Text(AppStrings.sudokuInstructions,
                         textAlign: TextAlign.center,
@@ -285,7 +285,7 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
                           ),
                           onPressed: () => _gameProvider.eraseCell(),
                           icon: const Icon(Icons.backspace, size: 24),
-                          label: const Text(AppStrings.eraseButton,
+                          label: Text(AppStrings.eraseButton,
                               style: TextStyle(fontSize: 20)),
                         ),
                         const SizedBox(width: 16), // Space between buttons
@@ -300,7 +300,7 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
                           ),
                           onPressed: () => _gameProvider.useHint(),
                           icon: const Icon(Icons.lightbulb, size: 24),
-                          label: const Text(AppStrings.hintButton,
+                          label: Text(AppStrings.hintButton,
                               style: TextStyle(fontSize: 20)),
                         ),
                       ],

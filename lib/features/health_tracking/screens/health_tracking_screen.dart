@@ -129,7 +129,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(AppStrings.healthTitle,
+        title: Text(AppStrings.healthTitle,
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: AppTheme.primaryColor,
         elevation: 0,

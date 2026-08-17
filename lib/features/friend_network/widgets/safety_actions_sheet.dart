@@ -106,7 +106,7 @@ Future<void> showReportReasonSheet(
   BuildContext context,
   ValueChanged<String> onReasonSelected,
 ) {
-  const reasons = [
+  final reasons = [
     AppStrings.reportReasonInappropriate,
     AppStrings.reportReasonFakeProfile,
     AppStrings.reportReasonSpam,

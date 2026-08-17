@@ -93,7 +93,7 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(AppStrings.wellDone,
+        title: Text(AppStrings.wellDone,
             style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -111,7 +111,7 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Exit game back to details screen
             },
-            child: const Text(AppStrings.quitGame,
+            child: Text(AppStrings.quitGame,
                 style: TextStyle(fontSize: 18, color: Colors.red)),
           ),
           ElevatedButton(
@@ -126,7 +126,7 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
               _gameProvider
                   .resetForNextLevel(); // Resets board and increments level
             },
-            child: const Text(AppStrings.continueGame,
+            child: Text(AppStrings.continueGame,
                 style: TextStyle(fontSize: 18, color: Colors.white)),
           ),
         ],

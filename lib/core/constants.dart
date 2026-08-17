@@ -13,147 +13,202 @@ class AppStrings {
 
   static String get appTitle =>
       _t(en: 'Elderly Care App', tr: 'Yaşlı Bakım Uygulaması');
-  static const String fitnessTitle = 'Daily Exercises';
-  static const String filterAll = 'All';
-  static const String exercisesCompleted = 'exercises completed';
-  static const String nextWorkoutTitle = 'Next Workout';
-  static const String startWorkout = 'Start Workout';
-  static const String setsCompleted = 'Sets Completed:';
+  static String get fitnessTitle =>
+      _t(en: 'Daily Exercises', tr: 'Günlük Egzersizler');
+  static String get filterAll => _t(en: 'All', tr: 'Tümü');
+  static String get exercisesCompleted =>
+      _t(en: 'exercises completed', tr: 'egzersiz tamamlandı');
+  static String get nextWorkoutTitle =>
+      _t(en: 'Next Workout', tr: 'Sıradaki Egzersiz');
+  static String get startWorkout =>
+      _t(en: 'Start Workout', tr: 'Egzersize Başla');
+  static String get setsCompleted =>
+      _t(en: 'Sets Completed:', tr: 'Tamamlanan Setler:');
 
   // --- Start Emergency / SOS Feature ---
-  static const String sosTitle = 'Send Emergency Alert';
-  static const String sosCancelButton = 'I AM SAFE / CANCEL';
-  static const String sosSendingAlert = 'Sending Alert in...';
+  static String get sosTitle =>
+      _t(en: 'Send Emergency Alert', tr: 'Acil Durum Uyarısı Gönder');
+  static String get sosCancelButton =>
+      _t(en: 'I AM SAFE / CANCEL', tr: 'GÜVENDEYİM / İPTAL');
+  static String get sosSendingAlert =>
+      _t(en: 'Sending Alert in...', tr: 'Uyarı gönderiliyor...');
 
   // Settings & Contacts
-  static const String sosSettingsTitle = 'Emergency Contacts';
-  static const String sosSettingsSubtitle = 'Manage who to call in emergency';
-  static const String addContactTitle = 'Add New Contact';
-  static const String editContactTitle = 'Edit Contact';
-  static const String contactNameHint = 'Contact Name';
-  static const String contactPhoneHint = 'Phone Number (e.g., +90555...)';
-  static const String isPrimaryLabel = 'Set as Primary Contact';
-  static const String isPrimaryHint =
-      'This person will be called automatically.';
-  static const String saveLabel = 'Save Contact';
-  static const String deleteLabel = 'Delete';
+  static String get sosSettingsTitle =>
+      _t(en: 'Emergency Contacts', tr: 'Acil Durum Kişileri');
+  static String get sosSettingsSubtitle => _t(
+      en: 'Manage who to call in emergency',
+      tr: 'Acil durumda kimin aranacağını yönetin');
+  static String get addContactTitle =>
+      _t(en: 'Add New Contact', tr: 'Yeni Kişi Ekle');
+  static String get editContactTitle =>
+      _t(en: 'Edit Contact', tr: 'Kişiyi Düzenle');
+  static String get contactNameHint => _t(en: 'Contact Name', tr: 'Kişi Adı');
+  static String get contactPhoneHint => _t(
+      en: 'Phone Number (e.g., +90555...)',
+      tr: 'Telefon Numarası (örn. +90555...)');
+  static String get isPrimaryLabel =>
+      _t(en: 'Set as Primary Contact', tr: 'Birincil Kişi Olarak Ayarla');
+  static String get isPrimaryHint => _t(
+      en: 'This person will be called automatically.',
+      tr: 'Bu kişi otomatik olarak aranacaktır.');
+  static String get saveLabel => _t(en: 'Save Contact', tr: 'Kişiyi Kaydet');
+  static String get deleteLabel => _t(en: 'Delete', tr: 'Sil');
 
   // Messages
-  static const String emergencyAlertMessage =
-      'HELP! \nI have an emergency. \nMy location: ';
-  static const String validationName = 'Please enter a name';
-  static const String validationPhone = 'Please enter a phone number';
-  static const String noContacts = 'No emergency contacts added yet.';
+  static String get emergencyAlertMessage => _t(
+      en: 'HELP! \nI have an emergency. \nMy location: ',
+      tr: 'YARDIM! \nAcil bir durumum var. \nKonumum: ');
+  static String get validationName =>
+      _t(en: 'Please enter a name', tr: 'Lütfen bir isim girin');
+  static String get validationPhone => _t(
+      en: 'Please enter a phone number',
+      tr: 'Lütfen bir telefon numarası girin');
+  static String get noContacts => _t(
+      en: 'No emergency contacts added yet.',
+      tr: 'Henüz acil durum kişisi eklenmedi.');
   //--- Ends Emergency / SOS Feature ---
 
   //--- Start of Exercise Feature ---
   // ⭐️ ADDED: Strings for the detail screen of Exercise
-  static const String steps = 'Steps';
-  static const String exerciseTimer = 'Exercise Timer';
-  static const String markComplete = 'Mark as Complete';
-  static const String markIncomplete = 'Mark as Incomplete';
-  static const String close = 'Close';
-  static const String minutesShort = 'min';
-  static const String difficultyEasy = 'Easy';
-  static const String difficultyMedium = 'Medium';
-  static const String difficultyHard = 'Hard';
+  static String get steps => _t(en: 'Steps', tr: 'Adımlar');
+  static String get exerciseTimer =>
+      _t(en: 'Exercise Timer', tr: 'Egzersiz Zamanlayıcısı');
+  static String get markComplete =>
+      _t(en: 'Mark as Complete', tr: 'Tamamlandı Olarak İşaretle');
+  static String get markIncomplete =>
+      _t(en: 'Mark as Incomplete', tr: 'Tamamlanmadı Olarak İşaretle');
+  static String get close => _t(en: 'Close', tr: 'Kapat');
+  static String get minutesShort => _t(en: 'min', tr: 'dk');
+  static String get difficultyEasy => _t(en: 'Easy', tr: 'Kolay');
+  static String get difficultyMedium => _t(en: 'Medium', tr: 'Orta');
+  static String get difficultyHard => _t(en: 'Hard', tr: 'Zor');
   //--- End of Exercise Feature ---
 
   //--- Start of Health Tracking Feature ---
-  static const String healthTitle = 'Health Tracking';
-  static const String bloodPressure = 'Blood Pressure';
-  static const String bloodSugar = 'Blood Sugar';
-  static const String weight = 'Weight';
-  static const String sleep = 'Sleep';
-  static const String heartRate = 'Heart Rate';
-// static const String steps = 'Steps';
+  static String get healthTitle =>
+      _t(en: 'Health Tracking', tr: 'Sağlık Takibi');
+  static String get bloodPressure => _t(en: 'Blood Pressure', tr: 'Tansiyon');
+  static String get bloodSugar => _t(en: 'Blood Sugar', tr: 'Kan Şekeri');
+  static String get weight => _t(en: 'Weight', tr: 'Kilo');
+  static String get sleep => _t(en: 'Sleep', tr: 'Uyku');
+  static String get heartRate => _t(en: 'Heart Rate', tr: 'Nabız');
+// static String get steps
 
 // Units
-  static const String unitBP = 'mmHg';
-  static const String unitSugar = 'mg/dL';
-  static const String unitWeight = 'kg';
-  static const String unitSleep = 'hours';
-  static const String unitHeart = 'bpm';
-  static const String unitSteps = 'steps';
+  static String get unitBP => _t(en: 'mmHg', tr: 'mmHg');
+  static String get unitSugar => _t(en: 'mg/dL', tr: 'mg/dL');
+  static String get unitWeight => _t(en: 'kg', tr: 'kg');
+  static String get unitSleep => _t(en: 'hours', tr: 'saat');
+  static String get unitHeart => _t(en: 'bpm', tr: 'bpm');
+  static String get unitSteps => _t(en: 'steps', tr: 'adım');
 
 // Status
-  static const String statusNormal = 'Normal';
-  static const String statusWarning = 'Attention';
-  static const String statusCritical = 'Critical';
+  static String get statusNormal => _t(en: 'Normal', tr: 'Normal');
+  static String get statusWarning => _t(en: 'Attention', tr: 'Dikkat');
+  static String get statusCritical => _t(en: 'Critical', tr: 'Kritik');
 
 // Time Ranges
-  static const String week = 'Week';
-  static const String month = 'Month';
-  static const String year = 'Year';
+  static String get week => _t(en: 'Week', tr: 'Hafta');
+  static String get month => _t(en: 'Month', tr: 'Ay');
+  static String get year => _t(en: 'Year', tr: 'Yıl');
 
 // Chart & History
-  static const String noData = 'No records yet.';
-  static const String recentHistory = 'Recent History';
-  static const String addRecord = 'Add Record';
-  static const String sys = 'Systolic';
-  static const String dia = 'Diastolic';
+  static String get noData => _t(en: 'No records yet.', tr: 'Henüz kayıt yok.');
+  static String get recentHistory => _t(en: 'Recent History', tr: 'Son Geçmiş');
+  static String get addRecord => _t(en: 'Add Record', tr: 'Kayıt Ekle');
+  static String get sys => _t(en: 'Systolic', tr: 'Büyük Tansiyon');
+  static String get dia => _t(en: 'Diastolic', tr: 'Küçük Tansiyon');
   //--- End of Health Tracking Feature ---
 
   // --- Start of Water Reminder Feature ---
-  static const String waterTitle = 'Water Reminder';
-  static const String goalLabel = 'Goal:';
-  static const String goalAchieved = '🎉 Great job! Goal achieved!';
-  static const String remindersTitle = 'Reminders';
-  static const String every = 'Every';
-  static const String hoursSuffix = 'hour(s)';
-  static const String disabled = 'Disabled';
-  static const String changeSettings = 'Change Settings';
-  static const String addWaterTitle = 'Add Water';
-  static const String noWaterLogged = 'No water logged today';
-  static const String todaysWater = "Today's Water";
-  static const String settingsTitle = 'Settings';
-  static const String remindMeEvery = 'Remind me every:';
-  static const String activeHoursTitle = 'Active Hours (No sleep disturbance):';
-  static const String vibrationTitle = 'Vibration';
-  static const String vibrationSubtitle = 'Vibrate on reminder';
-  static const String saveButton = 'Save';
+  static String get waterTitle =>
+      _t(en: 'Water Reminder', tr: 'Su Hatırlatıcı');
+  static String get goalLabel => _t(en: 'Goal:', tr: 'Hedef:');
+  static String get goalAchieved =>
+      _t(en: '🎉 Great job! Goal achieved!', tr: '🎉 Harika! Hedefe ulaşıldı!');
+  static String get remindersTitle => _t(en: 'Reminders', tr: 'Hatırlatıcılar');
+  static String get every => _t(en: 'Every', tr: 'Her');
+  static String get hoursSuffix => _t(en: 'hour(s)', tr: 'saatte bir');
+  static String get disabled => _t(en: 'Disabled', tr: 'Kapalı');
+  static String get changeSettings =>
+      _t(en: 'Change Settings', tr: 'Ayarları Değiştir');
+  static String get addWaterTitle => _t(en: 'Add Water', tr: 'Su Ekle');
+  static String get noWaterLogged =>
+      _t(en: 'No water logged today', tr: 'Bugün su kaydı yok');
+  static String get todaysWater => _t(en: "Today's Water", tr: 'Bugünkü Su');
+  static String get settingsTitle => _t(en: 'Settings', tr: 'Ayarlar');
+  static String get remindMeEvery =>
+      _t(en: 'Remind me every:', tr: 'Bana şu sıklıkla hatırlat:');
+  static String get activeHoursTitle => _t(
+      en: 'Active Hours (No sleep disturbance):',
+      tr: 'Aktif Saatler (Uykuyu bölmez):');
+  static String get vibrationTitle => _t(en: 'Vibration', tr: 'Titreşim');
+  static String get vibrationSubtitle =>
+      _t(en: 'Vibrate on reminder', tr: 'Hatırlatmada titreşim');
+  static String get saveButton => _t(en: 'Save', tr: 'Kaydet');
   // --- End of Water Reminder Feature ---
 
   // --- Start of chatbot Feature ---
-  static const String chatbotTitle = "AI Assistant";
-  static const String askSomething = "Type your question here...";
-  static const String chatError = "I'm having trouble connecting. Try again?";
+  static String get chatbotTitle =>
+      _t(en: "AI Assistant", tr: "Yapay Zeka Asistanı");
+  static String get askSomething =>
+      _t(en: "Type your question here...", tr: "Sorunuzu buraya yazın...");
+  static String get chatError => _t(
+      en: "I'm having trouble connecting. Try again?",
+      tr: "Bağlanmakta sorun yaşıyorum. Tekrar deneyeyim mi?");
   // --- End of chatbot Feature ---
 
   // --- Start Memory Match Games Feature ---
-  static const String brainGamesTitle = 'Brain Games';
-  static const String memoryMatchTitle = 'Memory Match';
-  static const String memoryMatchDesc =
-      'Find the matching pairs to keep your mind sharp.';
-  static const String movesCounter = 'Moves:';
-  static const String timeCounter = 'Time:';
-  static const String pairsFound = 'Pairs Found:';
-  static const String wellDone = 'Well Done!';
-  static const String gameCompleteMsg = 'You found all the matches!';
-  static const String playAgain = 'Play Again';
-  static const String quitGame = 'Quit';
-  static const String statsTitle = 'Your Progress';
-  static const String bestTime = 'Best Time';
-  static const String totalGames = 'Total Games Played';
-  static const String wordSearchTitle = 'Word Search';
-  static const String sudokuTitle = 'Sudoku';
-  static const String comingSoon = 'Coming Soon';
-  static const String continueGame = 'Continue Next Level';
-  static const String level = 'Level';
-  static const String totalTimeLabel = 'Total Time Spent:';
-  static const String avgTimeLabel = 'Average Time:';
-  static const String bestTimeLabel = 'Fastest Win:';
-  static const String totalWinsLabel = 'Total Wins:';
-  static const String noStatsYet = 'Play a game to see your stats!';
+  static String get brainGamesTitle =>
+      _t(en: 'Brain Games', tr: 'Zeka Oyunları');
+  static String get memoryMatchTitle =>
+      _t(en: 'Memory Match', tr: 'Hafıza Eşleştirme');
+  static String get memoryMatchDesc => _t(
+      en: 'Find the matching pairs to keep your mind sharp.',
+      tr: 'Zihninizi keskin tutmak için eşleşen çiftleri bulun.');
+  static String get movesCounter => _t(en: 'Moves:', tr: 'Hamle:');
+  static String get timeCounter => _t(en: 'Time:', tr: 'Süre:');
+  static String get pairsFound => _t(en: 'Pairs Found:', tr: 'Bulunan Çift:');
+  static String get wellDone => _t(en: 'Well Done!', tr: 'Aferin!');
+  static String get gameCompleteMsg =>
+      _t(en: 'You found all the matches!', tr: 'Tüm eşleşmeleri buldunuz!');
+  static String get playAgain => _t(en: 'Play Again', tr: 'Tekrar Oyna');
+  static String get quitGame => _t(en: 'Quit', tr: 'Çık');
+  static String get statsTitle => _t(en: 'Your Progress', tr: 'İlerlemeniz');
+  static String get bestTime => _t(en: 'Best Time', tr: 'En İyi Süre');
+  static String get totalGames =>
+      _t(en: 'Total Games Played', tr: 'Toplam Oynanan Oyun');
+  static String get wordSearchTitle =>
+      _t(en: 'Word Search', tr: 'Kelime Bulmaca');
+  static String get sudokuTitle => _t(en: 'Sudoku', tr: 'Sudoku');
+  static String get comingSoon => _t(en: 'Coming Soon', tr: 'Yakında');
+  static String get continueGame =>
+      _t(en: 'Continue Next Level', tr: 'Sonraki Seviyeye Devam Et');
+  static String get level => _t(en: 'Level', tr: 'Seviye');
+  static String get totalTimeLabel =>
+      _t(en: 'Total Time Spent:', tr: 'Toplam Geçirilen Süre:');
+  static String get avgTimeLabel =>
+      _t(en: 'Average Time:', tr: 'Ortalama Süre:');
+  static String get bestTimeLabel =>
+      _t(en: 'Fastest Win:', tr: 'En Hızlı Kazanma:');
+  static String get totalWinsLabel =>
+      _t(en: 'Total Wins:', tr: 'Toplam Kazanma:');
+  static String get noStatsYet => _t(
+      en: 'Play a game to see your stats!',
+      tr: 'İstatistiklerinizi görmek için bir oyun oynayın!');
   // --- End Memory match Feature ---
 
   // --- Start Word Search Feature ---
-  static const String wordSearchDesc =
-      'Find the hidden words to train your focus.';
-  static const String wordsRemaining = 'Words Remaining:';
-  static const String wordsFound = 'Words Found:';
-  static const String tapFirstTapLast =
-      'Tap the first letter, then tap the last letter of a word.';
+  static String get wordSearchDesc => _t(
+      en: 'Find the hidden words to train your focus.',
+      tr: 'Odaklanmanızı geliştirmek için gizli kelimeleri bulun.');
+  static String get wordsRemaining =>
+      _t(en: 'Words Remaining:', tr: 'Kalan Kelime:');
+  static String get wordsFound => _t(en: 'Words Found:', tr: 'Bulunan Kelime:');
+  static String get tapFirstTapLast => _t(
+      en: 'Tap the first letter, then tap the last letter of a word.',
+      tr: 'Bir kelimenin ilk harfine, sonra son harfine dokunun.');
 
   // Localized Word Categories (Easy, Medium, Hard)
   static const List<String> easyWords = [
@@ -224,218 +279,324 @@ class AppStrings {
   // --- End Word Search Feature ---
 
   // --- Start Sudoku Game Feature ---
-  static const String sudokuDesc =
-      'Fill the grid with numbers without repeating them in rows, columns, or blocks.';
-  static const String hintsUsed = 'Hints Used:';
-  static const String hintButton = 'Hint';
-  static const String eraseButton = 'Erase';
-  static const String sudokuInstructions =
-      'Tap an empty square, then pick a number.';
+  static String get sudokuDesc => _t(
+      en: 'Fill the grid with numbers without repeating them in rows, columns, or blocks.',
+      tr: 'Izgarayı, satır, sütun veya bloklarda tekrar etmeyecek şekilde sayılarla doldurun.');
+  static String get hintsUsed => _t(en: 'Hints Used:', tr: 'Kullanılan İpucu:');
+  static String get hintButton => _t(en: 'Hint', tr: 'İpucu');
+  static String get eraseButton => _t(en: 'Erase', tr: 'Sil');
+  static String get sudokuInstructions => _t(
+      en: 'Tap an empty square, then pick a number.',
+      tr: 'Boş bir kareye dokunun, ardından bir sayı seçin.');
   // --- End Sudoku Game Feature ---
 
   // --- Start Nearby Services Hub Feature ---
   static String get nearbyServicesTitle =>
       _t(en: 'Nearby Services', tr: 'Yakındaki Hizmetler');
-  static const String nearbyServicesGridSubtitle =
-      'Bus stops, hospitals & markets';
-  static const String nearbyServicesHubSubtitle =
-      'Find help and places close to you';
-  static const String nearbyHospitalsTitle = 'Nearby Hospitals';
-  static const String nearbyMarketsTitle = 'Nearby Markets';
-  static const String comingSoonLabel = 'Coming Soon';
-  static const String comingSoonMessage =
-      'This feature will be available soon.';
+  static String get nearbyServicesGridSubtitle => _t(
+      en: 'Bus stops, hospitals & markets',
+      tr: 'Duraklar, hastaneler ve pazarlar');
+  static String get nearbyServicesHubSubtitle => _t(
+      en: 'Find help and places close to you',
+      tr: 'Size yakın yardım ve yerleri bulun');
+  static String get nearbyHospitalsTitle =>
+      _t(en: 'Nearby Hospitals', tr: 'Yakındaki Hastaneler');
+  static String get nearbyMarketsTitle =>
+      _t(en: 'Nearby Markets', tr: 'Yakındaki Pazarlar');
+  static String get comingSoonLabel => _t(en: 'Coming Soon', tr: 'Yakında');
+  static String get comingSoonMessage => _t(
+      en: 'This feature will be available soon.',
+      tr: 'Bu özellik yakında kullanıma sunulacaktır.');
   // --- End Nearby Services Hub Feature ---
 
   // --- Start Nearby Bus Stops Feature ---
-  static const String nearbyBusStopsTitle = 'Nearby Bus Stops';
-  static const String nearbyBusStopsSubtitle = 'Find buses close to you';
-  static const String locatingMessage = 'Finding your location...';
-  static const String busStopsFoundLabel = 'closest stops near you';
+  static String get nearbyBusStopsTitle =>
+      _t(en: 'Nearby Bus Stops', tr: 'Yakındaki Otobüs Durakları');
+  static String get nearbyBusStopsSubtitle =>
+      _t(en: 'Find buses close to you', tr: 'Size yakın otobüsleri bulun');
+  static String get locatingMessage =>
+      _t(en: 'Finding your location...', tr: 'Konumunuz bulunuyor...');
+  static String get busStopsFoundLabel =>
+      _t(en: 'closest stops near you', tr: 'size en yakın duraklar');
   static String get getDirectionsButton =>
       _t(en: 'Get Directions', tr: 'Yol Tarifi Al');
   static String get retryButton => _t(en: 'Try Again', tr: 'Tekrar Dene');
-  static const String openLocationSettingsButton = 'Open Location Settings';
-  static const String openAppSettingsButton = 'Open App Settings';
-  static const String locationServiceDisabledMessage =
-      'Location is turned off on your phone. Please turn it on to find bus stops near you.';
-  static const String locationPermissionDeniedMessage =
-      'This app needs permission to see your location to find nearby bus stops.';
-  static const String locationPermissionDeniedForeverMessage =
-      'Location permission was denied. Please allow it from your phone settings to use this feature.';
-  static const String busStopsGenericError =
-      'Something went wrong while loading bus stops. Please try again.';
-  static const String busStopsDataUnavailableMessage =
-      'Could not load bus stop information. Please check your internet connection and try again.';
-  static const String noBusStopsFound = 'No bus stops found nearby.';
-  static const String directionsErrorMessage =
-      'Could not open Maps. Please make sure a maps app is installed.';
-  static const String lastUpdatedLabel = 'Last updated';
+  static String get openLocationSettingsButton =>
+      _t(en: 'Open Location Settings', tr: 'Konum Ayarlarını Aç');
+  static String get openAppSettingsButton =>
+      _t(en: 'Open App Settings', tr: 'Uygulama Ayarlarını Aç');
+  static String get locationServiceDisabledMessage => _t(
+      en: 'Location is turned off on your phone. Please turn it on to find bus stops near you.',
+      tr: 'Telefonunuzda konum kapalı. Yakınınızdaki durakları bulmak için lütfen açın.');
+  static String get locationPermissionDeniedMessage => _t(
+      en: 'This app needs permission to see your location to find nearby bus stops.',
+      tr: 'Yakındaki durakları bulmak için bu uygulamanın konumunuzu görmesine izin vermeniz gerekir.');
+  static String get locationPermissionDeniedForeverMessage => _t(
+      en: 'Location permission was denied. Please allow it from your phone settings to use this feature.',
+      tr: 'Konum izni reddedildi. Bu özelliği kullanmak için lütfen telefon ayarlarınızdan izin verin.');
+  static String get busStopsGenericError => _t(
+      en: 'Something went wrong while loading bus stops. Please try again.',
+      tr: 'Duraklar yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.');
+  static String get busStopsDataUnavailableMessage => _t(
+      en: 'Could not load bus stop information. Please check your internet connection and try again.',
+      tr: 'Durak bilgileri yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+  static String get noBusStopsFound =>
+      _t(en: 'No bus stops found nearby.', tr: 'Yakında durak bulunamadı.');
+  static String get directionsErrorMessage => _t(
+      en: 'Could not open Maps. Please make sure a maps app is installed.',
+      tr: 'Harita açılamadı. Lütfen bir harita uygulaması yüklü olduğundan emin olun.');
+  static String get lastUpdatedLabel =>
+      _t(en: 'Last updated', tr: 'Son güncelleme');
   // --- End Nearby Bus Stops Feature ---
 
   // --- Start Nearby Healthcare Feature ---
-  static const String nearbyHealthcareTitle = 'Nearby Healthcare';
-  static const String nearbyHealthcareHubSubtitle =
-      'Find hospitals, health centers and open pharmacies close to you';
-  static const String callButton = 'Call';
-  static const String emergencyBannerText = 'Medical emergency? Call 112 now.';
-  static const String emergencyCallButton = 'Call 112';
-  static const String categoryAll = 'All';
-  static const String categoryHospitals = 'Hospitals';
-  static const String categoryFamilyHealthCenters = 'Health Centers';
-  static const String categoryPharmacies = 'Open Pharmacies';
-  static const String openNowBadge = 'Open Now';
-  static const String searchHealthcareHint = 'Search by name...';
-  static const String noHealthcareResultsFound =
-      'No healthcare facilities found nearby.';
-  static const String locatingHealthcareMessage = 'Finding your location...';
-  static const String healthcareResultsFoundLabel = 'closest to you';
-  static const String healthcareDataUnavailableMessage =
-      'Could not load healthcare facility information. Please check your internet connection and try again.';
-  static const String healthcareGenericError =
-      'Something went wrong while loading healthcare facilities. Please try again.';
-  static const String callErrorMessage =
-      'Could not start the call. Please dial the number manually.';
+  static String get nearbyHealthcareTitle =>
+      _t(en: 'Nearby Healthcare', tr: 'Yakındaki Sağlık Hizmetleri');
+  static String get nearbyHealthcareHubSubtitle => _t(
+      en: 'Find hospitals, health centers and open pharmacies close to you',
+      tr: 'Size yakın hastane, sağlık merkezi ve açık eczaneleri bulun');
+  static String get callButton => _t(en: 'Call', tr: 'Ara');
+  static String get emergencyBannerText => _t(
+      en: 'Medical emergency? Call 112 now.',
+      tr: "Tıbbi acil durum mu? Hemen 112'yi arayın.");
+  static String get emergencyCallButton => _t(en: 'Call 112', tr: "112'yi Ara");
+  static String get categoryAll => _t(en: 'All', tr: 'Tümü');
+  static String get categoryHospitals => _t(en: 'Hospitals', tr: 'Hastaneler');
+  static String get categoryFamilyHealthCenters =>
+      _t(en: 'Health Centers', tr: 'Sağlık Merkezleri');
+  static String get categoryPharmacies =>
+      _t(en: 'Open Pharmacies', tr: 'Açık Eczaneler');
+  static String get openNowBadge => _t(en: 'Open Now', tr: 'Şu An Açık');
+  static String get searchHealthcareHint =>
+      _t(en: 'Search by name...', tr: 'İsme göre ara...');
+  static String get noHealthcareResultsFound => _t(
+      en: 'No healthcare facilities found nearby.',
+      tr: 'Yakında sağlık kuruluşu bulunamadı.');
+  static String get locatingHealthcareMessage =>
+      _t(en: 'Finding your location...', tr: 'Konumunuz bulunuyor...');
+  static String get healthcareResultsFoundLabel =>
+      _t(en: 'closest to you', tr: 'size en yakın');
+  static String get healthcareDataUnavailableMessage => _t(
+      en: 'Could not load healthcare facility information. Please check your internet connection and try again.',
+      tr: 'Sağlık kuruluşu bilgileri yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+  static String get healthcareGenericError => _t(
+      en: 'Something went wrong while loading healthcare facilities. Please try again.',
+      tr: 'Sağlık kuruluşları yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.');
+  static String get callErrorMessage => _t(
+      en: 'Could not start the call. Please dial the number manually.',
+      tr: 'Arama başlatılamadı. Lütfen numarayı elle çevirin.');
   // --- End Nearby Healthcare Feature ---
 
   // --- Start Nearby Markets Feature ---
-  static const String marketsHubSubtitle =
-      'Find supermarkets, grocers, bakeries, and weekly bazaars close to you';
-  static const String categorySupermarkets = 'Supermarkets';
-  static const String categoryGroceryConvenience = 'Grocery & Convenience';
-  static const String categoryBakeries = 'Bakeries';
-  static const String categoryButchers = 'Butchers';
-  static const String categoryGreengrocers = 'Greengrocers';
-  static const String categoryWeeklyBazaars = 'Weekly Bazaars';
-  static const String searchMarketsHint = 'Search by name...';
-  static const String noMarketsResultsFound = 'No markets found nearby.';
-  static const String locatingMarketsMessage = 'Finding your location...';
-  static const String marketsResultsFoundLabel = 'closest to you';
-  static const String marketsDataUnavailableMessage =
-      'Could not load market information. Please check your internet connection and try again.';
-  static const String marketsGenericError =
-      'Something went wrong while loading markets. Please try again.';
-  static const String shopsPartialFailureMessage =
-      'Supermarkets, bakeries, and other shops could not be loaded right now. Weekly bazaars are still shown below. Pull down to try again.';
-  static const String weeklyBazaarFallbackBadge = 'Weekly Market';
-  static const String dayMonShort = 'Mon';
-  static const String dayTueShort = 'Tue';
-  static const String dayWedShort = 'Wed';
-  static const String dayThuShort = 'Thu';
-  static const String dayFriShort = 'Fri';
-  static const String daySatShort = 'Sat';
-  static const String daySunShort = 'Sun';
+  static String get marketsHubSubtitle => _t(
+      en: 'Find supermarkets, grocers, bakeries, and weekly bazaars close to you',
+      tr: 'Size yakın market, bakkal, fırın ve semt pazarlarını bulun');
+  static String get categorySupermarkets =>
+      _t(en: 'Supermarkets', tr: 'Marketler');
+  static String get categoryGroceryConvenience =>
+      _t(en: 'Grocery & Convenience', tr: 'Bakkal ve Market');
+  static String get categoryBakeries => _t(en: 'Bakeries', tr: 'Fırınlar');
+  static String get categoryButchers => _t(en: 'Butchers', tr: 'Kasaplar');
+  static String get categoryGreengrocers =>
+      _t(en: 'Greengrocers', tr: 'Manavlar');
+  static String get categoryWeeklyBazaars =>
+      _t(en: 'Weekly Bazaars', tr: 'Semt Pazarları');
+  static String get searchMarketsHint =>
+      _t(en: 'Search by name...', tr: 'İsme göre ara...');
+  static String get noMarketsResultsFound => _t(
+      en: 'No markets found nearby.', tr: 'Yakında pazar/market bulunamadı.');
+  static String get locatingMarketsMessage =>
+      _t(en: 'Finding your location...', tr: 'Konumunuz bulunuyor...');
+  static String get marketsResultsFoundLabel =>
+      _t(en: 'closest to you', tr: 'size en yakın');
+  static String get marketsDataUnavailableMessage => _t(
+      en: 'Could not load market information. Please check your internet connection and try again.',
+      tr: 'Pazar bilgileri yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
+  static String get marketsGenericError => _t(
+      en: 'Something went wrong while loading markets. Please try again.',
+      tr: 'Pazarlar yüklenirken bir sorun oluştu. Lütfen tekrar deneyin.');
+  static String get shopsPartialFailureMessage => _t(
+      en: 'Supermarkets, bakeries, and other shops could not be loaded right now. Weekly bazaars are still shown below. Pull down to try again.',
+      tr: "Marketler, fırınlar ve diğer dükkanlar şu anda yüklenemedi. Semt pazarları aşağıda gösterilmeye devam ediyor. Tekrar denemek için aşağı çekin.");
+  static String get weeklyBazaarFallbackBadge =>
+      _t(en: 'Weekly Market', tr: 'Haftalık Pazar');
+  static String get dayMonShort => _t(en: 'Mon', tr: 'Pzt');
+  static String get dayTueShort => _t(en: 'Tue', tr: 'Sal');
+  static String get dayWedShort => _t(en: 'Wed', tr: 'Çar');
+  static String get dayThuShort => _t(en: 'Thu', tr: 'Per');
+  static String get dayFriShort => _t(en: 'Fri', tr: 'Cum');
+  static String get daySatShort => _t(en: 'Sat', tr: 'Cmt');
+  static String get daySunShort => _t(en: 'Sun', tr: 'Paz');
   // --- End Nearby Markets Feature ---
 
   // --- Start Friend Network Feature (Step 1: Profile) ---
   static String get friendNetworkTitle =>
       _t(en: 'Friend Network', tr: 'Arkadaş Ağı');
-  static const String friendNetworkHubSubtitle = 'Connect with people near you';
-  static const String myFriendsTitle = 'My Friends';
-  static const String nearbyPeopleTitle = 'Nearby People';
-  static const String setupProfilePrompt =
-      'Set up your Friend Network profile to get started.';
-  static const String setupProfileButton = 'Set Up Profile';
-  static const String editProfileFriendNetworkButton = 'Edit Profile';
-  static const String chooseAvatarLabel = 'Choose an Avatar';
-  static const String bioLabel = 'About You';
-  static const String bioHint = 'Tell others a little about yourself...';
-  static const String ageRangeLabel = 'Age Range';
-  static const String genderLabel = 'Gender (optional)';
-  static const String interestsLabel = 'Your Interests';
-  static const String interestsHint = 'Select as many as you like';
-  static const String languagesLabel = 'Languages You Speak';
-  static const String discoverableLabel = 'Show my profile to nearby people';
-  static const String discoverableDescription =
-      'When on, other nearby users can find you and send a friend request. Your exact location is never shown — only a general area.';
-  static const String genderMale = 'Male';
-  static const String genderFemale = 'Female';
-  static const String genderPreferNotToSay = 'Prefer not to say';
-  static const String saveProfileButton = 'Save Profile';
-  static const String profileSavedMessage = 'Your profile has been saved.';
-  static const String profileSaveErrorMessage =
-      'Could not save your profile. Please check your connection and try again.';
+  static String get friendNetworkHubSubtitle => _t(
+      en: 'Connect with people near you',
+      tr: 'Yakınınızdaki insanlarla bağlantı kurun');
+  static String get myFriendsTitle => _t(en: 'My Friends', tr: 'Arkadaşlarım');
+  static String get nearbyPeopleTitle =>
+      _t(en: 'Nearby People', tr: 'Yakındaki Kişiler');
+  static String get setupProfilePrompt => _t(
+      en: 'Set up your Friend Network profile to get started.',
+      tr: 'Başlamak için Arkadaş Ağı profilinizi oluşturun.');
+  static String get setupProfileButton =>
+      _t(en: 'Set Up Profile', tr: 'Profil Oluştur');
+  static String get editProfileFriendNetworkButton =>
+      _t(en: 'Edit Profile', tr: 'Profili Düzenle');
+  static String get chooseAvatarLabel =>
+      _t(en: 'Choose an Avatar', tr: 'Bir Avatar Seçin');
+  static String get bioLabel => _t(en: 'About You', tr: 'Hakkınızda');
+  static String get bioHint => _t(
+      en: 'Tell others a little about yourself...',
+      tr: 'Kendiniz hakkında biraz bilgi verin...');
+  static String get ageRangeLabel => _t(en: 'Age Range', tr: 'Yaş Aralığı');
+  static String get genderLabel =>
+      _t(en: 'Gender (optional)', tr: 'Cinsiyet (isteğe bağlı)');
+  static String get interestsLabel =>
+      _t(en: 'Your Interests', tr: 'İlgi Alanlarınız');
+  static String get interestsHint =>
+      _t(en: 'Select as many as you like', tr: 'İstediğiniz kadar seçin');
+  static String get languagesLabel =>
+      _t(en: 'Languages You Speak', tr: 'Konuştuğunuz Diller');
+  static String get discoverableLabel => _t(
+      en: 'Show my profile to nearby people',
+      tr: 'Profilimi yakındaki kişilere göster');
+  static String get discoverableDescription => _t(
+      en: 'When on, other nearby users can find you and send a friend request. Your exact location is never shown — only a general area.',
+      tr: 'Açık olduğunda, yakındaki diğer kullanıcılar sizi bulup arkadaşlık isteği gönderebilir. Tam konumunuz asla gösterilmez — yalnızca genel bir bölge gösterilir.');
+  static String get genderMale => _t(en: 'Male', tr: 'Erkek');
+  static String get genderFemale => _t(en: 'Female', tr: 'Kadın');
+  static String get genderPreferNotToSay =>
+      _t(en: 'Prefer not to say', tr: 'Belirtmek istemiyorum');
+  static String get saveProfileButton =>
+      _t(en: 'Save Profile', tr: 'Profili Kaydet');
+  static String get profileSavedMessage =>
+      _t(en: 'Your profile has been saved.', tr: 'Profiliniz kaydedildi.');
+  static String get profileSaveErrorMessage => _t(
+      en: 'Could not save your profile. Please check your connection and try again.',
+      tr: 'Profiliniz kaydedilemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.');
+  // Age ranges are the same numeric text in both languages.
   static const String ageRange50s = '50-59';
   static const String ageRange60s = '60-69';
   static const String ageRange70s = '70-79';
   static const String ageRange80s = '80-89';
   static const String ageRange90Plus = '90+';
-  static const String interestWalking = 'Walking';
-  static const String interestGardening = 'Gardening';
-  static const String interestReading = 'Reading';
-  static const String interestCooking = 'Cooking';
-  static const String interestPainting = 'Painting';
-  static const String interestCrochet = 'Crochet';
-  static const String interestMusic = 'Music';
-  static const String interestExercise = 'Exercise';
-  static const String interestChess = 'Chess';
-  static const String interestVolunteering = 'Volunteering';
-  static const String languageTurkish = 'Turkish';
-  static const String languageEnglish = 'English';
-  static const String languageOther = 'Other';
-  static const String comingInNextStepLabel = 'Coming in the next update';
+  static String get interestWalking => _t(en: 'Walking', tr: 'Yürüyüş');
+  static String get interestGardening => _t(en: 'Gardening', tr: 'Bahçecilik');
+  static String get interestReading => _t(en: 'Reading', tr: 'Okumak');
+  static String get interestCooking => _t(en: 'Cooking', tr: 'Yemek Yapmak');
+  static String get interestPainting => _t(en: 'Painting', tr: 'Resim Yapmak');
+  static String get interestCrochet => _t(en: 'Crochet', tr: 'Tığ İşi');
+  static String get interestMusic => _t(en: 'Music', tr: 'Müzik');
+  static String get interestExercise => _t(en: 'Exercise', tr: 'Egzersiz');
+  static String get interestChess => _t(en: 'Chess', tr: 'Satranç');
+  static String get interestVolunteering =>
+      _t(en: 'Volunteering', tr: 'Gönüllülük');
+  static String get languageTurkish => _t(en: 'Turkish', tr: 'Türkçe');
+  static String get languageEnglish => _t(en: 'English', tr: 'İngilizce');
+  static String get languageOther => _t(en: 'Other', tr: 'Diğer');
+  static String get comingInNextStepLabel =>
+      _t(en: 'Coming in the next update', tr: 'Sonraki güncellemede geliyor');
   // --- End Friend Network Feature (Step 1: Profile) ---
 
   // --- Start Friend Network Feature (Step 2: Friends, Discovery, Safety) ---
-  static const String friendRequestsTitle = 'Friend Requests';
-  static const String acceptButton = 'Accept';
-  static const String declineButton = 'Decline';
-  static const String addButton = 'Add';
-  static const String requestedButton = 'Requested';
-  static const String removeFriendButton = 'Remove Friend';
-  static const String blockUserButton = 'Block User';
-  static const String reportUserButton = 'Report User';
-  static const String cancelButton = 'Cancel';
-  static const String trustedContactLabel = 'Trusted Contact';
-  static const String markAsTrustedContact = 'Mark as Trusted Contact';
-  static const String unmarkTrustedContact = 'Remove Trusted Contact';
-  static const String moreOptionsLabel = 'More Options';
-  static const String confirmRemoveFriendMessage =
-      'Remove this person from your friends?';
-  static const String confirmBlockUserMessage =
-      'Block this person? They will no longer be able to contact you or appear in your nearby people list.';
-  static const String reportReasonInappropriate = 'Inappropriate Behavior';
-  static const String reportReasonFakeProfile = 'Fake Profile';
-  static const String reportReasonSpam = 'Spam or Scam';
-  static const String reportReasonOther = 'Other';
-  static const String reportSubmittedMessage =
-      'Thank you. Your report has been submitted.';
-  static const String noFriendsYetMessage =
-      "You haven't added any friends yet.";
-  static const String noNearbyPeopleMessage =
-      'No nearby people found right now.';
-  static const String friendNetworkGenericError =
-      'Something went wrong. Please try again.';
-  static const String friendRequestSentMessage = 'Friend request sent.';
-  static const String distanceVeryClose = 'Very close';
-  static const String distanceNearby = 'Nearby';
-  static const String distanceInIzmir = 'In İzmir';
-  static const String distanceFurtherAway = 'Further away';
-  static const String distanceUnknown = 'Distance unknown';
-  static const String yesConfirmButton = 'Yes';
-  static const String noCancelButton = 'No';
-  static const String sinceFriendsLabel = 'Friends since';
-  static const String discoverabilityOffNotice =
-      'Turn on "Show my profile to nearby people" in your profile to discover people near you.';
-  static const String discoverableStatusOn = 'Discoverable';
-  static const String discoverableStatusOff = 'Not Visible';
+  static String get friendRequestsTitle =>
+      _t(en: 'Friend Requests', tr: 'Arkadaşlık İstekleri');
+  static String get acceptButton => _t(en: 'Accept', tr: 'Kabul Et');
+  static String get declineButton => _t(en: 'Decline', tr: 'Reddet');
+  static String get addButton => _t(en: 'Add', tr: 'Ekle');
+  static String get requestedButton =>
+      _t(en: 'Requested', tr: 'İstek Gönderildi');
+  static String get removeFriendButton =>
+      _t(en: 'Remove Friend', tr: 'Arkadaşlıktan Çıkar');
+  static String get blockUserButton =>
+      _t(en: 'Block User', tr: 'Kullanıcıyı Engelle');
+  static String get reportUserButton =>
+      _t(en: 'Report User', tr: 'Kullanıcıyı Bildir');
+  static String get cancelButton => _t(en: 'Cancel', tr: 'İptal');
+  static String get trustedContactLabel =>
+      _t(en: 'Trusted Contact', tr: 'Güvenilir Kişi');
+  static String get markAsTrustedContact =>
+      _t(en: 'Mark as Trusted Contact', tr: 'Güvenilir Kişi Olarak İşaretle');
+  static String get unmarkTrustedContact =>
+      _t(en: 'Remove Trusted Contact', tr: 'Güvenilir Kişiyi Kaldır');
+  static String get moreOptionsLabel =>
+      _t(en: 'More Options', tr: 'Diğer Seçenekler');
+  static String get confirmRemoveFriendMessage => _t(
+      en: 'Remove this person from your friends?',
+      tr: 'Bu kişiyi arkadaş listenizden çıkarmak istiyor musunuz?');
+  static String get confirmBlockUserMessage => _t(
+      en: 'Block this person? They will no longer be able to contact you or appear in your nearby people list.',
+      tr: 'Bu kişiyi engellemek istiyor musunuz? Artık sizinle iletişime geçemez veya yakındaki kişiler listenizde görünmez.');
+  static String get reportReasonInappropriate =>
+      _t(en: 'Inappropriate Behavior', tr: 'Uygunsuz Davranış');
+  static String get reportReasonFakeProfile =>
+      _t(en: 'Fake Profile', tr: 'Sahte Profil');
+  static String get reportReasonSpam =>
+      _t(en: 'Spam or Scam', tr: 'Spam veya Dolandırıcılık');
+  static String get reportReasonOther => _t(en: 'Other', tr: 'Diğer');
+  static String get reportSubmittedMessage => _t(
+      en: 'Thank you. Your report has been submitted.',
+      tr: 'Teşekkürler. Bildiriminiz gönderildi.');
+  static String get noFriendsYetMessage => _t(
+      en: "You haven't added any friends yet.",
+      tr: 'Henüz arkadaş eklemediniz.');
+  static String get noNearbyPeopleMessage => _t(
+      en: 'No nearby people found right now.',
+      tr: 'Şu anda yakında kimse bulunamadı.');
+  static String get friendNetworkGenericError => _t(
+      en: 'Something went wrong. Please try again.',
+      tr: 'Bir sorun oluştu. Lütfen tekrar deneyin.');
+  static String get friendRequestSentMessage =>
+      _t(en: 'Friend request sent.', tr: 'Arkadaşlık isteği gönderildi.');
+  static String get distanceVeryClose => _t(en: 'Very close', tr: 'Çok yakın');
+  static String get distanceNearby => _t(en: 'Nearby', tr: 'Yakında');
+  static String get distanceInIzmir => _t(en: 'In İzmir', tr: "İzmir'de");
+  static String get distanceFurtherAway =>
+      _t(en: 'Further away', tr: 'Daha uzakta');
+  static String get distanceUnknown =>
+      _t(en: 'Distance unknown', tr: 'Mesafe bilinmiyor');
+  static String get yesConfirmButton => _t(en: 'Yes', tr: 'Evet');
+  static String get noCancelButton => _t(en: 'No', tr: 'Hayır');
+  static String get sinceFriendsLabel =>
+      _t(en: 'Friends since', tr: 'Arkadaşlık tarihi');
+  static String get discoverabilityOffNotice => _t(
+      en: 'Turn on "Show my profile to nearby people" in your profile to discover people near you.',
+      tr: 'Yakınınızdaki kişileri keşfetmek için profilinizde "Profilimi yakındaki kişilere göster" seçeneğini açın.');
+  static String get discoverableStatusOn =>
+      _t(en: 'Discoverable', tr: 'Görünür');
+  static String get discoverableStatusOff =>
+      _t(en: 'Not Visible', tr: 'Görünür Değil');
   // --- End Friend Network Feature (Step 2: Friends, Discovery, Safety) ---
 
   // --- Start Friend Network Feature (Step 3: Messaging) ---
-  static const String messageButton = 'Message';
-  static const String quickRepliesLabel = 'Quick Replies';
-  static const String messageInputHint = 'Type a message...';
-  static const String noMessagesYetMessage = 'No messages yet. Say hello!';
-  static const String messageSendErrorMessage =
-      'Could not send message. Please try again.';
-  static const String templateHello = 'Hello!';
-  static const String templateHowAreYou = 'How are you?';
-  static const String templateAreYouAvailable = 'Are you available today?';
-  static const String templateLetsWalk = "Let's walk together";
-  static const String templateLetsHaveTea = "Let's have tea or coffee";
-  static const String templateThankYou = 'Thank you!';
-  static const String templateSeeYouSoon = 'See you soon';
-  static const String templateRunningLate = "I'll be a little late";
+  static String get messageButton => _t(en: 'Message', tr: 'Mesaj');
+  static String get quickRepliesLabel =>
+      _t(en: 'Quick Replies', tr: 'Hazır Yanıtlar');
+  static String get messageInputHint =>
+      _t(en: 'Type a message...', tr: 'Bir mesaj yazın...');
+  static String get noMessagesYetMessage => _t(
+      en: 'No messages yet. Say hello!', tr: 'Henüz mesaj yok. Merhaba deyin!');
+  static String get messageSendErrorMessage => _t(
+      en: 'Could not send message. Please try again.',
+      tr: 'Mesaj gönderilemedi. Lütfen tekrar deneyin.');
+  static String get templateHello => _t(en: 'Hello!', tr: 'Merhaba!');
+  static String get templateHowAreYou =>
+      _t(en: 'How are you?', tr: 'Nasılsınız?');
+  static String get templateAreYouAvailable =>
+      _t(en: 'Are you available today?', tr: 'Bugün müsait misiniz?');
+  static String get templateLetsWalk =>
+      _t(en: "Let's walk together", tr: 'Birlikte yürüyüş yapalım');
+  static String get templateLetsHaveTea =>
+      _t(en: "Let's have tea or coffee", tr: 'Çay ya da kahve içelim');
+  static String get templateThankYou =>
+      _t(en: 'Thank you!', tr: 'Teşekkür ederim!');
+  static String get templateSeeYouSoon =>
+      _t(en: 'See you soon', tr: 'Yakında görüşürüz');
+  static String get templateRunningLate =>
+      _t(en: "I'll be a little late", tr: 'Biraz geç kalacağım');
   // --- End Friend Network Feature (Step 3: Messaging) ---
 }
 

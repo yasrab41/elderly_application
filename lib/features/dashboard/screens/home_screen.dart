@@ -170,7 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (contacts.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.noContacts)),
+          SnackBar(content: Text(AppStrings.noContacts)),
         );
       }
       return;
@@ -388,7 +388,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           onPressed: _startEmergencySequence,
                           icon:
                               const Icon(Icons.emergency, color: Colors.white),
-                          label: const Text(AppStrings.sosTitle,
+                          label: Text(AppStrings.sosTitle,
                               style: TextStyle(
                                   fontSize: 18.0,
                                   color: Colors.white,

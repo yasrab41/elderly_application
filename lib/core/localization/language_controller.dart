@@ -16,10 +16,10 @@ class AppLanguageController {
 
   static const String _prefsKey = 'app_language';
 
-  static AppLanguage current = AppLanguage.english;
+  static AppLanguage current = AppLanguage.turkish;
 
   static final ValueNotifier<AppLanguage> notifier =
-      ValueNotifier(AppLanguage.english);
+      ValueNotifier(AppLanguage.turkish);
 
   static bool _initialized = false;
 
@@ -30,7 +30,7 @@ class AppLanguageController {
     if (_initialized) return;
     _initialized = true;
 
-    AppLanguage resolved = AppLanguage.english;
+    AppLanguage resolved = AppLanguage.turkish;
     try {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getString(_prefsKey);
@@ -40,15 +40,17 @@ class AppLanguageController {
       } else if (saved == 'en') {
         resolved = AppLanguage.english;
       } else {
+        // No saved choice yet — default to Turkish (the target audience's
+        // language) unless the device is explicitly set to English.
         final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
-        resolved = deviceLocale.languageCode.toLowerCase() == 'tr'
-            ? AppLanguage.turkish
-            : AppLanguage.english;
+        resolved = deviceLocale.languageCode.toLowerCase() == 'en'
+            ? AppLanguage.english
+            : AppLanguage.turkish;
       }
     } catch (e) {
       debugPrint('[AppLanguageController] initialize FAILED, defaulting to '
-          'English: $e');
-      resolved = AppLanguage.english;
+          'Turkish: $e');
+      resolved = AppLanguage.turkish;
     }
 
     current = resolved;

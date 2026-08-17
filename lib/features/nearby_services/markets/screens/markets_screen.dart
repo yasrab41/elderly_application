@@ -19,7 +19,7 @@ class _MarketsScreenState extends ConsumerState<MarketsScreen> {
   final LocationService _locationService = LocationService();
   final TextEditingController _searchController = TextEditingController();
 
-  static const Map<int, String> _dayShortLabels = {
+  static Map<int, String> _dayShortLabels = {
     1: AppStrings.dayMonShort,
     2: AppStrings.dayTueShort,
     3: AppStrings.dayWedShort,

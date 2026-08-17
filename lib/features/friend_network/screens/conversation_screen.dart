@@ -28,7 +28,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final String _myUid = FirebaseAuth.instance.currentUser?.uid ?? '';
   bool _isSending = false;
 
-  static const List<String> _templates = [
+  static List<String> _templates = [
     AppStrings.templateHello,
     AppStrings.templateHowAreYou,
     AppStrings.templateAreYouAvailable,

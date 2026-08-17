@@ -296,7 +296,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
-                              child: const Text(AppStrings.close),
+                              child: Text(AppStrings.close),
                               onPressed: () {
                                 if (_isRunning) {
                                   _pauseTimer();

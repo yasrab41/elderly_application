@@ -120,7 +120,7 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
             elevation: 2,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.all(24.0),
               child: Center(
                 child: Text(AppStrings.noStatsYet,
@@ -143,7 +143,7 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(AppStrings.statsTitle,
+                Text(AppStrings.statsTitle,
                     style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

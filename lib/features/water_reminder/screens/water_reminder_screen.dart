@@ -19,7 +19,7 @@ class WaterReminderScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.waterTitle),
+        title: Text(AppStrings.waterTitle),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -166,7 +166,7 @@ class WaterReminderScreen extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(AppStrings.remindersTitle,
+                  Text(AppStrings.remindersTitle,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 5),
@@ -203,7 +203,7 @@ class WaterReminderScreen extends ConsumerWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.settings),
-              label: const Text(AppStrings.changeSettings),
+              label: Text(AppStrings.changeSettings),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue.shade50,
                 foregroundColor: Colors.blue,
@@ -268,7 +268,7 @@ class WaterReminderScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(AppStrings.addWaterTitle,
+          Text(AppStrings.addWaterTitle,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 15),
           GridView.builder(
@@ -316,7 +316,7 @@ class WaterReminderScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(AppStrings.todaysWater,
+        Text(AppStrings.todaysWater,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         ListView.builder(

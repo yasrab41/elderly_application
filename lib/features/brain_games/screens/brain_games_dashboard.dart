@@ -9,7 +9,7 @@ class BrainGamesDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.brainGamesTitle),
+        title: Text(AppStrings.brainGamesTitle),
         elevation: 0,
       ),
       body: ListView(
@@ -90,7 +90,7 @@ class BrainGamesDashboard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: Colors.white)),
                   if (!isActive)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 8.0),
                       child: Text(AppStrings.comingSoon,
                           style:

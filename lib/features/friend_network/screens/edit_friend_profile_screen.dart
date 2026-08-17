@@ -25,24 +25,26 @@ class _EditFriendProfileScreenState
   late bool _discoverable;
   bool _initialized = false;
 
-  static const List<String> _interestOptions = [
-    AppStrings.interestWalking,
-    AppStrings.interestGardening,
-    AppStrings.interestReading,
-    AppStrings.interestCooking,
-    AppStrings.interestPainting,
-    AppStrings.interestCrochet,
-    AppStrings.interestMusic,
-    AppStrings.interestExercise,
-    AppStrings.interestChess,
-    AppStrings.interestVolunteering,
-  ];
+  // Not const anymore: these reference AppStrings getters that resolve
+  // based on the current language, not fixed compile-time values.
+  List<String> get _interestOptions => [
+        AppStrings.interestWalking,
+        AppStrings.interestGardening,
+        AppStrings.interestReading,
+        AppStrings.interestCooking,
+        AppStrings.interestPainting,
+        AppStrings.interestCrochet,
+        AppStrings.interestMusic,
+        AppStrings.interestExercise,
+        AppStrings.interestChess,
+        AppStrings.interestVolunteering,
+      ];
 
-  static const List<String> _languageOptions = [
-    AppStrings.languageTurkish,
-    AppStrings.languageEnglish,
-    AppStrings.languageOther,
-  ];
+  List<String> get _languageOptions => [
+        AppStrings.languageTurkish,
+        AppStrings.languageEnglish,
+        AppStrings.languageOther,
+      ];
 
   void _loadFromProfile(FriendProfileModel profile) {
     _bioController = TextEditingController(text: profile.bio);
@@ -150,7 +152,7 @@ class _EditFriendProfileScreenState
                 _buildSectionLabel(AppStrings.genderLabel),
                 const SizedBox(height: 10),
                 _buildChoiceRow(
-                  options: const [
+                  options: [
                     AppStrings.genderMale,
                     AppStrings.genderFemale,
                     AppStrings.genderPreferNotToSay,

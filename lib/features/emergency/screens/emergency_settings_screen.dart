@@ -15,7 +15,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           AppStrings.sosSettingsTitle,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
@@ -41,7 +41,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                   Icon(Icons.contact_emergency,
                       size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     AppStrings.noContacts,
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
@@ -308,9 +308,9 @@ class EmergencySettingsScreen extends ConsumerWidget {
                           ),
                         ),
                         child: SwitchListTile(
-                          title: const Text(AppStrings.isPrimaryLabel,
+                          title: Text(AppStrings.isPrimaryLabel,
                               style: TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: const Text(AppStrings.isPrimaryHint,
+                          subtitle: Text(AppStrings.isPrimaryHint,
                               style: TextStyle(fontSize: 12)),
                           value: isPrimary,
                           activeColor: Colors.red,
@@ -360,7 +360,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                     }
                     Navigator.pop(context);
                   },
-                  child: const Text(AppStrings.saveLabel),
+                  child: Text(AppStrings.saveLabel),
                 )
               ],
             );
