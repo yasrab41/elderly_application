@@ -598,6 +598,121 @@ class AppStrings {
   static String get templateRunningLate =>
       _t(en: "I'll be a little late", tr: 'Biraz geç kalacağım');
   // --- End Friend Network Feature (Step 3: Messaging) ---
+
+  // --- Start Home Screen (moved from hardcoded literals) ---
+  static String get appBrandName =>
+      'HealthCare+'; // brand name, unchanged across languages
+  static String get homeWelcomeBack =>
+      _t(en: 'Welcome back', tr: 'Tekrar hoş geldiniz');
+  static String get homeWelcomeSubtitle => _t(
+      en: 'You are doing great. Check your reminders.',
+      tr: 'Harika gidiyorsunuz. Hatırlatıcılarınızı kontrol edin.');
+  static String get yourHealthHubTitle =>
+      _t(en: 'Your Health Hub', tr: 'Sağlık Merkeziniz');
+  static String get emergencyPermissionsRequiredMessage => _t(
+      en: 'Permissions required for Emergency Alert',
+      tr: 'Acil Durum Uyarısı için izinler gerekli');
+  static String get emergencyAlertFailedPrefix =>
+      _t(en: 'Alert failed: ', tr: 'Uyarı başarısız: ');
+  static String get safeAlertSentMessage => _t(
+      en: 'Safe alert sent successfully',
+      tr: 'Güvenlik uyarısı başarıyla gönderildi');
+  static String get safeNowSmsMessage => _t(
+      en: 'I AM SAFE NOW. Please disregard the previous emergency alert.',
+      tr: 'ARTIK GÜVENDEYİM. Lütfen önceki acil durum uyarısını dikkate almayın.');
+  static String get emergencySentTitle =>
+      _t(en: 'Emergency Sent!', tr: 'Acil Durum Gönderildi!');
+  static String get emergencyMessageSentToContacts => _t(
+      en: 'The following message was sent to your contacts:',
+      tr: 'Kişilerinize şu mesaj gönderildi:');
+  static String get callingPrimaryContactMessage =>
+      _t(en: 'Calling primary contact...', tr: 'Birincil kişi aranıyor...');
+  static String get okButton => _t(en: 'OK', tr: 'Tamam');
+  static String get sosAlertHeaderText =>
+      _t(en: '🚨 SOS ALERT', tr: '🚨 SOS UYARISI');
+  static String get sendingAlertInPrefix =>
+      _t(en: 'Sending alert in ', tr: 'Uyarı gönderiliyor: ');
+  static String get alertingContactsMessage => _t(
+      en: 'Alerting contacts with your location.',
+      tr: 'Kişileriniz konumunuzla birlikte uyarılıyor.');
+  static String get cancelAlertButton =>
+      _t(en: 'Cancel Alert', tr: 'Uyarıyı İptal Et');
+  static String get imSafeNowButton =>
+      _t(en: "I'M SAFE NOW", tr: 'ARTIK GÜVENDEYİM');
+  static String get medicineRemindersTitle =>
+      _t(en: 'Medicine Reminders', tr: 'İlaç Hatırlatıcıları');
+  static String get medicineRemindersGridSubtitle =>
+      _t(en: 'Set medication schedules', tr: 'İlaç programları belirleyin');
+  static String get fitnessGridSubtitle =>
+      _t(en: 'Simple fitness routines', tr: 'Basit egzersiz rutinleri');
+  static String get healthGridSubtitle =>
+      _t(en: 'Track your health data', tr: 'Sağlık verilerinizi takip edin');
+  // Note: fixed a typo in the original English ("Be Hyderated")
+  static String get waterGridSubtitle =>
+      _t(en: 'Stay Hydrated', tr: 'Susuz Kalmayın');
+  static String get brainGamesGridSubtitle =>
+      _t(en: 'Keep your mind sharp', tr: 'Zihninizi keskin tutun');
+  // Note: fixed a typo in the original English ("Ask your quries")
+  static String get chatbotGridSubtitle =>
+      _t(en: 'Ask your queries', tr: 'Sorularınızı sorun');
+  // --- End Home Screen ---
+
+  // --- Start Emergency Contacts screen (moved from hardcoded literals) ---
+  static String get addContactFabLabel =>
+      _t(en: 'Add Contact', tr: 'Kişi Ekle');
+  static String get errorPrefix => _t(en: 'Error: ', tr: 'Hata: ');
+  static String get deleteContactConfirmTitle =>
+      _t(en: 'Delete Contact?', tr: 'Kişi Silinsin mi?');
+  static String get confirmDeleteContactPrefix => _t(
+      en: 'Are you sure you want to delete ',
+      tr: 'Şu kişiyi silmek istediğinizden emin misiniz: ');
+  static String get contactNoPhoneNumberMessage => _t(
+      en: 'Selected contact has no phone number.',
+      tr: 'Seçilen kişinin telefon numarası yok.');
+  static String get contactPermissionDeniedMessage => _t(
+      en: 'Permission denied. Please allow contact access.',
+      tr: 'İzin reddedildi. Lütfen kişilere erişime izin verin.');
+  static String get importFromContactsButton => _t(
+      en: 'Import from Phone Contacts', tr: 'Telefon Kişilerinden İçe Aktar');
+  static String get orDivider => _t(en: 'OR', tr: 'VEYA');
+  static String get contactNameRequiredValidation =>
+      _t(en: 'Contact name is required', tr: 'Kişi adı gereklidir');
+  static String get phoneNumberRequiredValidation =>
+      _t(en: 'Phone number is required', tr: 'Telefon numarası gereklidir');
+  static String get phoneNumberInvalidValidation => _t(
+      en: 'Enter a valid number (digits only)',
+      tr: 'Geçerli bir numara girin (yalnızca rakam)');
+  // --- End Emergency Contacts screen ---
+
+  // --- Start Reminder Settings Modal (moved from hardcoded literals) ---
+  static String get reminderSettingsTitle =>
+      _t(en: 'Reminder Settings', tr: 'Hatırlatıcı Ayarları');
+  static String get whenToStartLabel =>
+      _t(en: 'When to start:', tr: 'Ne zaman başlasın:');
+  static String get startNowOption => _t(en: 'Start Now', tr: 'Şimdi Başla');
+  static String get startNowDescription => _t(
+      en: 'Begin reminders immediately', tr: 'Hatırlatıcılar hemen başlasın');
+  static String get customStartTimeOption =>
+      _t(en: 'Custom Start Time', tr: 'Özel Başlangıç Saati');
+  static String get customStartTimeDescription =>
+      _t(en: 'Choose when to begin', tr: 'Ne zaman başlayacağını seçin');
+  static String get selectedTimePrefix => _t(en: 'Selected: ', tr: 'Seçilen: ');
+  static String get hoursAbbrevShort => _t(en: 'h', tr: 'sa');
+  static String get remindersActiveHoursNote => _t(
+      en: 'Reminders will only work between these hours',
+      tr: 'Hatırlatıcılar yalnızca bu saatler arasında çalışır');
+  static String get startHourPrefix =>
+      _t(en: 'Start Hour: ', tr: 'Başlangıç Saati: ');
+  static String get endHourPrefix => _t(en: 'End Hour: ', tr: 'Bitiş Saati: ');
+  static String get startTimeLabel =>
+      _t(en: 'Start Time', tr: 'Başlangıç Saati');
+  static String get endTimeLabel => _t(en: 'End Time', tr: 'Bitiş Saati');
+  static String get soundLabel => _t(en: 'Sound:', tr: 'Ses:');
+  static String get soundRingLabel => _t(en: 'Ring', tr: 'Zil');
+  static String get soundVoiceLabel => _t(en: 'Voice', tr: 'Sesli');
+  static String get startReminderButton =>
+      _t(en: 'Start Reminder', tr: 'Hatırlatıcıyı Başlat');
+  // --- End Reminder Settings Modal ---
 }
 
 // --- Mock Exercise Data with more variety ---

@@ -25,13 +25,15 @@ class EmergencySettingsScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showContactDialog(context, ref, null),
-        label: const Text('Add Contact', style: TextStyle(color: Colors.white)),
+        label: Text(AppStrings.addContactFabLabel,
+            style: const TextStyle(color: Colors.white)),
         icon: const Icon(Icons.person_add, color: Colors.white),
         backgroundColor: const Color(0xFF48352A),
       ),
       body: contactsState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) =>
+            Center(child: Text('${AppStrings.errorPrefix}$err')),
         data: (contacts) {
           if (contacts.isEmpty) {
             return Center(
@@ -120,12 +122,14 @@ class EmergencySettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Contact?'),
-        content: Text('Are you sure you want to delete ${contact.name}?'),
+        title: Text(AppStrings.deleteContactConfirmTitle),
+        content:
+            Text('${AppStrings.confirmDeleteContactPrefix}${contact.name}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            child: Text(AppStrings.cancelButton,
+                style: const TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -134,7 +138,8 @@ class EmergencySettingsScreen extends ConsumerWidget {
                   .deleteContact(contact.id!);
               Navigator.pop(ctx);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(AppStrings.deleteLabel,
+                style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -183,17 +188,16 @@ class EmergencySettingsScreen extends ConsumerWidget {
                     });
                   } else {
                     // Handle case where contact has no phone number saved
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content:
-                            Text("Selected contact has no phone number.")));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(AppStrings.contactNoPhoneNumberMessage)));
                   }
                 }
               } else {
                 // Handle Permission Denied
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text(
-                          "Permission denied. Please allow contact access.")));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content:
+                          Text(AppStrings.contactPermissionDeniedMessage)));
                 }
               }
             }
@@ -221,9 +225,9 @@ class EmergencySettingsScreen extends ConsumerWidget {
                             onPressed: pickContact,
                             icon: const Icon(Icons.contacts,
                                 color: Color(0xFF48352A)),
-                            label: const Text(
-                              "Import from Phone Contacts",
-                              style: TextStyle(
+                            label: Text(
+                              AppStrings.importFromContactsButton,
+                              style: const TextStyle(
                                   color: Color(0xFF48352A),
                                   fontWeight: FontWeight.bold),
                             ),
@@ -237,16 +241,17 @@ class EmergencySettingsScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        const Row(
+                        Row(
                           children: [
-                            Expanded(child: Divider()),
+                            const Expanded(child: Divider()),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text("OR",
-                                  style: TextStyle(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(AppStrings.orDivider,
+                                  style: const TextStyle(
                                       fontSize: 12, color: Colors.grey)),
                             ),
-                            Expanded(child: Divider()),
+                            const Expanded(child: Divider()),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -264,7 +269,7 @@ class EmergencySettingsScreen extends ConsumerWidget {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Contact name is required';
+                            return AppStrings.contactNameRequiredValidation;
                           }
                           return null;
                         },
@@ -283,11 +288,11 @@ class EmergencySettingsScreen extends ConsumerWidget {
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Phone number is required';
+                            return AppStrings.phoneNumberRequiredValidation;
                           }
                           final phoneRegExp = RegExp(r'^[+0-9]+$');
                           if (!phoneRegExp.hasMatch(value.trim())) {
-                            return 'Enter a valid number (digits only)';
+                            return AppStrings.phoneNumberInvalidValidation;
                           }
                           return null;
                         },
@@ -326,8 +331,8 @@ class EmergencySettingsScreen extends ConsumerWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.grey)),
+                  child: Text(AppStrings.cancelButton,
+                      style: const TextStyle(color: Colors.grey)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

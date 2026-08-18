@@ -52,50 +52,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // is required both to compile and to actually pick up language changes.
   List<Map<String, dynamic>> get _gridItems => [
         {
-          'title': 'Emergency Contacts',
+          'title': AppStrings.sosSettingsTitle,
           'subtitle': AppStrings.sosSettingsSubtitle,
           'icon': Icons.admin_panel_settings_outlined,
           'color': Color(0xFFFCE4EC),
           'iconColor': Color(0xFFE91E63),
         },
         {
-          'title': 'Medicine Reminders',
-          'subtitle': 'Set medication schedules',
+          'title': AppStrings.medicineRemindersTitle,
+          'subtitle': AppStrings.medicineRemindersGridSubtitle,
           'icon': Icons.medical_information_outlined,
           'color': Color(0xFFE8F5E9),
           'iconColor': Color(0xFF4CAF50),
         },
         {
-          'title': 'Daily Exercises',
-          'subtitle': 'Simple fitness routines',
+          'title': AppStrings.fitnessTitle,
+          'subtitle': AppStrings.fitnessGridSubtitle,
           'icon': Icons.directions_run_outlined,
           'color': Color(0xFFFFF3E0),
           'iconColor': Color(0xFFFF9800),
         },
         {
-          'title': 'Health Tracking',
-          'subtitle': 'Track your health data',
+          'title': AppStrings.healthTitle,
+          'subtitle': AppStrings.healthGridSubtitle,
           'icon': Icons.monitor_heart_outlined,
           'color': Color(0xFFEAEDFF),
           'iconColor': Color(0xFF3F51B5),
         },
         {
-          'title': 'Water Reminder',
-          'subtitle': 'Be Hyderated',
+          'title': AppStrings.waterTitle,
+          'subtitle': AppStrings.waterGridSubtitle,
           'icon': Icons.water_drop_outlined,
           'color': Color.fromARGB(255, 219, 237, 252),
           'iconColor': Color(0xFF2196F3),
         },
         {
-          'title': 'Brain Games',
-          'subtitle': 'Keep your mind sharp',
+          'title': AppStrings.brainGamesTitle,
+          'subtitle': AppStrings.brainGamesGridSubtitle,
           'icon': Icons.games_rounded,
           'color': Color(0xFFF3E5F5),
           'iconColor': Color(0xFF9C27B0),
         },
         {
-          'title': 'AI Assistant',
-          'subtitle': 'Ask your quries',
+          'title': AppStrings.chatbotTitle,
+          'subtitle': AppStrings.chatbotGridSubtitle,
           'icon': Icons.support_agent,
           'color': Color.fromARGB(255, 243, 226, 233),
           'iconColor': Color.fromARGB(255, 176, 39, 119),
@@ -148,8 +148,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       print("SMS PERMISSION WAS DENIED BY USER");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Permissions required for Emergency Alert')),
+          SnackBar(
+              content: Text(AppStrings.emergencyPermissionsRequiredMessage)),
         );
       }
       return false;
@@ -250,7 +250,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       debugPrint("Error in SOS: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Alert failed: $e")),
+          SnackBar(content: Text('${AppStrings.emergencyAlertFailedPrefix}$e')),
         );
       }
     }
@@ -259,8 +259,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _executeSafeAlert() async {
     try {
       final contacts = ref.read(contactNotifierProvider).value ?? [];
-      String messageRaw =
-          "I AM SAFE NOW. Please disregard the previous emergency alert.";
+      String messageRaw = AppStrings.safeNowSmsMessage;
 
       if (Platform.isAndroid) {
         for (var contact in contacts) {
@@ -286,9 +285,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
               backgroundColor: Colors.green,
-              content: Text("Safe alert sent successfully")),
+              content: Text(AppStrings.safeAlertSentMessage)),
         );
       }
     } catch (e) {
@@ -301,20 +300,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.red),
-            SizedBox(width: 10),
-            Text("Emergency Sent!",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Icon(Icons.warning_amber_rounded, color: Colors.red),
+            const SizedBox(width: 10),
+            Text(AppStrings.emergencySentTitle,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("The following message was sent to your contacts:",
-                style: TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(AppStrings.emergencyMessageSentToContacts,
+                style: const TextStyle(fontSize: 12, color: Colors.grey)),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(12),
@@ -327,13 +326,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Text(_lastSentMessage, style: const TextStyle(fontSize: 13)),
             ),
             const SizedBox(height: 10),
-            const Text("Calling primary contact...",
-                style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
+            Text(AppStrings.callingPrimaryContactMessage,
+                style:
+                    const TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
           ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text("OK")),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(AppStrings.okButton)),
         ],
       ),
     );
@@ -366,8 +367,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               onPressed: _executeSafeAlert,
                               icon: const Icon(Icons.check_circle,
                                   color: Colors.white),
-                              label: const Text("I'M SAFE NOW",
-                                  style: TextStyle(
+                              label: Text(AppStrings.imSafeNowButton,
+                                  style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white)),
@@ -408,7 +409,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
                   child: Text(
-                    'Your Health Hub',
+                    AppStrings.yourHealthHubTitle,
                     style: TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.bold,
@@ -432,38 +433,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       final item = _gridItems[index];
                       VoidCallback onTapAction;
 
-                      if (item['title'] == 'Medicine Reminders') {
+                      if (item['title'] == AppStrings.medicineRemindersTitle) {
                         onTapAction = () => Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const ReminderListPage()));
-                      } else if (item['title'] == 'Emergency Contacts') {
+                      } else if (item['title'] == AppStrings.sosSettingsTitle) {
                         onTapAction = () => Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (_) =>
                                     const EmergencySettingsScreen()));
-                      } else if (item['title'] == 'Daily Exercises') {
+                      } else if (item['title'] == AppStrings.fitnessTitle) {
                         onTapAction = () => Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const FitnessScreen()));
-                      } else if (item['title'] == 'Health Tracking') {
+                      } else if (item['title'] == AppStrings.healthTitle) {
                         onTapAction = () => Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const HealthTrackingScreen()));
-                      } else if (item['title'] == 'Water Reminder') {
+                      } else if (item['title'] == AppStrings.waterTitle) {
                         onTapAction = () => Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const WaterReminderScreen()));
-                      } else if (item['title'] == 'Brain Games') {
+                      } else if (item['title'] == AppStrings.brainGamesTitle) {
                         onTapAction = () => Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (_) => const BrainGamesDashboard()));
-                      } else if (item['title'] == 'AI Assistant') {
+                      } else if (item['title'] == AppStrings.chatbotTitle) {
                         final currentUser = ref.read(authNotifierProvider);
                         final userId = currentUser?.uid ?? "guest_user";
 
@@ -546,9 +547,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ],
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 35.0, bottom: 16.0),
-        title: const Text(
-          'HealthCare+',
-          style: TextStyle(
+        title: Text(
+          AppStrings.appBrandName,
+          style: const TextStyle(
               color: Colors.white, fontSize: 25.0, fontWeight: FontWeight.bold),
         ),
         background: Container(
@@ -576,23 +577,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
         color: _lighterBrown.withOpacity(0.55),
-        child: const Padding(
-          padding: EdgeInsets.all(18.0),
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
           child: Row(
             children: [
-              Text('👋', style: TextStyle(fontSize: 30)),
-              SizedBox(width: 15),
+              const Text('👋', style: TextStyle(fontSize: 30)),
+              const SizedBox(width: 15),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Welcome back',
+                    Text(AppStrings.homeWelcomeBack,
                         style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.bold,
                             color: _baseBrown)),
-                    SizedBox(height: 4),
-                    Text('You are doing great. Check your reminders.',
+                    const SizedBox(height: 4),
+                    Text(AppStrings.homeWelcomeSubtitle,
                         style: TextStyle(color: _baseBrown, fontSize: 16)),
                   ],
                 ),
@@ -721,19 +722,19 @@ class _CountdownDialogState extends State<_CountdownDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,
-      title: const Text("🚨 SOS ALERT",
-          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+      title: Text(AppStrings.sosAlertHeaderText,
+          style:
+              const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("Sending alert in $_seconds",
+          Text('${AppStrings.sendingAlertInPrefix}$_seconds',
               style: const TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                   color: Colors.red)),
           const SizedBox(height: 10),
-          const Text("Alerting contacts with your location.",
-              textAlign: TextAlign.center),
+          Text(AppStrings.alertingContactsMessage, textAlign: TextAlign.center),
         ],
       ),
       actions: [
@@ -742,8 +743,8 @@ class _CountdownDialogState extends State<_CountdownDialog> {
             _timer?.cancel();
             Navigator.pop(context);
           },
-          child: const Text("Cancel Alert",
-              style: TextStyle(color: Colors.grey, fontSize: 16)),
+          child: Text(AppStrings.cancelAlertButton,
+              style: const TextStyle(color: Colors.grey, fontSize: 16)),
         )
       ],
     );

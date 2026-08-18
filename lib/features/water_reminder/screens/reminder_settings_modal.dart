@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 
 class ReminderSettingsModal extends StatefulWidget {
   final Function({
@@ -102,9 +103,9 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Reminder Settings",
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text(AppStrings.reminderSettingsTitle,
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold)),
 
                   // 2. USE THIS BUTTON CODE
                   // We wrap it in a Material to ensure the tap 'splash' is visible
@@ -128,14 +129,20 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
               const SizedBox(height: 20),
 
               // 1. When to Start
-              const Text("When to start:",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(AppStrings.whenToStartLabel,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              _buildStartOption("Start Now", "Begin reminders immediately",
-                  Icons.play_circle_outline, 'now'),
+              _buildStartOption(
+                  AppStrings.startNowOption,
+                  AppStrings.startNowDescription,
+                  Icons.play_circle_outline,
+                  'now'),
               const SizedBox(height: 10),
-              _buildStartOption("Custom Start Time", "Choose when to begin",
-                  Icons.access_time, 'custom'),
+              _buildStartOption(
+                  AppStrings.customStartTimeOption,
+                  AppStrings.customStartTimeDescription,
+                  Icons.access_time,
+                  'custom'),
 
               if (_startMode == 'custom') ...[
                 const SizedBox(height: 10),
@@ -150,7 +157,8 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
                             "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}");
                       }
                     },
-                    child: Text("Selected: $_customStartTime",
+                    child: Text(
+                        '${AppStrings.selectedTimePrefix}$_customStartTime',
                         style: TextStyle(
                             fontSize: 18,
                             color: _primaryColor,
@@ -162,8 +170,8 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
               const SizedBox(height: 25),
 
               // 2. Flexible Intervals
-              const Text("Remind me every:",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(AppStrings.remindMeEvery,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 10,
@@ -171,8 +179,8 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
                 children: [1.0, 60.0, 90.0, 120.0, 180.0, 240.0].map((mins) {
                   bool isSelected = _selectedInterval == mins;
                   String label = mins < 60
-                      ? "${mins.toInt()} min"
-                      : "${(mins / 60).toStringAsFixed(mins % 60 == 0 ? 0 : 1)}h";
+                      ? "${mins.toInt()} ${AppStrings.minutesShort}"
+                      : "${(mins / 60).toStringAsFixed(mins % 60 == 0 ? 0 : 1)}${AppStrings.hoursAbbrevShort}";
                   return GestureDetector(
                     onTap: () => setState(() => _selectedInterval = mins),
                     child: Container(
@@ -196,8 +204,8 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
               const SizedBox(height: 25),
 
               // 3. Active Hours
-              const Text("Active Hours (No sleep disturbance):",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(AppStrings.activeHoursTitle,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 15),
               Container(
                 padding: const EdgeInsets.all(15),
@@ -209,20 +217,23 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _timeDisplay(
-                            "Start Time", _formatHour(_activeStartHour)),
+                        _timeDisplay(AppStrings.startTimeLabel,
+                            _formatHour(_activeStartHour)),
                         const Icon(Icons.arrow_forward, color: Colors.grey),
-                        _timeDisplay("End Time", _formatHour(_activeEndHour)),
+                        _timeDisplay(AppStrings.endTimeLabel,
+                            _formatHour(_activeEndHour)),
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const Text("Reminders will only work between these hours",
-                        style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text(AppStrings.remindersActiveHoursNote,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
               ),
               const SizedBox(height: 10),
-              Text("Start Hour: ${_formatHour(_activeStartHour)}"),
+              Text(
+                  '${AppStrings.startHourPrefix}${_formatHour(_activeStartHour)}'),
               Slider(
                   value: _activeStartHour,
                   min: 0,
@@ -230,7 +241,7 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
                   divisions: 23,
                   activeColor: _primaryColor,
                   onChanged: (v) => setState(() => _activeStartHour = v)),
-              Text("End Hour: ${_formatHour(_activeEndHour)}"),
+              Text('${AppStrings.endHourPrefix}${_formatHour(_activeEndHour)}'),
               Slider(
                   value: _activeEndHour,
                   min: 0,
@@ -242,14 +253,16 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
               const SizedBox(height: 25),
 
               // 4. Sound
-              const Text("Sound:",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(AppStrings.soundLabel,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _buildSoundBox("Ring", Icons.volume_up, "normal"),
+                  _buildSoundBox(
+                      AppStrings.soundRingLabel, Icons.volume_up, "normal"),
                   const SizedBox(width: 15),
-                  _buildSoundBox("Voice", Icons.volume_up_outlined, "loud"),
+                  _buildSoundBox(AppStrings.soundVoiceLabel,
+                      Icons.volume_up_outlined, "loud"),
                 ],
               ),
 
@@ -295,8 +308,8 @@ class _ReminderSettingsModalState extends State<ReminderSettingsModal> {
                     );
                     Navigator.pop(context);
                   },
-                  child: const Text("Start Reminder",
-                      style: TextStyle(
+                  child: Text(AppStrings.startReminderButton,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold)),
