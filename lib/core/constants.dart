@@ -431,7 +431,7 @@ class AppStrings {
 
   // --- Start Friend Network Feature (Step 1: Profile) ---
   static String get friendNetworkTitle =>
-      _t(en: 'Friend Network', tr: 'Arkadaş Ağı');
+      _t(en: 'Friend Network ', tr: 'Arkadaş Ağı       ');
   static String get friendNetworkHubSubtitle => _t(
       en: 'Connect with people near you',
       tr: 'Yakınınızdaki insanlarla bağlantı kurun');
