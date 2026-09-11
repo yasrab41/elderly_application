@@ -29,7 +29,7 @@ class NextWorkoutCard extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Center(
               child: Text(
-                'No exercises loaded yet.',
+                AppStrings.noExercisesLoadedMessage,
                 style: theme.textTheme.titleMedium,
               ),
             ),
@@ -68,7 +68,7 @@ class NextWorkoutCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Next workout',
+                        AppStrings.nextWorkoutTitle,
                         style: theme.textTheme.labelLarge?.copyWith(
                           color: Colors.white70,
                           fontWeight: FontWeight.w600,
@@ -91,7 +91,7 @@ class NextWorkoutCard extends StatelessWidget {
                               color: Colors.white70, size: 18),
                           const SizedBox(width: 4),
                           Text(
-                            '${exercise.duration.inMinutes} min',
+                            '${exercise.duration.inMinutes} ${AppStrings.minutesShort}',
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: Colors.white70,
                             ),

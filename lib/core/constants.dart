@@ -25,6 +25,48 @@ class AppStrings {
   static String get setsCompleted =>
       _t(en: 'Sets Completed:', tr: 'Tamamlanan Setler:');
 
+  // --- Start of Fitness Feature (additional strings) ---
+  static String get categoryStretching => _t(en: 'Stretching', tr: 'Esneme');
+  static String get categoryStrength => _t(en: 'Strength', tr: 'Güç');
+  static String get categoryCardio => _t(en: 'Cardio', tr: 'Kardiyo');
+  static String get categoryAllExercises =>
+      _t(en: 'All Exercises', tr: 'Tüm Egzersizler');
+  static String categoryDisplayName(ExerciseCategory category) {
+    switch (category) {
+      case ExerciseCategory.stretching:
+        return categoryStretching;
+      case ExerciseCategory.strength:
+        return categoryStrength;
+      case ExerciseCategory.cardio:
+        return categoryCardio;
+      case ExerciseCategory.all:
+        return categoryAllExercises;
+    }
+  }
+
+  static String get categoryFocusSuffix => _t(en: 'Focus', tr: 'Odağı');
+  static String get yourProgramTitle =>
+      _t(en: 'Your Program', tr: 'Programınız');
+  static String get areaOfFocusTitle =>
+      _t(en: 'Area of Focus', tr: 'Odak Alanı');
+  static String get errorLoadingDataPrefix =>
+      _t(en: 'Error loading data: ', tr: 'Veri yüklenirken hata oluştu: ');
+  static String get errorLoadingListPrefix =>
+      _t(en: 'Error loading list: ', tr: 'Liste yüklenirken hata oluştu: ');
+  static String noExercisesFoundMessage(String categoryName) => _t(
+      en: 'No $categoryName exercises found.',
+      tr: '$categoryName egzersizi bulunamadı.');
+  static String setsCountLabel(int count) =>
+      _t(en: '$count Sets', tr: '$count Set');
+  static String get totalTimeSpentTitle =>
+      _t(en: 'Total Time Spent', tr: 'Toplam Geçen Süre');
+  static String get dailyProgressTitle =>
+      _t(en: 'Daily Progress', tr: 'Günlük İlerleme');
+  static String get noExercisesLoadedMessage =>
+      _t(en: 'No exercises loaded yet.', tr: 'Henüz egzersiz yüklenmedi.');
+  static String get viewAllButton => _t(en: 'View All', tr: 'Tümünü Gör');
+  // --- End of Fitness Feature (additional strings) ---
+
   // --- Start Emergency / SOS Feature ---
   static String get sosTitle =>
       _t(en: 'Send Emergency Alert', tr: 'Acil Durum Uyarısı Gönder');
@@ -147,6 +189,10 @@ class AppStrings {
   static String get vibrationSubtitle =>
       _t(en: 'Vibrate on reminder', tr: 'Hatırlatmada titreşim');
   static String get saveButton => _t(en: 'Save', tr: 'Kaydet');
+  static String get hydrationNotificationTitle =>
+      _t(en: 'Hydration Time', tr: 'Su İçme Zamanı');
+  static String get hydrationNotificationBody =>
+      _t(en: 'Time to drink water!', tr: 'Su içme zamanı geldi!');
   // --- End of Water Reminder Feature ---
 
   // --- Start of chatbot Feature ---
@@ -716,232 +762,326 @@ class AppStrings {
 }
 
 // --- Mock Exercise Data with more variety ---
-final List<ExerciseModel> exercises = [
-  // --- STRETCHING (7 exercises) ---
-  ExerciseModel(
-    id: 'S1',
-    title: 'Gentle Neck Circles',
-    description: 'Slow, controlled circles to relax neck and shoulders.',
-    category: ExerciseCategory.stretching,
-    duration: const Duration(minutes: 3),
-    difficultyLevel: 1,
-    instructions:
-        'Slow, controlled circles to relax neck and shoulders. Start slowly, clockwise then counter-clockwise. Do not rush or force movement.',
-    imageUrl: 'assets/images/neck_circles.png',
-  ),
-  ExerciseModel(
-    id: 'S2',
-    title: 'Shoulder Rolls',
-    description: 'Roll shoulders backward and forward to release tension.',
-    category: ExerciseCategory.stretching,
-    duration: const Duration(minutes: 2),
-    difficultyLevel: 1,
-    instructions:
-        'Inhale as you lift shoulders, exhale as you relax them down. 10 reps each direction.',
-    imageUrl: 'assets/images/shoulder_roll.png',
-  ),
-  ExerciseModel(
-    id: 'S3',
-    title: 'Seated Torso Twist',
-    description:
-        'Gentle twist to improve spinal mobility. Use a chair for support.',
-    category: ExerciseCategory.stretching,
-    duration: const Duration(minutes: 4),
-    difficultyLevel: 2,
-    instructions:
-        'Sit up straight, gently twist to the left, holding for 30 seconds. Repeat right.',
-    imageUrl: 'assets/images/seated_torso_twisted.jpg',
-  ),
-  ExerciseModel(
-    id: 'S4',
-    title: 'Wrist and Finger Stretch',
-    description: 'Stretching for hands and wrists to maintain dexterity.',
-    category: ExerciseCategory.stretching,
-    duration: const Duration(minutes: 2),
-    difficultyLevel: 1,
-    instructions:
-        'Extend arms, gently pull fingers back towards body. Hold for 15 seconds.',
-    imageUrl: 'assets/images/wrist_finger_stretches.jpg',
-  ),
-  ExerciseModel(
-    id: 'S5',
-    title: 'Ankle Rotations',
-    description: 'Improves ankle flexibility and circulation.',
-    category: ExerciseCategory.stretching,
-    duration: const Duration(minutes: 3),
-    difficultyLevel: 1,
-    instructions:
-        'Sit comfortably. Rotate each ankle clockwise and counterclockwise 15 times. Switch ankles and repeat the same steps.',
-    imageUrl: 'assets/images/ankle_rotation.png',
-  ),
-  ExerciseModel(
-    id: 'S6',
-    title: 'Standing Quad Stretch (Assisted)',
-    description: 'Stretching the front of the thighs with chair assistance.',
-    category: ExerciseCategory.stretching,
-    duration: const Duration(minutes: 5),
-    difficultyLevel: 3,
-    instructions:
-        'Hold a chair. Bend one knee and gently pull heel toward glutes. Hold 20 seconds per side.',
-    imageUrl: 'assets/images/standing_quads.png',
-  ),
-  ExerciseModel(
-    id: 'S7',
-    title: 'Seated Hamstring Stretch',
-    description: 'Reaches the back of the legs while seated.',
-    category: ExerciseCategory.stretching,
-    duration: const Duration(minutes: 4),
-    difficultyLevel: 2,
-    instructions:
-        'Sit on the edge of a chair, one leg extended. Lean forward slightly from the hips until a stretch is felt.',
-    imageUrl: 'assets/images/seated_hamstring.png',
-  ),
+List<ExerciseModel> get exercises => [
+      // --- STRETCHING (7 exercises) ---
+      ExerciseModel(
+        id: 'S1',
+        titleEn: 'Gentle Neck Circles',
+        titleTr: 'Yumuşak Boyun Çevirme',
+        descriptionEn: 'Slow, controlled circles to relax neck and shoulders.',
+        descriptionTr:
+            'Boyun ve omuzları gevşetmek için yavaş, kontrollü çevirme hareketleri.',
+        category: ExerciseCategory.stretching,
+        duration: const Duration(minutes: 3),
+        difficultyLevel: 1,
+        instructionsEn:
+            'Slow, controlled circles to relax neck and shoulders. Start slowly, clockwise then counter-clockwise. Do not rush or force movement.',
+        instructionsTr:
+            'Boyun ve omuzları gevşetmek için yavaş, kontrollü çevirme hareketleri yapın. Yavaşça başlayın, önce saat yönünde sonra saat yönünün tersine çevirin. Hareketi aceleye getirmeyin veya zorlamayın.',
+        imageUrl: 'assets/images/neck_circles.png',
+      ),
+      ExerciseModel(
+        id: 'S2',
+        titleEn: 'Shoulder Rolls',
+        titleTr: 'Omuz Çevirme',
+        descriptionEn:
+            'Roll shoulders backward and forward to release tension.',
+        descriptionTr:
+            'Gerginliği azaltmak için omuzlarınızı öne ve arkaya doğru çevirin.',
+        category: ExerciseCategory.stretching,
+        duration: const Duration(minutes: 2),
+        difficultyLevel: 1,
+        instructionsEn:
+            'Inhale as you lift shoulders, exhale as you relax them down. 10 reps each direction.',
+        instructionsTr:
+            'Omuzlarınızı kaldırırken nefes alın, indirirken nefes verin. Her yönde 10 tekrar yapın.',
+        imageUrl: 'assets/images/shoulder_roll.png',
+      ),
+      ExerciseModel(
+        id: 'S3',
+        titleEn: 'Seated Torso Twist',
+        titleTr: 'Oturarak Gövde Çevirme',
+        descriptionEn:
+            'Gentle twist to improve spinal mobility. Use a chair for support.',
+        descriptionTr:
+            'Omurga hareketliliğini artırmak için hafif çevirme hareketi. Destek için bir sandalye kullanın.',
+        category: ExerciseCategory.stretching,
+        duration: const Duration(minutes: 4),
+        difficultyLevel: 2,
+        instructionsEn:
+            'Sit up straight, gently twist to the left, holding for 30 seconds. Repeat right.',
+        instructionsTr:
+            'Dik oturun, yavaşça sola doğru çevirin ve 30 saniye bekleyin. Sağ tarafa da aynısını tekrarlayın.',
+        imageUrl: 'assets/images/seated_torso_twisted.jpg',
+      ),
+      ExerciseModel(
+        id: 'S4',
+        titleEn: 'Wrist and Finger Stretch',
+        titleTr: 'Bilek ve Parmak Esnetme',
+        descriptionEn: 'Stretching for hands and wrists to maintain dexterity.',
+        descriptionTr:
+            'El becerisini korumak için el ve bilek esnetme hareketleri.',
+        category: ExerciseCategory.stretching,
+        duration: const Duration(minutes: 2),
+        difficultyLevel: 1,
+        instructionsEn:
+            'Extend arms, gently pull fingers back towards body. Hold for 15 seconds.',
+        instructionsTr:
+            'Kollarınızı uzatın, parmaklarınızı yavaşça vücudunuza doğru geriye çekin. 15 saniye bekleyin.',
+        imageUrl: 'assets/images/wrist_finger_stretches.jpg',
+      ),
+      ExerciseModel(
+        id: 'S5',
+        titleEn: 'Ankle Rotations',
+        titleTr: 'Ayak Bileği Çevirme',
+        descriptionEn: 'Improves ankle flexibility and circulation.',
+        descriptionTr: 'Ayak bileği esnekliğini ve kan dolaşımını iyileştirir.',
+        category: ExerciseCategory.stretching,
+        duration: const Duration(minutes: 3),
+        difficultyLevel: 1,
+        instructionsEn:
+            'Sit comfortably. Rotate each ankle clockwise and counterclockwise 15 times. Switch ankles and repeat the same steps.',
+        instructionsTr:
+            'Rahat bir şekilde oturun. Her iki ayak bileğinizi saat yönünde ve tersi yönde 15 kez çevirin. Ayak değiştirip aynı adımları tekrarlayın.',
+        imageUrl: 'assets/images/ankle_rotation.png',
+      ),
+      ExerciseModel(
+        id: 'S6',
+        titleEn: 'Standing Quad Stretch (Assisted)',
+        titleTr: 'Ayakta Ön Uyluk Esnetme (Destekli)',
+        descriptionEn:
+            'Stretching the front of the thighs with chair assistance.',
+        descriptionTr: 'Sandalye desteğiyle uyluk ön bölgesini esnetme.',
+        category: ExerciseCategory.stretching,
+        duration: const Duration(minutes: 5),
+        difficultyLevel: 3,
+        instructionsEn:
+            'Hold a chair. Bend one knee and gently pull heel toward glutes. Hold 20 seconds per side.',
+        instructionsTr:
+            'Bir sandalyeyi tutun. Bir dizinizi bükün ve topuğunuzu yavaşça kalçanıza doğru çekin. Her bacak için 20 saniye bekleyin.',
+        imageUrl: 'assets/images/standing_quads.png',
+      ),
+      ExerciseModel(
+        id: 'S7',
+        titleEn: 'Seated Hamstring Stretch',
+        titleTr: 'Oturarak Arka Uyluk Esnetme',
+        descriptionEn: 'Reaches the back of the legs while seated.',
+        descriptionTr: 'Otururken bacakların arka kısmına ulaşır.',
+        category: ExerciseCategory.stretching,
+        duration: const Duration(minutes: 4),
+        difficultyLevel: 2,
+        instructionsEn:
+            'Sit on the edge of a chair, one leg extended. Lean forward slightly from the hips until a stretch is felt.',
+        instructionsTr:
+            'Sandalyenin kenarına oturun, bir bacağınızı uzatın. Gerildiğini hissedene kadar kalçadan hafifçe öne doğru eğilin.',
+        imageUrl: 'assets/images/seated_hamstring.png',
+      ),
 
-  // --- STRENGTH (7 exercises) ---
-  ExerciseModel(
-    id: 'T1',
-    title: 'Chair Squats',
-    description:
-        'Sitting down and standing up without using hands for leg strength.',
-    category: ExerciseCategory.strength,
-    duration: const Duration(minutes: 5),
-    difficultyLevel: 2,
-    instructions:
-        'Start seated. Lean forward slightly and push through your feet to stand up. Slowly return to the chair. Repeat 10 times.',
-    imageUrl: 'assets/images/chair_squats.png',
-  ),
-  ExerciseModel(
-    id: 'T2',
-    title: 'Wall Push-ups',
-    description: 'Upper body and chest strengthening using a wall.',
-    category: ExerciseCategory.strength,
-    duration: const Duration(minutes: 4),
-    difficultyLevel: 2,
-    instructions:
-        'Stand facing a wall, hands slightly wider than shoulders. Slowly bend elbows to lower chest toward wall, then push back. 12 repetitions.',
-    imageUrl: 'assets/images/wall_push_ups.png',
-  ),
-  ExerciseModel(
-    id: 'T3',
-    title: 'Bicep Curls (with light weights)',
-    description: 'Building arm and grip strength.',
-    category: ExerciseCategory.strength,
-    duration: const Duration(minutes: 6),
-    difficultyLevel: 3,
-    instructions:
-        'Use light dumbbells or water bottles. Keep elbows close to sides. Curl slowly up and down. 3 sets of 10.',
-    imageUrl: 'assets/images/bicep_curls.png',
-  ),
-  ExerciseModel(
-    id: 'T4',
-    title: 'Standing Leg Lifts (Side)',
-    description: 'Strengthening hip abductors for better balance.',
-    category: ExerciseCategory.strength,
-    duration: const Duration(minutes: 4),
-    difficultyLevel: 2,
-    instructions:
-        'Hold a sturdy chair. Keep leg straight and lift it out to the side slowly. Lower slowly. 15 reps per leg.',
-    imageUrl: 'assets/images/standing_leg_lifts.png',
-  ),
-  ExerciseModel(
-    id: 'T5',
-    title: 'Calf Raises (Assisted)',
-    description: 'Strengthening calf muscles to aid walking.',
-    category: ExerciseCategory.strength,
-    duration: const Duration(minutes: 3),
-    difficultyLevel: 1,
-    instructions:
-        'Hold onto a stable surface. Slowly lift heels, rising onto the balls of your feet. Lower slowly. 20 repetitions.',
-    imageUrl: 'assets/images/assisted_calf_raise.png',
-  ),
-  ExerciseModel(
-    id: 'T6',
-    title: 'Plank (Modified, on Knees)',
-    description: 'Core stabilization and strength.',
-    category: ExerciseCategory.strength,
-    duration: const Duration(minutes: 3),
-    difficultyLevel: 4,
-    instructions:
-        'Start on hands and knees, then move to forearms. Keep back straight and engage core. Hold for 30 seconds.',
-    imageUrl: 'assets/images/plank_exercise.png',
-  ),
-  ExerciseModel(
-    id: 'T7',
-    title: 'Triceps Extension (Seated)',
-    description: 'Toning and strengthening the back of the arms.',
-    category: ExerciseCategory.strength,
-    duration: const Duration(minutes: 5),
-    difficultyLevel: 3,
-    instructions:
-        'Use a light weight. Raise arm overhead, then bend elbow to lower weight behind head. Extend back up. 2 sets of 10 per arm.',
-    imageUrl: 'assets/images/triceps_extension.png',
-  ),
+      // --- STRENGTH (7 exercises) ---
+      ExerciseModel(
+        id: 'T1',
+        titleEn: 'Chair Squats',
+        titleTr: "Sandalye Çömelme",
+        descriptionEn:
+            'Sitting down and standing up without using hands for leg strength.',
+        descriptionTr:
+            'Bacak gücü için elleri kullanmadan oturup kalkma hareketi.',
+        category: ExerciseCategory.strength,
+        duration: const Duration(minutes: 5),
+        difficultyLevel: 2,
+        instructionsEn:
+            'Start seated. Lean forward slightly and push through your feet to stand up. Slowly return to the chair. Repeat 10 times.',
+        instructionsTr:
+            'Oturarak başlayın. Hafifçe öne eğilin ve ayaklarınızı kullanarak ayağa kalkın. Yavaşça sandalyeye geri dönün. 10 kez tekrarlayın.',
+        imageUrl: 'assets/images/chair_squats.png',
+      ),
+      ExerciseModel(
+        id: 'T2',
+        titleEn: 'Wall Push-ups',
+        titleTr: 'Duvarda Şınav',
+        descriptionEn: 'Upper body and chest strengthening using a wall.',
+        descriptionTr:
+            'Duvar kullanarak üst vücut ve göğüs kaslarını güçlendirme.',
+        category: ExerciseCategory.strength,
+        duration: const Duration(minutes: 4),
+        difficultyLevel: 2,
+        instructionsEn:
+            'Stand facing a wall, hands slightly wider than shoulders. Slowly bend elbows to lower chest toward wall, then push back. 12 repetitions.',
+        instructionsTr:
+            'Bir duvara dönük durun, elleriniz omuzlarınızdan biraz daha geniş olsun. Dirseklerinizi yavaşça bükerek göğsünüzü duvara yaklaştırın, sonra geri itin. 12 tekrar yapın.',
+        imageUrl: 'assets/images/wall_push_ups.png',
+      ),
+      ExerciseModel(
+        id: 'T3',
+        titleEn: 'Bicep Curls (with light weights)',
+        titleTr: 'Biceps Curl (Hafif Ağırlıklarla)',
+        descriptionEn: 'Building arm and grip strength.',
+        descriptionTr: 'Kol ve kavrama gücünü artırma.',
+        category: ExerciseCategory.strength,
+        duration: const Duration(minutes: 6),
+        difficultyLevel: 3,
+        instructionsEn:
+            'Use light dumbbells or water bottles. Keep elbows close to sides. Curl slowly up and down. 3 sets of 10.',
+        instructionsTr:
+            'Hafif dambıl veya su şişesi kullanın. Dirseklerinizi vücudunuza yakın tutun. Yavaşça yukarı ve aşağı hareket ettirin. 3 set, her sette 10 tekrar.',
+        imageUrl: 'assets/images/bicep_curls.png',
+      ),
+      ExerciseModel(
+        id: 'T4',
+        titleEn: 'Standing Leg Lifts (Side)',
+        titleTr: 'Ayakta Yana Bacak Kaldırma',
+        descriptionEn: 'Strengthening hip abductors for better balance.',
+        descriptionTr: 'Daha iyi denge için kalça kaslarını güçlendirme.',
+        category: ExerciseCategory.strength,
+        duration: const Duration(minutes: 4),
+        difficultyLevel: 2,
+        instructionsEn:
+            'Hold a sturdy chair. Keep leg straight and lift it out to the side slowly. Lower slowly. 15 reps per leg.',
+        instructionsTr:
+            'Sağlam bir sandalyeyi tutun. Bacağınızı düz tutarak yavaşça yana doğru kaldırın. Yavaşça indirin. Her bacak için 15 tekrar.',
+        imageUrl: 'assets/images/standing_leg_lifts.png',
+      ),
+      ExerciseModel(
+        id: 'T5',
+        titleEn: 'Calf Raises (Assisted)',
+        titleTr: 'Baldır Kaldırma (Destekli)',
+        descriptionEn: 'Strengthening calf muscles to aid walking.',
+        descriptionTr:
+            'Yürümeye yardımcı olmak için baldır kaslarını güçlendirme.',
+        category: ExerciseCategory.strength,
+        duration: const Duration(minutes: 3),
+        difficultyLevel: 1,
+        instructionsEn:
+            'Hold onto a stable surface. Slowly lift heels, rising onto the balls of your feet. Lower slowly. 20 repetitions.',
+        instructionsTr:
+            'Sabit bir yüzeyi tutun. Topuklarınızı yavaşça kaldırarak parmak uçlarınızda yükselin. Yavaşça indirin. 20 tekrar yapın.',
+        imageUrl: 'assets/images/assisted_calf_raise.png',
+      ),
+      ExerciseModel(
+        id: 'T6',
+        titleEn: 'Plank (Modified, on Knees)',
+        titleTr: 'Plank (Diz Üzerinde, Kolay Versiyon)',
+        descriptionEn: 'Core stabilization and strength.',
+        descriptionTr:
+            'Karın ve bel bölgesi kaslarını güçlendirme ve dengeleme.',
+        category: ExerciseCategory.strength,
+        duration: const Duration(minutes: 3),
+        difficultyLevel: 4,
+        instructionsEn:
+            'Start on hands and knees, then move to forearms. Keep back straight and engage core. Hold for 30 seconds.',
+        instructionsTr:
+            'Elleriniz ve dizleriniz üzerinde başlayın, ardından ön kollarınıza geçin. Sırtınızı düz tutun ve karın kaslarınızı sıkın. 30 saniye bekleyin.',
+        imageUrl: 'assets/images/plank_exercise.png',
+      ),
+      ExerciseModel(
+        id: 'T7',
+        titleEn: 'Triceps Extension (Seated)',
+        titleTr: 'Oturarak Triceps Egzersizi',
+        descriptionEn: 'Toning and strengthening the back of the arms.',
+        descriptionTr: 'Kol arkasını sıkılaştırma ve güçlendirme.',
+        category: ExerciseCategory.strength,
+        duration: const Duration(minutes: 5),
+        difficultyLevel: 3,
+        instructionsEn:
+            'Use a light weight. Raise arm overhead, then bend elbow to lower weight behind head. Extend back up. 2 sets of 10 per arm.',
+        instructionsTr:
+            'Hafif bir ağırlık kullanın. Kolunuzu başınızın üzerine kaldırın, ardından dirseğinizi bükerek ağırlığı başınızın arkasına indirin. Tekrar yukarı kaldırın. Her kol için 2 set, 10 tekrar.',
+        imageUrl: 'assets/images/triceps_extension.png',
+      ),
 
-  // --- CARDIO (6 exercises) ---
-  ExerciseModel(
-    id: 'C1',
-    title: 'Marching in Place',
-    description: 'Low-impact cardiovascular exercise.',
-    category: ExerciseCategory.cardio,
-    duration: const Duration(minutes: 10),
-    difficultyLevel: 1,
-    instructions:
-        'Stand tall near a chair or wall for support. Slowly lift one knee toward hip height (or comfortable height). Lower the leg gently and switch sides. Swing arms naturally to improve balance and coordination. Maintain a slow, steady rhythm. Repetitions: 20-40 steps total or 1-2 minutes.',
-    imageUrl: 'assets/images/marching.png',
-  ),
-  ExerciseModel(
-    id: 'C2',
-    title: 'Seated Punching',
-    description: 'Engages core and upper body for a quick cardio burst.',
-    category: ExerciseCategory.cardio,
-    duration: const Duration(minutes: 5),
-    difficultyLevel: 2,
-    instructions:
-        'Sit upright. Alternate punching arms straight out in front of you. Keep punches light and fast.',
-    imageUrl: 'assets/images/seated_punching.png',
-  ),
-  ExerciseModel(
-    id: 'C3',
-    title: 'Stepping Side-to-Side',
-    description: 'Lateral movement to improve agility and heart rate.',
-    category: ExerciseCategory.cardio,
-    duration: const Duration(minutes: 8),
-    difficultyLevel: 2,
-    instructions:
-        'Take a step to the right, bring the left foot to meet it. Repeat left. Keep moving briskly.',
-    imageUrl: 'assets/images/stepping_side_to_side.png',
-  ),
-  ExerciseModel(
-    id: 'C4',
-    title: 'Low-Impact Jumping Jacks (Step Jacks)',
-    description: 'Modified full-body cardio with no jumping.',
-    category: ExerciseCategory.cardio,
-    duration: const Duration(minutes: 7),
-    difficultyLevel: 3,
-    instructions:
-        'Tap on leg sideways away from your body. At the same time as doing this, sweep both your arms in a circular motion to above your head. Bring your arms down at the same time as your leg comes in and repeat with the other leg.',
-    imageUrl: 'assets/images/jumping_jack.png',
-  ),
-  ExerciseModel(
-    id: 'C5',
-    title: 'Stair Climbing',
-    description: 'Excellent lower-body cardio and strength builder.',
-    category: ExerciseCategory.cardio,
-    duration: const Duration(minutes: 15),
-    difficultyLevel: 4,
-    instructions:
-        'Use a handrail for safety. Step up and down one step repeatedly. Take breaks as needed.',
-    imageUrl: 'assets/images/stair_climbing.png',
-  ),
-  ExerciseModel(
-    id: 'C6',
-    title: 'Heel Digs',
-    description: 'A low-impact alternative to running or marching.',
-    category: ExerciseCategory.cardio,
-    duration: const Duration(minutes: 6),
-    difficultyLevel: 1,
-    instructions:
-        'Alternate tapping your heels out in front of you while swinging your arms. Maintain a steady pace.',
-    imageUrl: 'assets/images/heel_dig.png',
-  ),
-];
+      // --- CARDIO (6 exercises) ---
+      ExerciseModel(
+        id: 'C1',
+        titleEn: 'Marching in Place',
+        titleTr: 'Yerinde Yürüyüş',
+        descriptionEn: 'Low-impact cardiovascular exercise.',
+        descriptionTr: 'Düşük etkili kardiyo egzersizi.',
+        category: ExerciseCategory.cardio,
+        duration: const Duration(minutes: 10),
+        difficultyLevel: 1,
+        instructionsEn:
+            'Stand tall near a chair or wall for support. Slowly lift one knee toward hip height (or comfortable height). Lower the leg gently and switch sides. Swing arms naturally to improve balance and coordination. Maintain a slow, steady rhythm. Repetitions: 20-40 steps total or 1-2 minutes.',
+        instructionsTr:
+            'Destek için bir sandalye veya duvarın yanında dik durun. Bir dizinizi yavaşça kalça hizasına (veya rahat olduğunuz bir yüksekliğe) kaldırın. Bacağınızı yavaşça indirip diğer tarafa geçin. Denge ve koordinasyonu artırmak için kollarınızı doğal bir şekilde sallayın. Yavaş ve düzenli bir ritim koruyun. Tekrar: toplam 20-40 adım veya 1-2 dakika.',
+        imageUrl: 'assets/images/marching.png',
+      ),
+      ExerciseModel(
+        id: 'C2',
+        titleEn: 'Seated Punching',
+        titleTr: 'Oturarak Yumruk Atma',
+        descriptionEn: 'Engages core and upper body for a quick cardio burst.',
+        descriptionTr:
+            'Hızlı bir kardiyo hareketi için karın ve üst vücudu çalıştırır.',
+        category: ExerciseCategory.cardio,
+        duration: const Duration(minutes: 5),
+        difficultyLevel: 2,
+        instructionsEn:
+            'Sit upright. Alternate punching arms straight out in front of you. Keep punches light and fast.',
+        instructionsTr:
+            'Dik oturun. Kollarınızı sırayla önünüze doğru düz bir şekilde uzatarak yumruk atın. Yumruklarınız hafif ve hızlı olsun.',
+        imageUrl: 'assets/images/seated_punching.png',
+      ),
+      ExerciseModel(
+        id: 'C3',
+        titleEn: 'Stepping Side-to-Side',
+        titleTr: 'Yanlara Adım Atma',
+        descriptionEn: 'Lateral movement to improve agility and heart rate.',
+        descriptionTr:
+            'Çevikliği ve kalp atış hızını artırmak için yanal hareket.',
+        category: ExerciseCategory.cardio,
+        duration: const Duration(minutes: 8),
+        difficultyLevel: 2,
+        instructionsEn:
+            'Take a step to the right, bring the left foot to meet it. Repeat left. Keep moving briskly.',
+        instructionsTr:
+            'Sağa bir adım atın, sol ayağınızı yanına getirin. Aynısını sola doğru tekrarlayın. Hızlı hareket etmeye devam edin.',
+        imageUrl: 'assets/images/stepping_side_to_side.png',
+      ),
+      ExerciseModel(
+        id: 'C4',
+        titleEn: 'Low-Impact Jumping Jacks (Step Jacks)',
+        titleTr: 'Düşük Etkili Jumping Jack (Adım Versiyonu)',
+        descriptionEn: 'Modified full-body cardio with no jumping.',
+        descriptionTr:
+            'Zıplama içermeyen, tüm vücudu çalıştıran hafifletilmiş kardiyo.',
+        category: ExerciseCategory.cardio,
+        duration: const Duration(minutes: 7),
+        difficultyLevel: 3,
+        instructionsEn:
+            'Tap on leg sideways away from your body. At the same time as doing this, sweep both your arms in a circular motion to above your head. Bring your arms down at the same time as your leg comes in and repeat with the other leg.',
+        instructionsTr:
+            'Bir bacağınızı yana doğru vücudunuzdan uzaklaştırarak hafifçe yere dokundurun. Bunu yaparken kollarınızı aynı anda dairesel bir hareketle başınızın üzerine kaldırın. Bacağınız geri gelirken kollarınızı da aynı anda indirin ve diğer bacakla tekrarlayın.',
+        imageUrl: 'assets/images/jumping_jack.png',
+      ),
+      ExerciseModel(
+        id: 'C5',
+        titleEn: 'Stair Climbing',
+        titleTr: 'Merdiven Çıkma',
+        descriptionEn: 'Excellent lower-body cardio and strength builder.',
+        descriptionTr:
+            'Alt vücut için mükemmel bir kardiyo ve güçlendirme hareketi.',
+        category: ExerciseCategory.cardio,
+        duration: const Duration(minutes: 15),
+        difficultyLevel: 4,
+        instructionsEn:
+            'Use a handrail for safety. Step up and down one step repeatedly. Take breaks as needed.',
+        instructionsTr:
+            'Güvenlik için tırabzanı kullanın. Tek bir basamağa tekrar tekrar çıkıp inin. Gerektiğinde ara verin.',
+        imageUrl: 'assets/images/stair_climbing.png',
+      ),
+      ExerciseModel(
+        id: 'C6',
+        titleEn: 'Heel Digs',
+        titleTr: 'Topuk Vurma',
+        descriptionEn: 'A low-impact alternative to running or marching.',
+        descriptionTr: 'Koşu veya yürüyüşe düşük etkili bir alternatif.',
+        category: ExerciseCategory.cardio,
+        duration: const Duration(minutes: 6),
+        difficultyLevel: 1,
+        instructionsEn:
+            'Alternate tapping your heels out in front of you while swinging your arms. Maintain a steady pace.',
+        instructionsTr:
+            'Kollarınızı sallarken topuklarınızı sırayla önünüze doğru vurun. Düzenli bir tempo koruyun.',
+        imageUrl: 'assets/images/heel_dig.png',
+      ),
+    ];

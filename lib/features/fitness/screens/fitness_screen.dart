@@ -42,7 +42,7 @@ class FitnessScreen extends ConsumerWidget {
                     const SizedBox(height: 30),
 
                     // "Your program"
-                    _buildSectionHeader(context, 'Your Program'),
+                    _buildSectionHeader(context, AppStrings.yourProgramTitle),
                     // Next Workout Card
                     NextWorkoutCard(
                       exerciseWithProgress: nextWorkout,
@@ -62,7 +62,7 @@ class FitnessScreen extends ConsumerWidget {
                     const SizedBox(height: 30),
 
                     // "Area of Focus"
-                    _buildSectionHeader(context, 'Area of Focus'),
+                    _buildSectionHeader(context, AppStrings.areaOfFocusTitle),
                     // Category Cards Grid
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -96,7 +96,7 @@ class FitnessScreen extends ConsumerWidget {
                           ),
                           CategoryCard(
                             category: ExerciseCategory.all,
-                            titleOverride: 'View All',
+                            titleOverride: AppStrings.viewAllButton,
                             color: const Color(0xFFEAD9F7),
                             icon: Icons.list_alt,
                             iconColor: const Color(0xFF8667E3),
@@ -116,7 +116,8 @@ class FitnessScreen extends ConsumerWidget {
                     child: CircularProgressIndicator(
                         color: Theme.of(context).colorScheme.primary))),
             error: (e, s) => SliverFillRemaining(
-                child: Center(child: Text('Error loading data: $e'))),
+                child: Center(
+                    child: Text('${AppStrings.errorLoadingDataPrefix}$e'))),
           ),
         ],
       ),
@@ -242,9 +243,9 @@ class _CategoryListViewScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(selectedCategory.name == AppStrings.filterAll
-            ? 'All Exercises'
-            : '${selectedCategory.name} Focus'),
+        title: Text(selectedCategory == ExerciseCategory.all
+            ? AppStrings.categoryAllExercises
+            : '${AppStrings.categoryDisplayName(selectedCategory)} ${AppStrings.categoryFocusSuffix}'),
         elevation: 0,
       ),
       body: Column(
@@ -282,8 +283,8 @@ class _CategoryListViewScreenState
               data: (exercises) {
                 if (exercises.isEmpty) {
                   return Center(
-                      child:
-                          Text('No ${selectedCategory.name} exercises found.'));
+                      child: Text(AppStrings.noExercisesFoundMessage(
+                          AppStrings.categoryDisplayName(selectedCategory))));
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.only(bottom: 80),
@@ -296,7 +297,8 @@ class _CategoryListViewScreenState
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Center(child: Text('Error loading list: $e')),
+              error: (e, s) =>
+                  Center(child: Text('${AppStrings.errorLoadingListPrefix}$e')),
             ),
           ),
         ],

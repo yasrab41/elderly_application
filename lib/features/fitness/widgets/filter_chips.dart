@@ -1,3 +1,4 @@
+import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
 import 'package:elderly_prototype_app/features/fitness/providers/fitness_provider.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class FilterChips extends ConsumerWidget {
           final category = categories[index];
           final isSelected = category == selectedCategory;
           return ChoiceChip(
-            label: Text(category.name),
+            label: Text(AppStrings.categoryDisplayName(category)),
             labelStyle: TextStyle(
               color: isSelected
                   ? Theme.of(context).colorScheme.onPrimary

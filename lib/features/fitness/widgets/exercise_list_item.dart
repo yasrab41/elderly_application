@@ -75,7 +75,7 @@ class ExerciseListItem extends ConsumerWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        '${exercise.duration.inMinutes} min',
+                        '${exercise.duration.inMinutes} ${AppStrings.minutesShort}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Colors.grey.shade700,
                             ),
@@ -86,7 +86,7 @@ class ExerciseListItem extends ConsumerWidget {
                             style: TextStyle(color: Colors.grey.shade400)),
                       ),
                       Text(
-                        exercise.category.name,
+                        AppStrings.categoryDisplayName(exercise.category),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Colors.grey.shade700,
                               fontWeight: FontWeight.w500,
@@ -141,7 +141,7 @@ class ExerciseListItem extends ConsumerWidget {
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Text(
-        '${progress.timesCompleted} Sets',
+        AppStrings.setsCountLabel(progress.timesCompleted),
         textAlign: TextAlign.center,
         style: theme.textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.bold,

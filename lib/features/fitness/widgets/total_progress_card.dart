@@ -1,3 +1,4 @@
+import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
 import 'package:elderly_prototype_app/features/fitness/providers/fitness_provider.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,7 @@ class TotalProgressCard extends ConsumerWidget {
                 const Icon(Icons.timer_outlined, color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
-                  'Total Time Spent',
+                  AppStrings.totalTimeSpentTitle,
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -81,7 +82,7 @@ class TotalProgressCard extends ConsumerWidget {
 
             // 2. Progress Section
             Text(
-              'Daily Progress',
+              AppStrings.dailyProgressTitle,
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -106,7 +107,7 @@ class TotalProgressCard extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '$completed of $total Exercises Completed',
+                  '$completed of $total ${AppStrings.exercisesCompleted}',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Colors.white70,
                       ),

@@ -1,3 +1,4 @@
+import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/fitness/data/models/exercise_model.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,8 @@ class CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Determine the icon and title to display
     final displayIcon = icon ?? _getCategoryIcon(category);
-    final displayText = titleOverride ?? category.name;
+    final displayText =
+        titleOverride ?? AppStrings.categoryDisplayName(category);
 
     return InkWell(
       onTap: onTap,

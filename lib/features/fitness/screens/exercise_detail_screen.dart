@@ -244,7 +244,7 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${exercise.duration.inMinutes} ${AppStrings.minutesShort} • ${exercise.category.name}',
+                            '${exercise.duration.inMinutes} ${AppStrings.minutesShort} • ${AppStrings.categoryDisplayName(exercise.category)}',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: Colors.grey[600],
                             ),

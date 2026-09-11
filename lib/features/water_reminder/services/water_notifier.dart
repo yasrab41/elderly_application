@@ -6,6 +6,7 @@ import '../../authentication/services/auth_service.dart';
 import '../../medicine_reminders/data/datasources/database_service.dart';
 import 'notification_service.dart';
 import '../data/models/water_models.dart';
+import '../../../core/constants.dart';
 
 class WaterNotifier extends StateNotifier<WaterState> {
   final DatabaseService _db;
@@ -142,8 +143,8 @@ class WaterNotifier extends StateNotifier<WaterState> {
       if (isAfterStart) {
         await _notificationService.scheduleDailyDose(
           notificationId: notificationId,
-          name: "Hydration Time",
-          dosage: "Time to drink water!",
+          name: AppStrings.hydrationNotificationTitle,
+          dosage: AppStrings.hydrationNotificationBody,
           time: TimeOfDay.fromDateTime(currentSlot),
           soundType: settings.soundType,
           vibration: settings.isVibration,

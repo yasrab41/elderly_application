@@ -1,5 +1,6 @@
 // Defines the data models for the fitness feature.
 import 'package:flutter/material.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 
 // Enum for filtering and categorization
 enum ExerciseCategory {
@@ -17,24 +18,39 @@ enum ExerciseCategory {
 // Represents the core details of an exercise
 class ExerciseModel {
   final String id;
-  final String title;
-  final String description;
+  final String titleEn;
+  final String titleTr;
+  final String descriptionEn;
+  final String descriptionTr;
   final ExerciseCategory category;
   final Duration duration; // Duration of the exercise
   final int difficultyLevel; // 1 (easy) to 5 (hard)
-  final String instructions;
+  final String instructionsEn;
+  final String instructionsTr;
   final String imageUrl; // ⭐️ ADDED: For the detail screen image
 
   ExerciseModel({
     required this.id,
-    required this.title,
-    required this.description,
+    required this.titleEn,
+    required this.titleTr,
+    required this.descriptionEn,
+    required this.descriptionTr,
     required this.category,
     required this.duration,
     required this.difficultyLevel,
-    required this.instructions,
+    required this.instructionsEn,
+    required this.instructionsTr,
     required this.imageUrl, // ⭐️ ADDED
   });
+
+  /// These read the current language every time they're called — same
+  /// pattern as AppStrings._t() — so the UI updates instantly on language
+  /// switch without needing to touch any of the widgets that read them.
+  String get title => AppLanguageController.isTurkish ? titleTr : titleEn;
+  String get description =>
+      AppLanguageController.isTurkish ? descriptionTr : descriptionEn;
+  String get instructions =>
+      AppLanguageController.isTurkish ? instructionsTr : instructionsEn;
 }
 
 // Represents the user's progress for a specific exercise
