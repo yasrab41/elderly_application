@@ -2,11 +2,11 @@ import 'package:elderly_prototype_app/features/medicine_reminders/data/datasourc
 import 'package:elderly_prototype_app/features/medicine_reminders/services/reminder_state_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 import 'package:intl/intl.dart';
-// 1. Import the AuthService
+import 'package:elderly_prototype_app/core/constants.dart';
 import '../../../authentication/services/auth_service.dart';
 
-// --- TakenDosesNotifier: Extends StateNotifier ---
 class TakenDosesNotifier extends StateNotifier<Set<String>> {
   final DatabaseService _dbService;
   final String _todayDateStr;
@@ -56,7 +56,7 @@ class TodaysScheduleCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final reminder = dose.reminder;
 
-    final doseTime = DateFormat.jm().format(
+    final doseTime = DateFormat.jm(AppLanguageController.intlLocale).format(
         DateTime(2020, 1, 1, dose.timeOfDay.hour, dose.timeOfDay.minute));
 
     final uniqueDoseId = '${reminder.id}-${dose.timeStr}';
@@ -143,7 +143,7 @@ class TodaysScheduleCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Time: $doseTime - ${reminder.dosage}',
+                    '${AppStrings.doseTimePrefix}$doseTime - ${reminder.dosage}',
                     style: TextStyle(
                       fontSize: 14,
                       color: secondaryTextColor,
@@ -156,7 +156,7 @@ class TodaysScheduleCard extends ConsumerWidget {
             const SizedBox(width: 12),
             if (isTaken)
               Text(
-                'Taken ✔',
+                AppStrings.takenLabel,
                 style: TextStyle(
                   color: primaryTextColor,
                   fontWeight: FontWeight.bold,
@@ -172,7 +172,8 @@ class TodaysScheduleCard extends ConsumerWidget {
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Marked ${reminder.name} as taken!'),
+                      content:
+                          Text(AppStrings.markedAsTakenMessage(reminder.name)),
                       backgroundColor: theme.colorScheme.primary,
                     ),
                   );
@@ -186,7 +187,9 @@ class TodaysScheduleCard extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
-                child: Text(isMissed ? 'Take (Late)' : 'Take Now'),
+                child: Text(isMissed
+                    ? AppStrings.takeLateButton
+                    : AppStrings.takeNowButton),
               ),
           ],
         ),

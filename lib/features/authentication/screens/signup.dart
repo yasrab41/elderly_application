@@ -1,6 +1,8 @@
+import 'package:elderly_prototype_app/features/authentication/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import '../services/auth_service.dart';
 // Import required for navigation
 import 'package:elderly_prototype_app/features/dashboard/screens/start_screen.dart';
@@ -39,7 +41,7 @@ class _SignUpState extends ConsumerState<SignUp> {
     if (_passwordController.text.trim() !=
         _confirmPasswordController.text.trim()) {
       setState(() {
-        _errorMessage = "Passwords do not match.";
+        _errorMessage = AppStrings.passwordsMismatchMessage;
       });
       return;
     }
@@ -69,8 +71,8 @@ class _SignUpState extends ConsumerState<SignUp> {
       if (!mounted) return;
       setState(() {
         _errorMessage = e.toString().contains('email-already-in-use')
-            ? 'This email is already registered.'
-            : 'Registration failed. Please try again.';
+            ? AppStrings.emailAlreadyRegisteredMessage
+            : AppStrings.registrationFailedMessage;
       });
     } finally {
       if (mounted) {
@@ -112,11 +114,9 @@ class _SignUpState extends ConsumerState<SignUp> {
         // shown a generic failure with no way forward.
         if (e is FirebaseAuthException &&
             e.code == 'account-exists-with-different-credential') {
-          _errorMessage =
-              'An account already exists for this email using a password. '
-              'Please log in with your email and password instead.';
+          _errorMessage = AppStrings.googleAccountExistsMessage;
         } else {
-          _errorMessage = 'Google sign-in failed. Please try again.';
+          _errorMessage = AppStrings.googleSignInFailedMessage;
         }
       });
     } finally {
@@ -134,7 +134,7 @@ class _SignUpState extends ConsumerState<SignUp> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Sign Up'),
+        title: Text(AppStrings.signUpTitle),
         elevation: 0,
         backgroundColor: Colors.white,
       ),
@@ -147,10 +147,10 @@ class _SignUpState extends ConsumerState<SignUp> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const Text(
-                  'Create Your Account',
+                Text(
+                  AppStrings.createAccountTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF5D4037),
@@ -163,7 +163,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                   controller: _nameController,
                   keyboardType: TextInputType.name,
                   decoration: InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: AppStrings.fullNameLabel,
                     prefixIcon: const Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -171,7 +171,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return AppStrings.pleaseEnterNameValidation;
                     }
                     return null;
                   },
@@ -183,7 +183,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: AppStrings.emailLabel,
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -193,7 +193,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                     if (value == null ||
                         value.isEmpty ||
                         !value.contains('@')) {
-                      return 'Please enter a valid email';
+                      return AppStrings.validEmailValidation;
                     }
                     return null;
                   },
@@ -205,7 +205,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    labelText: 'Password (min 6 characters)',
+                    labelText: AppStrings.passwordMinCharsLabel,
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -213,7 +213,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length < 6) {
-                      return 'Password must be at least 6 characters long';
+                      return AppStrings.passwordMinLengthValidation;
                     }
                     return null;
                   },
@@ -225,7 +225,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                   controller: _confirmPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
+                    labelText: AppStrings.confirmPasswordLabel,
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -233,7 +233,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return AppStrings.pleaseConfirmPasswordValidation;
                     }
                     return null;
                   },
@@ -271,9 +271,9 @@ class _SignUpState extends ConsumerState<SignUp> {
                           child: CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text(
-                          'SIGN UP',
-                          style: TextStyle(
+                      : Text(
+                          AppStrings.signUpButton,
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                 ),
@@ -286,7 +286,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
-                        'OR',
+                        AppStrings.orDivider,
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                     ),
@@ -330,7 +330,7 @@ class _SignUpState extends ConsumerState<SignUp> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Sign up with Google',
+                        AppStrings.signUpWithGoogleButton,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -345,10 +345,13 @@ class _SignUpState extends ConsumerState<SignUp> {
                 TextButton(
                   onPressed: () {
                     // Navigate back to Login
-                    Navigator.of(context).pop();
+                    // Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const Login()),
+                    );
                   },
                   child: Text(
-                    "Already have an account? Log In",
+                    AppStrings.haveAccountLoginPrompt,
                     style:
                         TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),

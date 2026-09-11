@@ -1,7 +1,9 @@
 import 'package:elderly_prototype_app/features/medicine_reminders/data/models/medicine_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import '../../services/reminder_state_notifier.dart';
 import '../add_reminder_page.dart'; // 1. Import the AddReminderPage
 
@@ -20,7 +22,7 @@ class AllRemindersCard extends ConsumerWidget {
       final time =
           TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
       // Format as 12-hour clock (e.g., "8:00 AM")
-      return DateFormat.jm()
+      return DateFormat.jm(AppLanguageController.intlLocale)
           .format(DateTime(2020, 1, 1, time.hour, time.minute));
     }).toList();
 
@@ -58,7 +60,7 @@ class AllRemindersCard extends ConsumerWidget {
               ],
             ),
             Text(
-              '${reminder.dosage} - ${timeStrings.length} time(s) daily',
+              '${reminder.dosage} - ${AppStrings.timesDailyLabel(timeStrings.length)}',
               style: TextStyle(
                   fontSize: 14,
                   color: theme.colorScheme.secondary,
@@ -89,7 +91,7 @@ class AllRemindersCard extends ConsumerWidget {
               children: [
                 Text(
                   // Use a more readable date format
-                  '${DateFormat('MMM d, yyyy').format(reminder.startDate)} - ${DateFormat('MMM d, yyyy').format(reminder.endDate)}',
+                  '${DateFormat('MMM d, yyyy', AppLanguageController.intlLocale).format(reminder.startDate)} - ${DateFormat('MMM d, yyyy', AppLanguageController.intlLocale).format(reminder.endDate)}',
                   style: TextStyle(
                       fontSize: 12,
                       color: theme.colorScheme.secondary,
@@ -118,17 +120,18 @@ class AllRemindersCard extends ConsumerWidget {
                         showDialog(
                           context: context,
                           builder: (ctx) => AlertDialog(
-                            title: const Text('Delete Reminder'),
+                            title: Text(AppStrings.deleteReminderTitle),
                             content: Text(
-                                'Are you sure you want to delete ${reminder.name}? This will remove all associated alarms.'),
+                                AppStrings.confirmDeleteReminderMessage(
+                                    reminder.name)),
                             actions: [
                               TextButton(
-                                child: const Text('Cancel'),
+                                child: Text(AppStrings.cancelButton),
                                 onPressed: () => Navigator.of(ctx).pop(),
                               ),
                               TextButton(
-                                child: const Text('Delete',
-                                    style: TextStyle(color: Colors.red)),
+                                child: Text(AppStrings.deleteLabel,
+                                    style: const TextStyle(color: Colors.red)),
                                 onPressed: () {
                                   notifier.deleteReminder(reminder);
                                   Navigator.of(ctx).pop();

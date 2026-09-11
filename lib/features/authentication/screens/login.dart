@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import '../services/auth_service.dart';
 import 'signup.dart';
 // Import required for navigation
@@ -58,8 +59,8 @@ class _LoginState extends ConsumerState<Login> {
       if (!mounted) return;
       setState(() {
         _errorMessage = e.toString().contains('user-not-found')
-            ? 'No user found for that email.'
-            : 'Login failed. Please check your credentials.';
+            ? AppStrings.userNotFoundMessage
+            : AppStrings.loginFailedMessage;
       });
     } finally {
       if (mounted) {
@@ -102,11 +103,9 @@ class _LoginState extends ConsumerState<Login> {
         // shown here too, leaving the user stuck with no way forward).
         if (e is FirebaseAuthException &&
             e.code == 'account-exists-with-different-credential') {
-          _errorMessage =
-              'An account already exists for this email using a password. '
-              'Please log in with your email and password instead.';
+          _errorMessage = AppStrings.googleAccountExistsMessage;
         } else {
-          _errorMessage = 'Google sign-in failed. Please try again.';
+          _errorMessage = AppStrings.googleSignInFailedMessage;
         }
       });
     } finally {
@@ -124,7 +123,7 @@ class _LoginState extends ConsumerState<Login> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text(AppStrings.loginTitle),
         elevation: 0,
         backgroundColor: Colors.white,
       ),
@@ -137,10 +136,10 @@ class _LoginState extends ConsumerState<Login> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const Text(
-                  'Welcome Back!',
+                Text(
+                  AppStrings.welcomeBackTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF5D4037), // Brown 800
@@ -153,7 +152,7 @@ class _LoginState extends ConsumerState<Login> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: AppStrings.emailLabel,
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -163,7 +162,7 @@ class _LoginState extends ConsumerState<Login> {
                     if (value == null ||
                         value.isEmpty ||
                         !value.contains('@')) {
-                      return 'Please enter a valid email';
+                      return AppStrings.validEmailValidation;
                     }
                     return null;
                   },
@@ -175,7 +174,7 @@ class _LoginState extends ConsumerState<Login> {
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: AppStrings.passwordLabel,
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -183,7 +182,7 @@ class _LoginState extends ConsumerState<Login> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length < 6) {
-                      return 'Password must be at least 6 characters long';
+                      return AppStrings.passwordMinLengthValidation;
                     }
                     return null;
                   },
@@ -199,9 +198,9 @@ class _LoginState extends ConsumerState<Login> {
                             builder: (context) => const ForgotPassword()),
                       );
                     },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: Text(
+                      AppStrings.forgotPasswordLink,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -239,9 +238,9 @@ class _LoginState extends ConsumerState<Login> {
                           child: CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text(
-                          'LOG IN',
-                          style: TextStyle(
+                      : Text(
+                          AppStrings.logInButton,
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                 ),
@@ -254,7 +253,7 @@ class _LoginState extends ConsumerState<Login> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
-                        'OR',
+                        AppStrings.orDivider,
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                     ),
@@ -300,7 +299,7 @@ class _LoginState extends ConsumerState<Login> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Sign in with Google',
+                        AppStrings.signInWithGoogleButton,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -319,7 +318,7 @@ class _LoginState extends ConsumerState<Login> {
                     );
                   },
                   child: Text(
-                    "Don't have an account? Sign Up",
+                    AppStrings.noAccountSignUpPrompt,
                     style:
                         TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),

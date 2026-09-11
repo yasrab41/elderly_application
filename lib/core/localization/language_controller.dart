@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_language.dart';
 
@@ -24,8 +23,10 @@ class AppLanguageController {
   static bool _initialized = false;
 
   /// Call once, before runApp. Resolves the starting language from a
-  /// previously saved user choice, or — if the user has never chosen one —
-  /// from the device's system language.
+  /// previously saved user choice. If the user has never chosen one, this
+  /// always starts Turkish — deliberately ignoring the device's system
+  /// language, since the app's target audience is Turkish-speaking
+  /// regardless of what a given phone/emulator happens to be set to.
   static Future<void> initialize() async {
     if (_initialized) return;
     _initialized = true;
@@ -35,17 +36,11 @@ class AppLanguageController {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getString(_prefsKey);
 
-      if (saved == 'tr') {
-        resolved = AppLanguage.turkish;
-      } else if (saved == 'en') {
+      if (saved == 'en') {
         resolved = AppLanguage.english;
       } else {
-        // No saved choice yet — default to Turkish (the target audience's
-        // language) unless the device is explicitly set to English.
-        final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
-        resolved = deviceLocale.languageCode.toLowerCase() == 'en'
-            ? AppLanguage.english
-            : AppLanguage.turkish;
+        // Covers both 'tr' and "no saved choice yet" — both mean Turkish.
+        resolved = AppLanguage.turkish;
       }
     } catch (e) {
       debugPrint('[AppLanguageController] initialize FAILED, defaulting to '
@@ -72,4 +67,9 @@ class AppLanguageController {
   }
 
   static bool get isTurkish => current == AppLanguage.turkish;
+
+  /// The intl locale identifier matching the current language — pass this
+  /// into any DateFormat(...) call that renders weekday/month names so it
+  /// switches along with the rest of the app.
+  static String get intlLocale => isTurkish ? 'tr_TR' : 'en_US';
 }

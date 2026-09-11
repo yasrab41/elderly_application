@@ -5,7 +5,8 @@ import 'package:elderly_prototype_app/features/dashboard/screens/splash_screen.d
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // ADD THIS
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   // 1. Ensure bindings are initialized so we can communicate with the OS
@@ -18,6 +19,12 @@ Future<void> main() async {
   // fallback) before the first frame — avoids any flash of the wrong
   // language on first launch.
   await AppLanguageController.initialize();
+
+  // 2c. Load intl's locale data for both languages once at startup, so
+  // DateFormat can render Turkish weekday/month names (not just numeric
+  // dates) anywhere in the app, immediately and without extra awaits later.
+  await initializeDateFormatting('tr_TR', null);
+  await initializeDateFormatting('en_US', null);
 
   // 3. PRESERVE NATIVE SPLASH
   // This keeps the native logo on screen until we are ready to remove it.

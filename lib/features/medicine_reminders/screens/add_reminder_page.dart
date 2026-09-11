@@ -3,6 +3,7 @@ import 'package:flutter/services.dart'; // For HapticFeedback
 import 'package:audioplayers/audioplayers.dart'; // Import AudioPlayers
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import '../services/reminder_state_notifier.dart';
 import '../data/models/medicine_model.dart';
 
@@ -101,7 +102,7 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
       Navigator.of(context).pop();
     } else if (_times.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one time.')),
+        SnackBar(content: Text(AppStrings.pleaseAddTimeMessage)),
       );
     }
   }
@@ -198,7 +199,9 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditMode ? 'Edit Reminder' : 'Add New Reminder'),
+        title: Text(isEditMode
+            ? AppStrings.editReminderTitle
+            : AppStrings.addNewReminderTitle),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -210,7 +213,7 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // [Existing Name Field]
-              Text('Medicine Name',
+              Text(AppStrings.medicineNameLabel,
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -218,14 +221,15 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
-                decoration: _inputDecoration('Enter medicine name'),
-                validator: (val) =>
-                    (val == null || val.isEmpty) ? 'Required' : null,
+                decoration: _inputDecoration(AppStrings.enterMedicineNameHint),
+                validator: (val) => (val == null || val.isEmpty)
+                    ? AppStrings.requiredFieldValidation
+                    : null,
               ),
               const SizedBox(height: 20),
 
               // [Existing Dosage Field]
-              Text('Dosage',
+              Text(AppStrings.dosageLabel,
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -233,14 +237,15 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _dosageController,
-                decoration: _inputDecoration('e.g., 1 tablet'),
-                validator: (val) =>
-                    (val == null || val.isEmpty) ? 'Required' : null,
+                decoration: _inputDecoration(AppStrings.dosageHint),
+                validator: (val) => (val == null || val.isEmpty)
+                    ? AppStrings.requiredFieldValidation
+                    : null,
               ),
               const SizedBox(height: 20),
 
               // [Existing Times Field] (Simplified for brevity)
-              Text('Times',
+              Text(AppStrings.timesLabel,
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -281,7 +286,8 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
                     ),
                     TextButton.icon(
                       icon: Icon(Icons.add, color: primary),
-                      label: Text("Add Time", style: TextStyle(color: primary)),
+                      label: Text(AppStrings.addTimeButton,
+                          style: TextStyle(color: primary)),
                       onPressed: () => _selectTime(context),
                     )
                   ],
@@ -290,7 +296,7 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
               const SizedBox(height: 20),
 
               // --- NEW SECTION: SOUND SETTINGS ---
-              Text('Notification Sound',
+              Text(AppStrings.notificationSoundLabel,
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -298,11 +304,11 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  _buildSoundBox(
-                      "Ring", Icons.notifications, "normal", primary, accent),
+                  _buildSoundBox(AppStrings.soundRingLabel, Icons.notifications,
+                      "normal", primary, accent),
                   const SizedBox(width: 15),
-                  _buildSoundBox("Voice", Icons.notifications_active, "loud",
-                      primary, accent),
+                  _buildSoundBox(AppStrings.soundVoiceLabel,
+                      Icons.notifications_active, "loud", primary, accent),
                 ],
               ),
               const SizedBox(height: 15),
@@ -322,8 +328,8 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
                     Row(children: [
                       Icon(Icons.vibration, color: primary),
                       const SizedBox(width: 10),
-                      const Text("Vibration",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(AppStrings.vibrationTitle,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                     ]),
                     Switch(
                       value: _vibrationEnabled,
@@ -342,8 +348,8 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      const Text("Start Date",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(AppStrings.startDateLabel,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 5),
                       InkWell(
                           onTap: () => _selectDate(context, true),
@@ -361,8 +367,8 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      const Text("End Date",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(AppStrings.endDateLabel,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 5),
                       InkWell(
                           onTap: () => _selectDate(context, false),
@@ -387,7 +393,10 @@ class _AddReminderPageState extends ConsumerState<AddReminderPage> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text(isEditMode ? 'Update Reminder' : 'Add Reminder',
+                child: Text(
+                    isEditMode
+                        ? AppStrings.updateReminderButton
+                        : AppStrings.addReminderButton,
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold)),
               ),

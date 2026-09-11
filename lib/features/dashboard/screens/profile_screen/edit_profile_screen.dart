@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/core/providers/avatar_provider.dart';
 import 'package:elderly_prototype_app/core/widgets/avatar_picker.dart';
@@ -39,7 +40,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _updateProfileName() async {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a name')),
+        SnackBar(content: Text(AppStrings.pleaseEnterNameValidation)),
       );
       return;
     }
@@ -56,13 +57,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
         Navigator.pop(context); // Return to Profile Screen
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Name updated successfully!')),
+          SnackBar(content: Text(AppStrings.nameUpdatedMessage)),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving name: ${e.toString()}')),
+        SnackBar(
+            content:
+                Text('${AppStrings.errorSavingNamePrefix}${e.toString()}')),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -75,39 +78,40 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       children: [
         Scaffold(
           appBar: AppBar(
-            title: const Text('Edit Profile'),
+            title: Text(AppStrings.editProfileTileTitle),
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(32.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Change Your Name',
+                Text(
+                  AppStrings.changeYourNameTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF5D4037),
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'This is how you will appear in the app.',
+                Text(
+                  AppStrings.nameAppearanceNote,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
+                  style: const TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 40),
 
                 // Avatar Picker
-                const Text(
-                  'Avatar',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                Text(
+                  AppStrings.avatarLabel,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'This is used across the whole app, including Friend Network.',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                Text(
+                  AppStrings.avatarUsageNote,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
                 ),
                 const SizedBox(height: 14),
                 AvatarPicker(
@@ -121,7 +125,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: AppStrings.fullNameLabel,
                     prefixIcon: const Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -139,9 +143,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'SAVE CHANGES',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  child: Text(
+                    AppStrings.saveChangesButton,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -158,20 +163,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                child: const Padding(
-                  padding: EdgeInsets.all(30.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(30.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 20),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 20),
                       Text(
-                        'Saving Name...',
-                        style: TextStyle(
+                        AppStrings.savingNameMessage,
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 8),
-                      Text('Please wait a moment'),
+                      const SizedBox(height: 8),
+                      Text(AppStrings.pleaseWaitMessage),
                     ],
                   ),
                 ),

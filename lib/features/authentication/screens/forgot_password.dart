@@ -1,4 +1,5 @@
 import 'package:elderly_prototype_app/core/app_theme.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/authentication/screens/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +36,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       // FIX: wording no longer confirms an account exists (a small but
       // deliberate security practice — matches how Firebase's own hosted
       // UI phrases this), while still being clear about what to do next.
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-          "If an account exists for this email, a password reset link "
-          "has been sent.",
-          style: TextStyle(fontSize: 18.0),
+          AppStrings.passwordResetSentMessage,
+          style: const TextStyle(fontSize: 18.0),
         ),
       ));
     } on FirebaseAuthException catch (e) {
@@ -47,17 +47,17 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       if (e.code == "user-not-found") {
         // Kept for Firebase projects without enumeration protection,
         // where this error can still be thrown directly.
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-          "No user found for that email.",
-          style: TextStyle(fontSize: 20.0),
+          AppStrings.userNotFoundMessage,
+          style: const TextStyle(fontSize: 20.0),
         )));
       } else {
         // FIX: previously any other error was silently swallowed with no
         // feedback at all (e.g. "invalid-email", "too-many-requests").
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-            "Something went wrong: ${e.message ?? e.code}",
+            "${AppStrings.genericErrorPrefix}${e.message ?? e.code}",
             style: const TextStyle(fontSize: 18.0),
           ),
         ));
@@ -78,7 +78,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             Container(
               alignment: Alignment.topCenter,
               child: Text(
-                "Password Recovery",
+                AppStrings.passwordRecoveryTitle,
                 style: TextStyle(
                     color: AppTheme.primaryColor,
                     fontSize: 30.0,
@@ -89,7 +89,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               height: 10.0,
             ),
             Text(
-              "Enter your mail",
+              AppStrings.enterYourMailPrompt,
               style: TextStyle(
                   color: AppTheme.primaryColor,
                   fontSize: 20.0,
@@ -112,14 +112,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             child: TextFormField(
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please Enter Email';
+                                  return AppStrings.pleaseEnterEmailValidation;
                                 }
                                 return null;
                               },
                               controller: mailcontroller,
                               style: TextStyle(color: AppTheme.primaryColor),
                               decoration: InputDecoration(
-                                  hintText: "Email",
+                                  hintText: AppStrings.emailLabel,
                                   hintStyle: TextStyle(
                                       fontSize: 18.0,
                                       color: AppTheme.primaryColor),
@@ -151,7 +151,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                   borderRadius: BorderRadius.circular(10)),
                               child: Center(
                                 child: Text(
-                                  "Send Email",
+                                  AppStrings.sendEmailButton,
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 18.0,
@@ -167,7 +167,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Don't have an account?",
+                                AppStrings.noAccountQuestion,
                                 style: TextStyle(
                                     fontSize: 18.0,
                                     color: AppTheme.primaryColor),
@@ -183,7 +183,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                           builder: (context) => SignUp()));
                                 },
                                 child: Text(
-                                  "Create",
+                                  AppStrings.createLink,
                                   style: TextStyle(
                                       color: AppTheme.primaryColor,
                                       fontSize: 20.0,

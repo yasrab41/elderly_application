@@ -759,6 +759,252 @@ class AppStrings {
   static String get startReminderButton =>
       _t(en: 'Start Reminder', tr: 'Hatırlatıcıyı Başlat');
   // --- End Reminder Settings Modal ---
+
+  // --- Start Medicine Reminders Feature ---
+  static String get editReminderTitle =>
+      _t(en: 'Edit Reminder', tr: 'Hatırlatıcıyı Düzenle');
+  static String get addNewReminderTitle =>
+      _t(en: 'Add New Reminder', tr: 'Yeni Hatırlatıcı Ekle');
+  static String get pleaseAddTimeMessage => _t(
+      en: 'Please add at least one time.',
+      tr: 'Lütfen en az bir saat ekleyin.');
+  static String get medicineNameLabel =>
+      _t(en: 'Medicine Name', tr: 'İlaç Adı');
+  static String get enterMedicineNameHint =>
+      _t(en: 'Enter medicine name', tr: 'İlaç adını girin');
+  static String get requiredFieldValidation =>
+      _t(en: 'Required', tr: 'Zorunlu');
+  static String get dosageLabel => _t(en: 'Dosage', tr: 'Doz');
+  static String get dosageHint => _t(en: 'e.g., 1 tablet', tr: 'örn. 1 tablet');
+  static String get timesLabel => _t(en: 'Times', tr: 'Saatler');
+  static String get addTimeButton => _t(en: 'Add Time', tr: 'Saat Ekle');
+  static String get notificationSoundLabel =>
+      _t(en: 'Notification Sound', tr: 'Bildirim Sesi');
+  static String get startDateLabel =>
+      _t(en: 'Start Date', tr: 'Başlangıç Tarihi');
+  static String get endDateLabel => _t(en: 'End Date', tr: 'Bitiş Tarihi');
+  static String get updateReminderButton =>
+      _t(en: 'Update Reminder', tr: 'Hatırlatıcıyı Güncelle');
+  static String get addReminderButton =>
+      _t(en: 'Add Reminder', tr: 'Hatırlatıcı Ekle');
+  static String get todaysDatePrefix =>
+      _t(en: "Today's Date: ", tr: 'Bugünün Tarihi: ');
+  static String get todaysScheduleTitle =>
+      _t(en: "Today's Schedule", tr: 'Bugünkü Program');
+  static String get noRemindersTodayMessage => _t(
+      en: 'No reminders scheduled for today.',
+      tr: 'Bugün için planlanmış hatırlatıcı yok.');
+  static String get allRemindersTitle =>
+      _t(en: 'All Reminders', tr: 'Tüm Hatırlatıcılar');
+  static String get noRemindersSetMessage =>
+      _t(en: 'No reminders set yet.', tr: 'Henüz hatırlatıcı eklenmedi.');
+  static String get addMedicineButton =>
+      _t(en: 'Add Medicine', tr: 'İlaç Ekle');
+  static String get doseTimePrefix => _t(en: 'Time: ', tr: 'Saat: ');
+  static String get takenLabel => _t(en: 'Taken ✔', tr: 'Alındı ✔');
+  static String markedAsTakenMessage(String name) =>
+      _t(en: 'Marked $name as taken!', tr: '$name alındı olarak işaretlendi!');
+  static String get takeLateButton => _t(en: 'Take (Late)', tr: 'Al (Geç)');
+  static String get takeNowButton => _t(en: 'Take Now', tr: 'Şimdi Al');
+  static String timesDailyLabel(int count) =>
+      _t(en: '$count time(s) daily', tr: 'günde $count kez');
+  static String get deleteReminderTitle =>
+      _t(en: 'Delete Reminder', tr: 'Hatırlatıcıyı Sil');
+  static String confirmDeleteReminderMessage(String name) => _t(
+      en: 'Are you sure you want to delete $name? This will remove all associated alarms.',
+      tr: '$name hatırlatıcısını silmek istediğinizden emin misiniz? Bu, ilgili tüm alarmları da kaldıracaktır.');
+  static String medicineNotificationTitle(String name) =>
+      _t(en: 'Time to take $name!', tr: '$name alma zamanı!');
+  static String get medicineNotificationDosagePrefix =>
+      _t(en: 'Dosage: ', tr: 'Doz: ');
+  static String get medicineChannelNormalName => _t(
+      en: 'Medicine Reminders (Normal)', tr: 'İlaç Hatırlatıcıları (Normal)');
+  static String get medicineChannelNormalDesc =>
+      _t(en: 'Gentle medicine reminders', tr: 'Hafif ilaç hatırlatıcıları');
+  static String get medicineChannelLoudName =>
+      _t(en: 'Medicine Reminders (Voice)', tr: 'İlaç Hatırlatıcıları (Sesli)');
+  static String get medicineChannelLoudDesc =>
+      _t(en: 'Voice reminder for medicine', tr: 'İlaç için sesli hatırlatma');
+  static String get medicineChannelScheduleDesc => _t(
+      en: 'Daily reminder for taking medicine.',
+      tr: 'Günlük ilaç hatırlatması.');
+  // --- End Medicine Reminders Feature ---
+
+  // --- Start Authentication Feature ---
+  // Shared across login/signup/forgot-password
+  static String get emailLabel => _t(en: 'Email', tr: 'E-posta');
+  static String get validEmailValidation => _t(
+      en: 'Please enter a valid email', tr: 'Lütfen geçerli bir e-posta girin');
+  static String get passwordMinLengthValidation => _t(
+      en: 'Password must be at least 6 characters long',
+      tr: 'Şifre en az 6 karakter olmalıdır');
+  // static String get orDivider => _t(en: 'OR', tr: 'VEYA');
+  static String get googleAccountExistsMessage => _t(
+      en: 'An account already exists for this email using a password. '
+          'Please log in with your email and password instead.',
+      tr: 'Bu e-posta için şifreli bir hesap zaten mevcut. Lütfen e-posta '
+          've şifrenizle giriş yapın.');
+  static String get googleSignInFailedMessage => _t(
+      en: 'Google sign-in failed. Please try again.',
+      tr: 'Google ile giriş başarısız oldu. Lütfen tekrar deneyin.');
+  static String get userNotFoundMessage => _t(
+      en: 'No user found for that email.',
+      tr: 'Bu e-posta ile kayıtlı kullanıcı bulunamadı.');
+
+  // Login
+  static String get loginTitle => _t(en: 'Login', tr: 'Giriş Yap');
+  static String get loginFailedMessage => _t(
+      en: 'Login failed. Please check your credentials.',
+      tr: 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
+  static String get welcomeBackTitle =>
+      _t(en: 'Welcome Back!', tr: 'Tekrar Hoş Geldiniz!');
+  static String get passwordLabel => _t(en: 'Password', tr: 'Şifre');
+  static String get forgotPasswordLink =>
+      _t(en: 'Forgot Password?', tr: 'Şifremi Unuttum?');
+  static String get logInButton => _t(en: 'LOG IN', tr: 'GİRİŞ YAP');
+  static String get signInWithGoogleButton =>
+      _t(en: 'Sign in with Google', tr: 'Google ile Giriş Yap');
+  static String get noAccountSignUpPrompt => _t(
+      en: "Don't have an account? Sign Up", tr: 'Hesabınız yok mu? Kayıt Olun');
+
+  // Sign Up
+  static String get signUpTitle => _t(en: 'Sign Up', tr: 'Kayıt Ol');
+  static String get passwordsMismatchMessage =>
+      _t(en: 'Passwords do not match.', tr: 'Şifreler eşleşmiyor.');
+  static String get emailAlreadyRegisteredMessage => _t(
+      en: 'This email is already registered.',
+      tr: 'Bu e-posta adresi zaten kayıtlı.');
+  static String get registrationFailedMessage => _t(
+      en: 'Registration failed. Please try again.',
+      tr: 'Kayıt başarısız. Lütfen tekrar deneyin.');
+  static String get createAccountTitle =>
+      _t(en: 'Create Your Account', tr: 'Hesabınızı Oluşturun');
+  static String get fullNameLabel => _t(en: 'Full Name', tr: 'Ad Soyad');
+  static String get pleaseEnterNameValidation =>
+      _t(en: 'Please enter your name', tr: 'Lütfen adınızı girin');
+  static String get passwordMinCharsLabel =>
+      _t(en: 'Password (min 6 characters)', tr: 'Şifre (en az 6 karakter)');
+  static String get confirmPasswordLabel =>
+      _t(en: 'Confirm Password', tr: 'Şifreyi Onayla');
+  static String get pleaseConfirmPasswordValidation =>
+      _t(en: 'Please confirm your password', tr: 'Lütfen şifrenizi onaylayın');
+  static String get signUpButton => _t(en: 'SIGN UP', tr: 'KAYIT OL');
+  static String get signUpWithGoogleButton =>
+      _t(en: 'Sign up with Google', tr: 'Google ile Kayıt Ol');
+  static String get haveAccountLoginPrompt => _t(
+      en: 'Already have an account? Log In',
+      tr: 'Zaten hesabınız var mı? Giriş Yapın');
+
+  // Forgot Password
+  static String get passwordResetSentMessage => _t(
+      en: 'If an account exists for this email, a password reset link '
+          'has been sent.',
+      tr: 'Bu e-posta adresine ait bir hesap varsa, şifre sıfırlama '
+          'bağlantısı gönderildi.');
+  static String get genericErrorPrefix =>
+      _t(en: 'Something went wrong: ', tr: 'Bir şeyler ters gitti: ');
+  static String get passwordRecoveryTitle =>
+      _t(en: 'Password Recovery', tr: 'Şifre Kurtarma');
+  static String get enterYourMailPrompt =>
+      _t(en: 'Enter your mail', tr: 'E-posta adresinizi girin');
+  static String get pleaseEnterEmailValidation =>
+      _t(en: 'Please Enter Email', tr: 'Lütfen E-posta Girin');
+  static String get sendEmailButton =>
+      _t(en: 'Send Email', tr: 'E-postayı Gönder');
+  static String get noAccountQuestion =>
+      _t(en: "Don't have an account?", tr: 'Hesabınız yok mu?');
+  static String get createLink => _t(en: 'Create', tr: 'Oluştur');
+  // --- End Authentication Feature ---
+
+  // --- Start Profile / Account / Edit Profile / Notifications ---
+  // Profile
+  static String get myProfileTitle => _t(en: 'My Profile', tr: 'Profilim');
+  static String get valuedMemberFallback =>
+      _t(en: 'Valued Member', tr: 'Değerli Üye');
+  static String get noEmailAvailableFallback =>
+      _t(en: 'No email available', tr: 'E-posta bulunamadı');
+  static String get editProfileTileTitle =>
+      _t(en: 'Edit Profile', tr: 'Profili Düzenle');
+  static String get editProfileTileSubtitle =>
+      _t(en: 'Update name & details', tr: 'Ad ve bilgileri güncelleyin');
+  static String get accountSettingsTileTitle =>
+      _t(en: 'Account Settings', tr: 'Hesap Ayarları');
+  static String get accountSettingsTileSubtitle => _t(
+      en: 'Email, Password, Delete Account', tr: 'E-posta, Şifre, Hesabı Sil');
+  static String get howToUseAppTitle =>
+      _t(en: 'How to Use App', tr: 'Uygulama Nasıl Kullanılır');
+  static String get aboutAppTitle =>
+      _t(en: 'About App', tr: 'Uygulama Hakkında');
+  static String get signOutButton => _t(en: 'Sign Out', tr: 'Çıkış Yap');
+  static String get chooseAvatarTitle =>
+      _t(en: 'Choose an Avatar', tr: 'Bir Avatar Seçin');
+
+  // Account Settings
+  static String resetLinkSentMessage(String email) => _t(
+      en: 'Reset link sent to $email',
+      tr: '$email adresine sıfırlama bağlantısı gönderildi');
+  static String get deleteAccountQuestionTitle =>
+      _t(en: 'Delete Account?', tr: 'Hesabı Sil?');
+  static String get deleteAccountWarningMessage => _t(
+      en: 'This action cannot be undone. You will lose all your data.',
+      tr: 'Bu işlem geri alınamaz. Tüm verilerinizi kaybedersiniz.');
+  static String get deleteAccountSecurityMessage => _t(
+      en: 'Security: Please Log Out and Log In again to delete account.',
+      tr: 'Güvenlik: Hesabı silmek için lütfen çıkış yapıp tekrar giriş yapın.');
+  static String get accountInfoSectionTitle =>
+      _t(en: 'Account Info', tr: 'Hesap Bilgisi');
+  static String get emailAddressLabel =>
+      _t(en: 'Email Address', tr: 'E-posta Adresi');
+  static String get securitySectionTitle => _t(en: 'Security', tr: 'Güvenlik');
+  static String get resetPasswordTileTitle =>
+      _t(en: 'Reset Password', tr: 'Şifreyi Sıfırla');
+  static String get deleteAccountTileTitle =>
+      _t(en: 'Delete Account', tr: 'Hesabı Sil');
+
+  // Edit Profile
+  static String get nameUpdatedMessage =>
+      _t(en: 'Name updated successfully!', tr: 'İsim başarıyla güncellendi!');
+  static String get errorSavingNamePrefix =>
+      _t(en: 'Error saving name: ', tr: 'İsim kaydedilirken hata oluştu: ');
+  static String get changeYourNameTitle =>
+      _t(en: 'Change Your Name', tr: 'Adınızı Değiştirin');
+  static String get nameAppearanceNote => _t(
+      en: 'This is how you will appear in the app.',
+      tr: 'Uygulamada bu şekilde görüneceksiniz.');
+  static String get avatarLabel => _t(en: 'Avatar', tr: 'Avatar');
+  static String get avatarUsageNote => _t(
+      en: 'This is used across the whole app, including Friend Network.',
+      tr: 'Bu, Arkadaş Ağı dahil uygulamanın tamamında kullanılır.');
+  static String get saveChangesButton =>
+      _t(en: 'SAVE CHANGES', tr: 'DEĞİŞİKLİKLERİ KAYDET');
+  static String get savingNameMessage =>
+      _t(en: 'Saving Name...', tr: 'İsim Kaydediliyor...');
+  static String get pleaseWaitMessage =>
+      _t(en: 'Please wait a moment', tr: 'Lütfen bir dakika bekleyin');
+
+  // Notifications
+  static String get notificationsTitle =>
+      _t(en: 'Notifications', tr: 'Bildirimler');
+  static String get manageAlertsTitle =>
+      _t(en: 'Manage Alerts', tr: 'Uyarıları Yönet');
+  static String get chooseRemindersSubtitle => _t(
+      en: 'Choose which reminders you want to receive.',
+      tr: 'Almak istediğiniz hatırlatıcıları seçin.');
+  static String get medicineReminderAlertsSubtitle =>
+      _t(en: 'Get alerts for your pills', tr: 'İlaçlarınız için uyarı alın');
+  static String get exerciseRemindersTitle =>
+      _t(en: 'Exercise Reminders', tr: 'Egzersiz Hatırlatıcıları');
+  static String get exerciseRemindersSubtitle =>
+      _t(en: 'Daily walking alerts', tr: 'Günlük yürüyüş uyarıları');
+  static String get healthChecksTitle =>
+      _t(en: 'Health Checks', tr: 'Sağlık Kontrolleri');
+  static String get healthChecksSubtitle =>
+      _t(en: 'BP & Weight reminders', tr: 'Tansiyon ve Kilo hatırlatıcıları');
+  static String get emergencyAlertsToggleTitle =>
+      _t(en: 'Emergency Alerts', tr: 'Acil Durum Uyarıları');
+  static String get emergencyAlertsToggleSubtitle =>
+      _t(en: 'SOS notifications', tr: 'SOS bildirimleri');
+  // --- End Profile / Account / Edit Profile / Notifications ---
 }
 
 // --- Mock Exercise Data with more variety ---

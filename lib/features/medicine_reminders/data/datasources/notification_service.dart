@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:elderly_prototype_app/core/constants.dart';
 
 import '../models/medicine_model.dart';
 
@@ -58,26 +59,25 @@ class NotificationService {
       // --- CREATE TWO CHANNELS (Normal & Loud) ---
 
       // 1. Normal Channel
-      const AndroidNotificationChannel normalChannel =
+      final AndroidNotificationChannel normalChannel =
           AndroidNotificationChannel(
         'medicine_channel_normal', // ID
-        'Medicine Reminders (Normal)', // Name
-        description: 'Gentle medicine reminders',
+        AppStrings.medicineChannelNormalName, // Name
+        description: AppStrings.medicineChannelNormalDesc,
         importance: Importance.max,
         playSound: true,
-        sound: RawResourceAndroidNotificationSound('normal_sound'),
+        sound: const RawResourceAndroidNotificationSound('normal_sound'),
       );
       await androidImplementation.createNotificationChannel(normalChannel);
 
       // 2. Loud Channel (Voice Message)
-      const AndroidNotificationChannel loudChannel = AndroidNotificationChannel(
+      final AndroidNotificationChannel loudChannel = AndroidNotificationChannel(
         'medicine_channel_loud_v3', // 🔴 CHANGED ID to force update
-        'Medicine Reminders (Voice)',
-        description: 'Voice reminder for medicine',
+        AppStrings.medicineChannelLoudName,
+        description: AppStrings.medicineChannelLoudDesc,
         importance: Importance.max,
         playSound: true,
-        // 🔴 CHANGE THIS:
-        sound: RawResourceAndroidNotificationSound('medicine_voice'),
+        sound: const RawResourceAndroidNotificationSound('medicine_voice'),
         enableVibration: true,
       );
       await androidImplementation.createNotificationChannel(loudChannel);
@@ -128,8 +128,10 @@ class NotificationService {
 
     AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       channelId,
-      soundType == 'loud' ? 'Medicine (Voice)' : 'Medicine Reminders (Normal)',
-      channelDescription: 'Daily reminder for taking medicine.',
+      soundType == 'loud'
+          ? AppStrings.medicineChannelLoudName
+          : AppStrings.medicineChannelNormalName,
+      channelDescription: AppStrings.medicineChannelScheduleDesc,
       importance: Importance.max,
       priority: Priority.high,
       playSound: true,
@@ -153,8 +155,8 @@ class NotificationService {
 
     await notificationsPlugin.zonedSchedule(
       notificationId,
-      'Time to take $name!',
-      'Dosage: $dosage',
+      AppStrings.medicineNotificationTitle(name),
+      '${AppStrings.medicineNotificationDosagePrefix}$dosage',
       scheduledDate,
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,

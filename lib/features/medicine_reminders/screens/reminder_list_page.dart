@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 
 import '../services/reminder_state_notifier.dart';
 import 'widgets/all_reminders_card.dart';
@@ -26,7 +28,8 @@ class ReminderListPage extends ConsumerWidget {
       ));
     }
 
-    final todayFormatted = DateFormat.yMMMEd().format(DateTime.now());
+    final todayFormatted = DateFormat.yMMMEd(AppLanguageController.intlLocale)
+        .format(DateTime.now());
 
     // --- Content Widget Construction ---
     Widget contentList;
@@ -42,7 +45,7 @@ class ReminderListPage extends ConsumerWidget {
           children: [
             const SizedBox(height: 10),
             Text(
-              "Today's Date: $todayFormatted",
+              "${AppStrings.todaysDatePrefix}$todayFormatted",
               style: TextStyle(
                 fontSize: 14,
                 color: secondaryColor,
@@ -53,7 +56,7 @@ class ReminderListPage extends ConsumerWidget {
 
             // --- TODAY'S SCHEDULE ---
             Text(
-              "Today's Schedule",
+              AppStrings.todaysScheduleTitle,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -67,7 +70,7 @@ class ReminderListPage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Center(
                   child: Text(
-                    'No reminders scheduled for today.',
+                    AppStrings.noRemindersTodayMessage,
                     style: TextStyle(fontSize: 15, color: secondaryColor),
                   ),
                 ),
@@ -88,7 +91,7 @@ class ReminderListPage extends ConsumerWidget {
 
             // --- ALL REMINDERS ---
             Text(
-              'All Reminders',
+              AppStrings.allRemindersTitle,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -101,7 +104,7 @@ class ReminderListPage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Center(
                   child: Text(
-                    'No reminders set yet.',
+                    AppStrings.noRemindersSetMessage,
                     style: TextStyle(fontSize: 15, color: secondaryColor),
                   ),
                 ),
@@ -127,7 +130,7 @@ class ReminderListPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Medicine Reminders'),
+        title: Text(AppStrings.medicineRemindersTitle),
         backgroundColor: primaryColor,
         elevation: 0,
         foregroundColor: Colors.white, // Improved contrast for AppBar text
@@ -174,9 +177,9 @@ class ReminderListPage extends ConsumerWidget {
                   elevation: 2,
                 ),
                 icon: const Icon(Icons.add_circle_outline, size: 25),
-                label: const Text(
-                  "Add Medicine",
-                  style: TextStyle(
+                label: Text(
+                  AppStrings.addMedicineButton,
+                  style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,

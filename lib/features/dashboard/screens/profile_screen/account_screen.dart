@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/authentication/screens/login.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -10,11 +11,11 @@ class AccountScreen extends StatelessWidget {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Reset link sent to $email')),
+        SnackBar(content: Text(AppStrings.resetLinkSentMessage(email))),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppStrings.genericErrorPrefix}$e')));
     }
   }
 
@@ -23,17 +24,16 @@ class AccountScreen extends StatelessWidget {
     bool confirm = await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Delete Account?'),
-            content: const Text(
-                'This action cannot be undone. You will lose all your data.'),
+            title: Text(AppStrings.deleteAccountQuestionTitle),
+            content: Text(AppStrings.deleteAccountWarningMessage),
             actions: [
               TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel')),
+                  child: Text(AppStrings.cancelButton)),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Delete'),
+                child: Text(AppStrings.deleteLabel),
               ),
             ],
           ),
@@ -52,9 +52,7 @@ class AccountScreen extends StatelessWidget {
         if (!context.mounted) return;
         // Re-authentication is often required for delete.
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Security: Please Log Out and Log In again to delete account.')),
+          SnackBar(content: Text(AppStrings.deleteAccountSecurityMessage)),
         );
       }
     }
@@ -66,12 +64,12 @@ class AccountScreen extends StatelessWidget {
     final email = user?.email ?? '';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Account Settings')),
+      appBar: AppBar(title: Text(AppStrings.accountSettingsTileTitle)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('Account Info',
-              style: TextStyle(
+          Text(AppStrings.accountInfoSectionTitle,
+              style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey)),
@@ -81,13 +79,13 @@ class AccountScreen extends StatelessWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             leading: const Icon(Icons.email),
-            title: const Text('Email Address'),
+            title: Text(AppStrings.emailAddressLabel),
             subtitle: Text(email), // Read-only
           ),
 
           const SizedBox(height: 30),
-          const Text('Security',
-              style: TextStyle(
+          Text(AppStrings.securitySectionTitle,
+              style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey)),
@@ -98,7 +96,7 @@ class AccountScreen extends StatelessWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             leading: const Icon(Icons.lock_reset, color: Colors.blue),
-            title: const Text('Reset Password'),
+            title: Text(AppStrings.resetPasswordTileTitle),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => _sendPasswordReset(context, email),
           ),
@@ -111,9 +109,9 @@ class AccountScreen extends StatelessWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             leading: const Icon(Icons.delete_forever, color: Colors.red),
-            title: const Text('Delete Account',
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            title: Text(AppStrings.deleteAccountTileTitle,
+                style: const TextStyle(
+                    color: Colors.red, fontWeight: FontWeight.bold)),
             onTap: () => _deleteAccount(context),
           ),
         ],

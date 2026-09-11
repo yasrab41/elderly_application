@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -17,24 +18,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Notifications')),
+      appBar: AppBar(title: Text(AppStrings.notificationsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('Manage Alerts',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(AppStrings.manageAlertsTitle,
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
-          const Text('Choose which reminders you want to receive.',
-              style: TextStyle(color: Colors.grey)),
+          Text(AppStrings.chooseRemindersSubtitle,
+              style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 20),
-          _buildSwitch('Medicine Reminders', 'Get alerts for your pills',
-              _medicine, (v) => setState(() => _medicine = v)),
-          _buildSwitch('Exercise Reminders', 'Daily walking alerts', _exercise,
+          _buildSwitch(
+              AppStrings.medicineRemindersTitle,
+              AppStrings.medicineReminderAlertsSubtitle,
+              _medicine,
+              (v) => setState(() => _medicine = v)),
+          _buildSwitch(
+              AppStrings.exerciseRemindersTitle,
+              AppStrings.exerciseRemindersSubtitle,
+              _exercise,
               (v) => setState(() => _exercise = v)),
-          _buildSwitch('Health Checks', 'BP & Weight reminders', _health,
+          _buildSwitch(
+              AppStrings.healthChecksTitle,
+              AppStrings.healthChecksSubtitle,
+              _health,
               (v) => setState(() => _health = v)),
           Divider(height: 30, color: Colors.grey[300]),
-          _buildSwitch('Emergency Alerts', 'SOS notifications', _emergency,
+          _buildSwitch(
+              AppStrings.emergencyAlertsToggleTitle,
+              AppStrings.emergencyAlertsToggleSubtitle,
+              _emergency,
               (v) => setState(() => _emergency = v),
               isCritical: true),
         ],

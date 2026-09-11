@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/features/authentication/services/auth_service.dart';
 import 'package:elderly_prototype_app/features/authentication/screens/login.dart';
 import 'package:elderly_prototype_app/core/providers/avatar_provider.dart';
@@ -41,13 +42,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final username = user.displayName ?? 'Valued Member';
-    final email = user.email ?? 'No email available';
+    final username = user.displayName ?? AppStrings.valuedMemberFallback;
+    final email = user.email ?? AppStrings.noEmailAvailableFallback;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: Text(AppStrings.myProfileTitle),
         centerTitle: true,
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: Colors.white,
@@ -129,8 +130,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // 1. Edit Profile (Personal Info)
             _ProfileTile(
               icon: Icons.edit_outlined,
-              title: 'Edit Profile',
-              subtitle: 'Update name & details',
+              title: AppStrings.editProfileTileTitle,
+              subtitle: AppStrings.editProfileTileSubtitle,
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const EditProfileScreen())),
             ),
@@ -138,8 +139,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // 2. Account (Security & Settings)
             _ProfileTile(
               icon: Icons.manage_accounts_outlined,
-              title: 'Account Settings',
-              subtitle: 'Email, Password, Delete Account',
+              title: AppStrings.accountSettingsTileTitle,
+              subtitle: AppStrings.accountSettingsTileSubtitle,
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const AccountScreen())),
             ),
@@ -147,7 +148,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // // 3. Notifications (Placeholder)
             // _ProfileTile(
             //   icon: Icons.notifications_active_outlined,
-            //   title: 'Notifications',
+            //   title: AppStrings.notificationsTitle,
             //   subtitle: 'Reminders & Alerts',
             //   onTap: () => Navigator.push(
             //       context,
@@ -160,7 +161,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // 4. Instructions / Help
             _ProfileTile(
               icon: Icons.help_outline,
-              title: 'How to Use App',
+              title: AppStrings.howToUseAppTitle,
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -170,7 +171,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // 5. About App
             _ProfileTile(
               icon: Icons.info_outline,
-              title: 'About App',
+              title: AppStrings.aboutAppTitle,
               onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const AboutAppScreen())),
             ),
@@ -199,9 +200,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 icon: const Icon(Icons.logout),
-                label: const Text('Sign Out',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                label: Text(AppStrings.signOutButton,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -223,9 +224,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Choose an Avatar',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                AppStrings.chooseAvatarTitle,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 18),
               AvatarPicker(
