@@ -1005,6 +1005,53 @@ class AppStrings {
   static String get emergencyAlertsToggleSubtitle =>
       _t(en: 'SOS notifications', tr: 'SOS bildirimleri');
   // --- End Profile / Account / Edit Profile / Notifications ---
+
+  // --- Start About App Screen ---
+  static String get appDisplayName => _t(en: 'HealthCare+', tr: 'HealthCare+');
+  static String get versionLabel => _t(en: 'Version 1.0.0', tr: 'Sürüm 1.0.0');
+  static String get coreFeaturesLabel =>
+      _t(en: 'Core Features:', tr: 'Temel Özellikler:');
+  static String get featureEmergencySOS =>
+      _t(en: 'Emergency SOS', tr: 'Acil Durum SOS');
+  static String get featureFitnessTracking =>
+      _t(en: 'Fitness Tracking', tr: 'Fitness Takibi');
+  static String get featureHealthTracking =>
+      _t(en: 'Health Tracking', tr: 'Sağlık Takibi');
+  static String get createdByLabel => _t(en: 'Created By', tr: 'Geliştiren');
+  static String get accessibilityFooterNote => _t(
+      en: 'This app is designed with accessibility in mind to assist elderly users in their daily lives.',
+      tr: 'Bu uygulama, günlük yaşamlarında yaşlı kullanıcılara yardımcı olmak amacıyla erişilebilirlik göz önünde bulundurularak tasarlanmıştır.');
+  // --- End About App Screen ---
+
+  // --- Start Instructions Screen ---
+  static String get instructionsTitle =>
+      _t(en: 'How to Use', tr: 'Nasıl Kullanılır');
+  static String get stepMedicineRemindersDesc => _t(
+      en: 'The app will remind you when to take your pills. Just tap "Taken" when you are done.',
+      tr: 'Uygulama ilaçlarınızı ne zaman alacağınızı hatırlatacak. Aldığınızda sadece "Alındı" düğmesine dokunun.');
+  static String get stepEmergencyDesc => _t(
+      en: 'In case of emergency, press the big Red Button to alert your family immediately.',
+      tr: 'Acil bir durumda, ailenizi hemen uyarmak için büyük kırmızı düğmeye basın.');
+  static String get stepFitnessTitle => _t(en: 'Fitness', tr: 'Fitness');
+  static String get stepFitnessDesc => _t(
+      en: 'Pick an exercise you want to do. Start the timer when you begin. When you finish, stop the timer and tap "Complete" to mark it done. You can choose from Strength, Stretching, or Cardio.',
+      tr: 'Yapmak istediğiniz bir egzersiz seçin. Başladığınızda zamanlayıcıyı başlatın. Bitirdiğinizde zamanlayıcıyı durdurun ve tamamlandı olarak işaretlemek için "Tamamla" düğmesine dokunun. Güç, Esneme veya Kardiyo arasından seçim yapabilirsiniz.');
+  static String get stepHealthTrackingDesc => _t(
+      en: 'You can log your blood pressure and weight to keep a history for your doctor.',
+      tr: 'Doktorunuz için bir geçmiş tutmak amacıyla tansiyonunuzu ve kilonuzu kaydedebilirsiniz.');
+  static String get stepWaterReminderDesc => _t(
+      en: 'We will remind you to drink water during the day. You can choose the times that suit you.',
+      tr: 'Gün içinde su içmeniz için sizi hatırlatacağız. Size uygun saatleri seçebilirsiniz.');
+  static String get stepNearbyServicesDesc => _t(
+      en: 'Find nearby bus stops, hospitals, pharmacies, and markets using your phone\'s location. Tap "Directions" for walking directions, or the heart icon to save a favorite.',
+      tr: 'Telefonunuzun konumunu kullanarak yakındaki otobüs duraklarını, hastaneleri, eczaneleri ve marketleri bulun. Yürüyerek gitmek için "Yol Tarifi" düğmesine, favorilere eklemek için kalp simgesine dokunun.');
+  static String get stepFriendNetworkDesc => _t(
+      en: 'Connect with other people nearby who use this app. Set up your profile, then send or accept friend requests and chat using simple ready-made messages.',
+      tr: 'Bu uygulamayı kullanan yakınınızdaki diğer kişilerle bağlantı kurun. Profilinizi oluşturun, ardından arkadaşlık isteği gönderin veya kabul edin ve hazır mesajlarla sohbet edin.');
+  static String get stepAIAssistantDesc => _t(
+      en: 'Have a question about how to use the app? Ask the AI Assistant anytime, in Turkish or English, and it will explain in simple steps.',
+      tr: 'Uygulamayı nasıl kullanacağınız hakkında bir sorunuz mu var? İstediğiniz zaman Türkçe veya İngilizce olarak Yapay Zeka Asistanına sorun, size basit adımlarla açıklasın.');
+  // --- End Instructions Screen ---
 }
 
 // --- Mock Exercise Data with more variety ---

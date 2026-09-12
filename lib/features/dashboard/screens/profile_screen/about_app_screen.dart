@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 
 class AboutAppScreen extends StatelessWidget {
   const AboutAppScreen({super.key});
@@ -6,7 +7,7 @@ class AboutAppScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('About App')),
+      appBar: AppBar(title: Text(AppStrings.aboutAppTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -15,30 +16,36 @@ class AboutAppScreen extends StatelessWidget {
             Icon(Icons.health_and_safety,
                 size: 80, color: Theme.of(context).primaryColor),
             const SizedBox(height: 16),
-            const Text('Elderly Care Assistant',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const Text('Version 1.0.0', style: TextStyle(color: Colors.grey)),
+            Text(AppStrings.appDisplayName,
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(AppStrings.versionLabel,
+                style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 32),
 
             // Features
-            const Align(
+            Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Core Features:',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+                child: Text(AppStrings.coreFeaturesLabel,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold))),
             const SizedBox(height: 10),
-            _featureItem('Medicine Reminder'),
-            _featureItem('Emergency SOS'),
-            _featureItem('Fitness Tracking'),
-            _featureItem('Health Monitoring'),
-            _featureItem('Water Reminder'),
+            _featureItem(AppStrings.medicineRemindersTitle),
+            _featureItem(AppStrings.featureEmergencySOS),
+            _featureItem(AppStrings.featureFitnessTracking),
+            _featureItem(AppStrings.featureHealthTracking),
+            _featureItem(AppStrings.waterTitle),
+            _featureItem(AppStrings.nearbyServicesTitle),
+            _featureItem(AppStrings.friendNetworkTitle),
+            _featureItem(AppStrings.chatbotTitle),
 
             const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 16),
 
             // Creator Info
-            const Text('Created By', style: TextStyle(color: Colors.grey)),
+            Text(AppStrings.createdByLabel,
+                style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 5),
             const Text('Yasrab Memon',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -59,10 +66,10 @@ class AboutAppScreen extends StatelessWidget {
               decoration: BoxDecoration(
                   color: Colors.amber[50],
                   borderRadius: BorderRadius.circular(8)),
-              child: const Text(
-                'This app is designed with accessibility in mind to assist elderly users in their daily lives.',
+              child: Text(
+                AppStrings.accessibilityFooterNote,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black87),
+                style: const TextStyle(color: Colors.black87),
               ),
             ),
           ],

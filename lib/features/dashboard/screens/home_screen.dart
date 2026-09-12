@@ -46,10 +46,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isEmergencyActive = false;
   String _lastSentMessage = "";
 
-  // Not const anymore: some entries reference AppStrings getters that
-  // resolve based on the current language, not fixed compile-time values.
-  // A getter (re-evaluated on every access) instead of a static const field
-  // is required both to compile and to actually pick up language changes.
   List<Map<String, dynamic>> get _gridItems => [
         {
           'title': AppStrings.sosSettingsTitle,

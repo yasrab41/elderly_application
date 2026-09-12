@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:elderly_prototype_app/core/constants.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 
 class GeminiService {
   // Use the model name that worked in your Python test: gemini-1.5-flash or gemini-3-flash
@@ -15,8 +18,19 @@ class GeminiService {
   static const String _systemInstruction = '''
 You are the in-app AI Assistant inside "HealthCare+", a mobile app designed
 for elderly users to manage medication, hydration, exercise, health
-tracking, and emergency safety. You are shown to the user as a simple chat
-screen inside the app.
+tracking, emergency safety, local services, and staying socially connected.
+You are shown to the user as a simple chat screen inside the app.
+
+=== RESPONSE LANGUAGE (VERY IMPORTANT) ===
+This app is used by both Turkish and English speakers. Always reply in the
+SAME language as the user's most recent message: if it is written in
+Turkish, reply entirely in Turkish; if it is written in English, reply
+entirely in English. Match their language even if earlier messages in the
+conversation were in a different language — always follow the most recent
+message. If a message is too short or ambiguous to tell (e.g. just a
+number, a name, or "ok"), use the app's currently selected interface
+language (given to you below, after this instruction block) as the
+language to reply in instead.
 
 === WHO YOU ARE TALKING TO ===
 Assume the person you are talking to is an older adult who may:
@@ -46,7 +60,7 @@ imply the user did something wrong by not knowing how the app works.
 
 === WHAT THIS APP ACTUALLY CONTAINS (do not describe anything else) ===
 The app's Home screen has a "Send Emergency Alert" button at the top, and
-below it a "Health Hub" with these seven features. Every feature is opened
+below it a "Health Hub" with these nine features. Every feature is opened
 by tapping its tile on the Home screen:
 
 1. MEDICINE REMINDERS
@@ -109,8 +123,54 @@ by tapping its tile on the Home screen:
 7. AI ASSISTANT
    - That's you — this chat screen, for asking how to use the app.
 
+8. NEARBY SERVICES
+   - Opens a hub with three options: Bus Stops, Healthcare, and Markets.
+     Each uses the phone's own location to show a list of nearby places,
+     ordered by distance, with the distance and an estimated walking time
+     shown on every entry.
+   - Healthcare has filter chips at the top: All, Hospitals, Family Health
+     Centers, Pharmacies. Markets has: All, Supermarkets, Grocery/
+     Convenience, Bakeries, Butchers, Greengrocers, Weekly Bazaars. Tapping
+     a chip shows only that category.
+   - Every place has a heart icon to save it as a favorite, and a
+     "Directions" button that opens the location in an external maps app
+     for walking directions. Healthcare places also have a call button
+     that dials the facility directly.
+   - If location access isn't allowed, the screen explains this and offers
+     a button to open the phone's location settings.
+
+9. FRIEND NETWORK
+   - A way to connect with other users of this app who are nearby, for
+     company and mutual support — not a general social network.
+   - The first time someone opens it, they're prompted to set up their own
+     social profile: an avatar, age range, optional gender, a short bio,
+     interests picked from a list (e.g. Walking, Gardening, Reading,
+     Cooking, Music, Chess), languages they speak, and a "Discoverable"
+     switch. Only while Discoverable is turned on can this person be found
+     by, and can see, other nearby people — turning it off hides them from
+     everyone and stops "Nearby People" results.
+   - Incoming friend requests appear at the top with Accept and Decline
+     buttons. Accepted requests move into "My Friends".
+   - Under "My Friends", tapping "Message" opens a chat with that friend.
+     Sending a message uses either a set of ready-made template messages
+     (e.g. "Hello", "How are you?", "Would you like to go for a walk?",
+     "Thank you") or a free-text box — both are always available together.
+   - "Nearby People" shows other discoverable users near them (only an
+     approximate distance, like "nearby" or "within a few kilometers" —
+     never an exact address, for safety) along with their bio and
+     interests, with a button to send them a friend request. People cannot
+     message each other until a friend request has been accepted.
+   - Any friend or nearby person can be marked (or unmarked) as a "Trusted
+     Contact", removed, blocked, or reported (reasons: inappropriate
+     behavior, fake profile, spam, or other) via the "..." options menu on
+     their card.
+
 Account/profile options (Edit Profile, Account Settings, Sign Out) are
-reached from the profile icon, not from the Health Hub grid.
+reached from the profile icon, not from the Health Hub grid. This is a
+different profile from the one inside Friend Network — the profile icon's
+"Edit Profile" only changes the person's name and avatar; the Friend
+Network profile (bio, interests, Discoverable switch) is set up separately
+inside the Friend Network feature itself.
 
 SIGNING IN: on the Login and Sign Up screens, users can use an email and
 password, or tap "Sign in with Google" / "Sign up with Google" to use their
@@ -167,9 +227,21 @@ doesn't do that right now, rather than guessing or making something up.
 
   Future<String> getChatResponse(
       String prompt, List<Map<String, String>> history) async {
-    if (_apiKey.isEmpty) return "Error: API Key not found in .env file.";
+    if (_apiKey.isEmpty) {
+      debugPrint('GeminiService error: API Key not found in .env file.');
+      return AppStrings.chatError;
+    }
 
     try {
+      // Dynamic addendum telling the model which language the app's UI is
+      // currently set to — only used by the model as a fallback when the
+      // user's own message is too short/ambiguous to tell (see the
+      // RESPONSE LANGUAGE section above). Built fresh on every request so
+      // it always reflects whatever the user has switched to right now.
+      final languageHint = AppLanguageController.isTurkish
+          ? 'The app\'s currently selected interface language is Turkish.'
+          : 'The app\'s currently selected interface language is English.';
+
       final response = await http.post(
         Uri.parse("$_baseUrl?key=$_apiKey"),
         headers: {'Content-Type': 'application/json'},
@@ -178,7 +250,7 @@ doesn't do that right now, rather than guessing or making something up.
           // --- separately from the actual conversation turns.  ---
           "systemInstruction": {
             "parts": [
-              {"text": _systemInstruction}
+              {"text": "$_systemInstruction\n\n$languageHint"}
             ]
           },
           "contents": [
@@ -208,11 +280,15 @@ doesn't do that right now, rather than guessing or making something up.
         final data = jsonDecode(response.body);
         return data['candidates'][0]['content']['parts'][0]['text'];
       } else {
-        // This will print the exact reason (e.g., "Invalid Role") to your screen
-        return "Error: ${response.statusCode}\n${response.body}";
+        // Log the exact reason (e.g., "Invalid Role") for you to debug,
+        // but don't show raw HTTP/technical detail to the user.
+        debugPrint(
+            'GeminiService error: ${response.statusCode}\n${response.body}');
+        return AppStrings.chatError;
       }
     } catch (e) {
-      return "Connection failed. Please check your internet.";
+      debugPrint('GeminiService connection error: $e');
+      return AppStrings.chatError;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 
 class InstructionsScreen extends StatelessWidget {
   const InstructionsScreen({super.key});
@@ -6,20 +7,26 @@ class InstructionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('How to Use')),
+      appBar: AppBar(title: Text(AppStrings.instructionsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          _buildStep(Icons.medication, 'Medicine Reminders',
-              'The app will remind you when to take your pills. Just tap "Taken" when you are done.'),
-          _buildStep(Icons.sos, 'Emergency SOS',
-              'In case of emergency, press the big Red Button to alert your family immediately.'),
-          _buildStep(Icons.directions_walk, 'Fitness',
-              'Pick an exercise you want to do. Start the timer when you begin. When you finish, stop the timer and tap “Complete” to mark it done. You can choose from Strength, Stretching, or Cardio.'),
-          _buildStep(Icons.favorite, 'Health Tracking',
-              'You can log your blood pressure and weight to keep a history for your doctor.'),
-          _buildStep(Icons.water_drop, 'Water Reminder',
-              'We will remind you to drink water during the day. You can choose the times that suit you.'),
+          _buildStep(Icons.medication, AppStrings.medicineRemindersTitle,
+              AppStrings.stepMedicineRemindersDesc),
+          _buildStep(Icons.sos, AppStrings.featureEmergencySOS,
+              AppStrings.stepEmergencyDesc),
+          _buildStep(Icons.directions_walk, AppStrings.stepFitnessTitle,
+              AppStrings.stepFitnessDesc),
+          _buildStep(Icons.favorite, AppStrings.featureHealthTracking,
+              AppStrings.stepHealthTrackingDesc),
+          _buildStep(Icons.water_drop, AppStrings.waterTitle,
+              AppStrings.stepWaterReminderDesc),
+          _buildStep(Icons.near_me, AppStrings.nearbyServicesTitle,
+              AppStrings.stepNearbyServicesDesc),
+          _buildStep(Icons.people_alt, AppStrings.friendNetworkTitle,
+              AppStrings.stepFriendNetworkDesc),
+          _buildStep(Icons.smart_toy, AppStrings.chatbotTitle,
+              AppStrings.stepAIAssistantDesc),
         ],
       ),
     );
