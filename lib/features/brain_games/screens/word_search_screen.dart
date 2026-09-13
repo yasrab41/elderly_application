@@ -56,8 +56,8 @@ class _WordSearchScreenState extends ConsumerState<WordSearchScreen> {
                 fontWeight: FontWeight.bold,
                 color: Colors.green)),
         content: Text(
-            '${AppStrings.level} Completed: ${_gameProvider.currentLevel}\n\n'
-            '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s\n'
+            '${AppStrings.level} ${AppStrings.completedSuffix} ${_gameProvider.currentLevel}\n\n'
+            '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}${AppStrings.secondsAbbrev}\n'
             '${AppStrings.wordsFound} ${_gameProvider.foundWords.length}/${_gameProvider.targetWords.length}',
             style: const TextStyle(fontSize: 20)),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
@@ -132,7 +132,7 @@ class _WordSearchScreenState extends ConsumerState<WordSearchScreen> {
                               color: Colors.teal.shade700),
                         ),
                         Text(
-                          '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
+                          '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}${AppStrings.secondsAbbrev}',
                           style: const TextStyle(
                               fontSize: 22, fontWeight: FontWeight.bold),
                         ),
@@ -236,9 +236,9 @@ class _WordSearchScreenState extends ConsumerState<WordSearchScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       children: [
-                        const Text(
-                          "Words to Find:",
-                          style: TextStyle(
+                        Text(
+                          AppStrings.wordsToFindTitle,
+                          style: const TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 16),

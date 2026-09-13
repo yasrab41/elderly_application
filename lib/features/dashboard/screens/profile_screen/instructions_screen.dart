@@ -27,6 +27,8 @@ class InstructionsScreen extends StatelessWidget {
               AppStrings.stepFriendNetworkDesc),
           _buildStep(Icons.smart_toy, AppStrings.chatbotTitle,
               AppStrings.stepAIAssistantDesc),
+          _buildStep(Icons.psychology, AppStrings.brainGamesTitle,
+              AppStrings.stepBrainGamesDesc),
         ],
       ),
     );

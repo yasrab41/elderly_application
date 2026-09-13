@@ -7,6 +7,8 @@ import 'package:elderly_prototype_app/features/authentication/screens/login.dart
 import 'package:elderly_prototype_app/core/providers/avatar_provider.dart';
 import 'package:elderly_prototype_app/core/models/avatar_options.dart';
 import 'package:elderly_prototype_app/core/widgets/avatar_picker.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
+import 'package:elderly_prototype_app/core/localization/app_language.dart';
 
 // Import sub-screens (Assumed paths - put these in the same folder or organize as you prefer)
 import 'edit_profile_screen.dart';
@@ -145,6 +147,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   MaterialPageRoute(builder: (_) => const AccountScreen())),
             ),
 
+            // 2b. Language
+            _ProfileTile(
+              icon: Icons.language_outlined,
+              title: AppStrings.languageTileTitle,
+              subtitle: AppLanguageController.isTurkish
+                  ? AppStrings.turkishLanguageLabel
+                  : AppStrings.englishLanguageLabel,
+              onTap: () => _showLanguagePicker(context),
+            ),
+
             // // 3. Notifications (Placeholder)
             // _ProfileTile(
             //   icon: Icons.notifications_active_outlined,
@@ -208,6 +220,69 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLanguagePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppStrings.selectLanguageTitle,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              _languageOption(
+                ctx,
+                label: AppStrings.turkishLanguageLabel,
+                isSelected: AppLanguageController.isTurkish,
+                onTap: () {
+                  AppLanguageController.setLanguage(AppLanguage.turkish);
+                  Navigator.pop(ctx);
+                },
+              ),
+              _languageOption(
+                ctx,
+                label: AppStrings.englishLanguageLabel,
+                isSelected: !AppLanguageController.isTurkish,
+                onTap: () {
+                  AppLanguageController.setLanguage(AppLanguage.english);
+                  Navigator.pop(ctx);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _languageOption(
+    BuildContext context, {
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final primary = Theme.of(context).colorScheme.primary;
+    return ListTile(
+      onTap: onTap,
+      title: Text(label,
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+      trailing: isSelected ? Icon(Icons.check_circle, color: primary) : null,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      tileColor: isSelected ? primary.withOpacity(0.08) : null,
     );
   }
 

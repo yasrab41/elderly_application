@@ -167,7 +167,8 @@ class _ExerciseDetailScreenState extends ConsumerState<ExerciseDetailScreen> {
     return asyncData.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, s) => Scaffold(body: Center(child: Text("Error: $e"))),
+      error: (e, s) => Scaffold(
+          body: Center(child: Text('${AppStrings.errorLoadingDataPrefix}$e'))),
       data: (data) {
         final exerciseWithProgress = data.firstWhere(
           (e) => e.exercise.id == widget.exerciseId,

@@ -38,6 +38,7 @@ class AboutAppScreen extends StatelessWidget {
             _featureItem(AppStrings.nearbyServicesTitle),
             _featureItem(AppStrings.friendNetworkTitle),
             _featureItem(AppStrings.chatbotTitle),
+            _featureItem(AppStrings.brainGamesTitle),
 
             const SizedBox(height: 32),
             const Divider(),

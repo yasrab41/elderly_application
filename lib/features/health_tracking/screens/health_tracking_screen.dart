@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:elderly_prototype_app/core/constants.dart';
 import 'package:elderly_prototype_app/core/app_theme.dart';
+import 'package:elderly_prototype_app/core/localization/language_controller.dart';
 import '../data/health_database_helper.dart';
 import '../models/health_record.dart';
 
@@ -17,7 +18,13 @@ class HealthTrackingScreen extends StatefulWidget {
 class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   // Current Selection State
   String _selectedMetric = 'bp';
-  String _timeRange = 'Week';
+  // FIX: was the hardcoded English literal 'Week'. Once someone tapped the
+  // Month/Year chip, this field held the already-translated label (e.g.
+  // "Ay"/"Yıl" in Turkish), which then never matched the English-only
+  // comparisons below — the chart silently stayed on the 7-day view no
+  // matter what was selected. Using AppStrings.week here keeps the
+  // initial value consistent with what those comparisons now check.
+  String _timeRange = AppStrings.week;
   bool _isLoading = true;
   List<HealthRecord> _records = [];
 
@@ -28,7 +35,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
       'unit': AppStrings.unitBP,
       'icon': Icons.favorite,
       'color': Colors.redAccent,
-      'normalRange': '90-120 mmHg',
+      'normalRange': '90-120 ${AppStrings.unitBP}',
       'minNormal': 90,
       'maxNormal': 120,
       // FIX: added so the diastolic reading is actually evaluated too,
@@ -37,7 +44,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
       'minNormalDiastolic': 60,
       'maxNormalDiastolic': 80,
       // Specific Dialog Text
-      'inputLabel': 'Systolic', // Special case for BP
+      'inputLabel': AppStrings.systolicLabel, // Special case for BP
       'hintText': '120',
     },
     'sugar': {
@@ -45,55 +52,55 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
       'unit': AppStrings.unitSugar,
       'icon': Icons.water_drop,
       'color': Colors.blue,
-      'normalRange': '70-100 mg/dL',
+      'normalRange': '70-100 ${AppStrings.unitSugar}',
       'minNormal': 70,
       'maxNormal': 100,
-      'inputLabel': 'Blood Sugar (mg/dL)',
-      'hintText': 'Enter blood sugar',
+      'inputLabel': '${AppStrings.bloodSugar} (${AppStrings.unitSugar})',
+      'hintText': AppStrings.enterValueHint(AppStrings.bloodSugar),
     },
     'weight': {
       'label': AppStrings.weight,
       'unit': AppStrings.unitWeight,
       'icon': Icons.monitor_weight,
       'color': Colors.purple,
-      'normalRange': '60-80 kg',
+      'normalRange': '60-80 ${AppStrings.unitWeight}',
       'minNormal': 60,
       'maxNormal': 80,
-      'inputLabel': 'Weight (kg)',
-      'hintText': 'Enter weight',
+      'inputLabel': '${AppStrings.weight} (${AppStrings.unitWeight})',
+      'hintText': AppStrings.enterValueHint(AppStrings.weight),
     },
     'sleep': {
       'label': AppStrings.sleep,
       'unit': AppStrings.unitSleep,
       'icon': Icons.bedtime,
       'color': Colors.indigo,
-      'normalRange': '7-9 hours',
+      'normalRange': '7-9 ${AppStrings.unitSleep}',
       'minNormal': 7,
       'maxNormal': 9,
-      'inputLabel': 'Sleep (hours)',
-      'hintText': 'Enter sleep',
+      'inputLabel': '${AppStrings.sleep} (${AppStrings.unitSleep})',
+      'hintText': AppStrings.enterValueHint(AppStrings.sleep),
     },
     'heart': {
       'label': AppStrings.heartRate,
       'unit': AppStrings.unitHeart,
       'icon': Icons.favorite_border,
       'color': Colors.pink,
-      'normalRange': '60-100 bpm',
+      'normalRange': '60-100 ${AppStrings.unitHeart}',
       'minNormal': 60,
       'maxNormal': 100,
-      'inputLabel': 'Heart Rate (bpm)',
-      'hintText': 'Enter heart rate',
+      'inputLabel': '${AppStrings.heartRate} (${AppStrings.unitHeart})',
+      'hintText': AppStrings.enterValueHint(AppStrings.heartRate),
     },
     'steps': {
       'label': AppStrings.steps,
       'unit': AppStrings.unitSteps,
       'icon': Icons.directions_walk,
       'color': Colors.green,
-      'normalRange': '8000-15000 steps',
+      'normalRange': '8000-15000 ${AppStrings.unitSteps}',
       'minNormal': 8000,
       'maxNormal': 15000,
-      'inputLabel': 'Steps (count)',
-      'hintText': 'Enter steps',
+      'inputLabel': AppStrings.steps,
+      'hintText': AppStrings.enterValueHint(AppStrings.steps),
     },
   };
 
@@ -156,7 +163,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                           const SizedBox(height: 25),
                           _buildDashboardCard(metric),
                           const SizedBox(height: 25),
-                          Text("Recent History",
+                          Text(AppStrings.recentHistoryTitle,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleLarge
@@ -201,7 +208,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                 // icon: const Icon(Icons.add_circle_outline, size: 25),
                 // Text dynamically updates based on selection
                 label: Text(
-                  "Add ${metric['label']}",
+                  AppStrings.addMetricButtonLabel(metric['label']),
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -351,7 +358,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black87)),
-                          const Text("Latest Reading",
+                          Text(AppStrings.latestReadingLabel,
                               style:
                                   TextStyle(fontSize: 12, color: Colors.grey)),
                         ],
@@ -381,7 +388,10 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(isNormal ? "Normal" : "Attention",
+                          Text(
+                              isNormal
+                                  ? AppStrings.normalStatusLabel
+                                  : AppStrings.attentionStatusLabel,
                               style: TextStyle(
                                   color:
                                       isNormal ? Colors.green : Colors.orange,
@@ -402,7 +412,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Normal: ${metric['normalRange']}",
+                      "${AppStrings.normalRangePrefix}${metric['normalRange']}",
                       style: const TextStyle(color: Colors.grey, fontSize: 13),
                     ),
                     if (latestRecord != null && previousRecord != null)
@@ -470,10 +480,11 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
           ),
 
           const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            child: Text("Progress Chart",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Text(AppStrings.progressChartTitle,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ),
           const SizedBox(height: 10),
           SizedBox(
@@ -498,11 +509,14 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
     final now = DateTime.now();
     DateTime cutoffDate;
 
-    if (_timeRange == 'Week') {
-      cutoffDate = now.subtract(const Duration(days: 7));
-    } else if (_timeRange == 'Month') {
+    // FIX: was comparing against hardcoded English literals ('Week',
+    // 'Month', 'Year'), but _timeRange holds the already-localized label
+    // (AppStrings.week/month/year) once a filter chip has been tapped —
+    // in Turkish this always fell through to the "else" 7-day default,
+    // regardless of which filter was actually selected.
+    if (_timeRange == AppStrings.month) {
       cutoffDate = now.subtract(const Duration(days: 30));
-    } else if (_timeRange == 'Year') {
+    } else if (_timeRange == AppStrings.year) {
       cutoffDate = now.subtract(const Duration(days: 365));
     } else {
       cutoffDate = now.subtract(const Duration(days: 7));
@@ -518,11 +532,11 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
 
     // Handle empty data case safely
     if (chartData.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Text("No data for this period",
-              style: TextStyle(color: Colors.grey)),
+          padding: const EdgeInsets.all(20.0),
+          child: Text(AppStrings.noDataForPeriodMessage,
+              style: const TextStyle(color: Colors.grey)),
         ),
       );
     }
@@ -599,13 +613,17 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
   // --- HELPER METHODS ---
 
   // Formats date based on view (e.g., "Mon" for Week, "Jan" for Year)
+  // FIX: same hardcoded-literal comparison bug as _buildLineChart above,
+  // plus these now pass the current locale so weekday/month abbreviations
+  // actually render in Turkish rather than always in English.
   String _getDateFormat(DateTime date) {
-    if (_timeRange == 'Week') {
-      return DateFormat('E').format(date); // Mon, Tue
-    } else if (_timeRange == 'Month') {
-      return DateFormat('d').format(date); // 1, 5, 22
+    final locale = AppLanguageController.intlLocale;
+    if (_timeRange == AppStrings.month) {
+      return DateFormat('d', locale).format(date); // 1, 5, 22
+    } else if (_timeRange == AppStrings.year) {
+      return DateFormat('MMM', locale).format(date); // Jan, Feb / Oca, Şub
     } else {
-      return DateFormat('MMM').format(date); // Jan, Feb
+      return DateFormat('E', locale).format(date); // Mon, Tue / Pzt, Sal
     }
   }
 
@@ -675,14 +693,24 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  DateFormat('dd/MM/yyyy  at HH:mm').format(record.timestamp),
+                  // FIX: the previous pattern 'dd/MM/yyyy  at HH:mm' had an
+                  // un-quoted "at" — intl's DateFormat treats the letter
+                  // 'a' as a reserved AM/PM pattern symbol, so this wasn't
+                  // safely displaying the literal word "at" to begin with,
+                  // let alone a Turkish translation of it. Using a plain
+                  // separator sidesteps needing a translated word here at
+                  // all, and passing the locale keeps this consistent with
+                  // the date formatting fixed elsewhere in the app.
+                  DateFormat('dd/MM/yyyy - HH:mm',
+                          AppLanguageController.intlLocale)
+                      .format(record.timestamp),
                   style: TextStyle(color: Colors.grey[500], fontSize: 12),
                 ),
                 if (record.note != null && record.note!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
                     child: Text(
-                      "Note: ${record.note}",
+                      "${AppStrings.noteLabelPrefix}${record.note}",
                       style: TextStyle(
                           color: Colors.grey[600],
                           fontStyle: FontStyle.italic,
@@ -692,7 +720,9 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
               ],
             ),
             trailing: Text(
-              isNormal ? "Normal" : "Attention",
+              isNormal
+                  ? AppStrings.normalStatusLabel
+                  : AppStrings.attentionStatusLabel,
               style: TextStyle(
                   color: isNormal
                       ? Colors.green
@@ -732,7 +762,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Add ${metric['label']} Record',
+                Text(AppStrings.addRecordDialogTitle(metric['label']),
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold)),
                 IconButton(
@@ -783,8 +813,8 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Diastolic",
-                            style: TextStyle(
+                        Text(AppStrings.diastolicLabel,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 13,
                                 color: Colors.black87)),
@@ -817,8 +847,8 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
 
             // --- NEW NOTE FIELD ---
             const SizedBox(height: 20),
-            const Text("Note (Optional)",
-                style: TextStyle(
+            Text(AppStrings.noteOptionalLabel,
+                style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 13,
                     color: Colors.black87)),
@@ -827,7 +857,7 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
               controller: noteController,
               maxLines: 3, // Taller field for notes
               decoration: InputDecoration(
-                hintText: "Add any notes...",
+                hintText: AppStrings.addNotesHint,
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -872,8 +902,8 @@ class _HealthTrackingScreenState extends State<HealthTrackingScreen> {
                     _loadData();
                   }
                 },
-                child: const Text('Add Record',
-                    style: TextStyle(
+                child: Text(AppStrings.addRecordButton,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold)),

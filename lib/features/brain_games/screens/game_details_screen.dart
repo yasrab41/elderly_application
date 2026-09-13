@@ -69,8 +69,9 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
           children: [
             _buildStatsSection(),
             const SizedBox(height: 30),
-            const Text("Select Difficulty",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(AppStrings.selectDifficultyTitle,
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center),
             const SizedBox(height: 16),
             _buildPlayButton(AppStrings.difficultyEasy, Colors.green),
@@ -92,7 +93,7 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       onPressed: () => _startGame(difficulty),
-      child: Text('Play $difficulty',
+      child: Text(AppStrings.playButtonLabel(difficulty),
           style: const TextStyle(
               fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
     );
@@ -159,9 +160,9 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
                     Icons.speed, AppStrings.avgTimeLabel, '$avgSeconds sec'),
 
                 const SizedBox(height: 16),
-                const Text("Best Times",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(AppStrings.bestTimesTitle,
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
 
                 // Best Times per difficulty
@@ -174,7 +175,7 @@ class _GameDetailsScreenState extends ConsumerState<GameDetailsScreen> {
                           Text('${row['difficulty']}: ',
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.w600)),
-                          Text('${row['bestTime']} seconds',
+                          Text('${row['bestTime']}${AppStrings.secondsSuffix}',
                               style: const TextStyle(fontSize: 18)),
                         ],
                       ),

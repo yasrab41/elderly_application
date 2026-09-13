@@ -30,55 +30,16 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
     }
   }
 
-  // Future<void> _saveScoreAndShowDialog() async {
-  //   final user = ref.read(authNotifierProvider);
-  //   if (user != null) {
-  //     final stat = GameStat(
-  //       userId: user.uid,
-  //       gameName: 'Memory Match',
-  //       difficulty: widget.difficulty,
-  //       moves: _gameProvider.moves,
-  //       timeSeconds: _gameProvider.timeSeconds,
-  //       date: DateTime.now().toIso8601String(),
-  //     );
-  //     await BrainGamesDB.instance.insertStat(stat);
-  //   }
-
-  //   if (!mounted) return;
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (context) => AlertDialog(
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-  //       title: const Text(AppStrings.wellDone,
-  //           style: TextStyle(
-  //               fontSize: 28,
-  //               fontWeight: FontWeight.bold,
-  //               color: Colors.green)),
-  //       content: Text(
-  //           '${AppStrings.gameCompleteMsg}\n\n'
-  //           '${AppStrings.movesCounter} ${_gameProvider.moves}\n'
-  //           '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
-  //           style: const TextStyle(fontSize: 20)),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () {
-  //             Navigator.pop(context); // Close dialog
-  //             Navigator.pop(context); // Exit game
-  //           },
-  //           child:
-  //               const Text(AppStrings.quitGame, style: TextStyle(fontSize: 20)),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
   Future<void> _saveScoreAndShowDialog() async {
     final user = ref.read(authNotifierProvider);
     if (user != null) {
       final stat = GameStat(
         userId: user.uid,
-        gameName: 'Memory Match',
+        // FIX: was the hardcoded English literal 'Memory Match', which
+        // wouldn't match this screen's own AppStrings.memoryMatchTitle
+        // when looked up later in Turkish mode — stats recorded in
+        // Turkish could fail to group with the game's history correctly.
+        gameName: AppStrings.memoryMatchTitle,
         difficulty: widget.difficulty,
         moves: _gameProvider.moves,
         timeSeconds: _gameProvider.timeSeconds,
@@ -101,8 +62,8 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
         content: Text(
             '${AppStrings.gameCompleteMsg}\n\n'
             '${AppStrings.movesCounter} ${_gameProvider.moves}\n'
-            '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s\n'
-            '${AppStrings.level} Completed: ${_gameProvider.currentLevel}',
+            '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}${AppStrings.secondsAbbrev}\n'
+            '${AppStrings.level} ${AppStrings.completedSuffix} ${_gameProvider.currentLevel}',
             style: const TextStyle(fontSize: 20)),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
@@ -143,10 +104,15 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine grid columns based on difficulty
-    int crossAxisCount = widget.difficulty == 'Easy'
+    // Determine grid columns based on difficulty.
+    // FIX: was comparing widget.difficulty against the hardcoded English
+    // literals 'Easy'/'Medium', but widget.difficulty is the already-
+    // localized label (AppStrings.difficultyEasy, etc) — in Turkish this
+    // always fell through to the Hard/4-column layout regardless of what
+    // was actually selected.
+    int crossAxisCount = widget.difficulty == AppStrings.difficultyEasy
         ? 2
-        : (widget.difficulty == 'Medium' ? 3 : 4);
+        : (widget.difficulty == AppStrings.difficultyMedium ? 3 : 4);
 
     return Scaffold(
       appBar: AppBar(
@@ -168,7 +134,7 @@ class _MemoryMatchScreenState extends ConsumerState<MemoryMatchScreen> {
                             fontWeight: FontWeight.bold,
                             color: Colors.blue.shade700)),
                     Text(
-                        '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}s',
+                        '${AppStrings.timeCounter} ${_gameProvider.timeSeconds}${AppStrings.secondsAbbrev}',
                         style: const TextStyle(
                             fontSize: 22, fontWeight: FontWeight.bold)),
                   ],

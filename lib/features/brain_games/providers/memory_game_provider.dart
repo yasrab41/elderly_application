@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 import '../data/models/memory_card_model.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 
 class MemoryGameProvider extends ChangeNotifier {
   List<MemoryCard> cards = [];
@@ -25,16 +26,17 @@ class MemoryGameProvider extends ChangeNotifier {
   }
 
   static int _getPairsForDifficulty(String diff) {
-    switch (diff) {
-      case 'Easy':
-        return 3; // 6 cards
-      case 'Medium':
-        return 6; // 12 cards
-      case 'Hard':
-        return 8; // 16 cards
-      default:
-        return 3;
+    // FIX: was comparing against hardcoded English literals ('Easy',
+    // 'Medium', 'Hard'), but `diff` is the already-localized label passed
+    // in from game_details_screen.dart (AppStrings.difficultyEasy, etc).
+    // In Turkish, none of those cases ever matched, silently falling
+    // through to the "Easy" default regardless of what was tapped.
+    if (diff == AppStrings.difficultyMedium) {
+      return 6; // 12 cards
+    } else if (diff == AppStrings.difficultyHard) {
+      return 8; // 16 cards
     }
+    return 3; // Easy: 6 cards (also the safe default)
   }
 
   void _initializeGame() {

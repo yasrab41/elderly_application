@@ -256,72 +256,141 @@ class AppStrings {
       en: 'Tap the first letter, then tap the last letter of a word.',
       tr: 'Bir kelimenin ilk harfine, sonra son harfine dokunun.');
 
-  // Localized Word Categories (Easy, Medium, Hard)
-  static const List<String> easyWords = [
-    'CAT',
-    'DOG',
-    'BIRD',
-    'FISH',
-    'COW',
-    'APPLE',
-    'PLUM',
-    'PEAR',
-    'MILK',
-    'TEA',
-    'SUN',
-    'MOON',
-    'STAR',
-    'TREE',
-    'LEAF',
-    'HOME',
-    'BED',
-    'SOFA',
-    'BOOK',
-    'PEN'
-  ];
+  // Localized Word Categories (Easy, Medium, Hard). Word-search puzzle
+  // words themselves — not just labels — so these are full word lists per
+  // language rather than a _t() per word. Turkish words are picked/kept
+  // short enough to still fit each difficulty's grid size (6/8/10).
+  static List<String> get easyWords => AppLanguageController.isTurkish
+      ? const [
+          'KEDİ',
+          'KÖPEK',
+          'KUŞ',
+          'BALIK',
+          'İNEK',
+          'ELMA',
+          'ERİK',
+          'ARMUT',
+          'SÜT',
+          'ÇAY',
+          'GÜNEŞ',
+          'AY',
+          'YILDIZ',
+          'AĞAÇ',
+          'YAPRAK',
+          'EV',
+          'YATAK',
+          'KANEPE',
+          'KİTAP',
+          'KALEM',
+        ]
+      : const [
+          'CAT',
+          'DOG',
+          'BIRD',
+          'FISH',
+          'COW',
+          'APPLE',
+          'PLUM',
+          'PEAR',
+          'MILK',
+          'TEA',
+          'SUN',
+          'MOON',
+          'STAR',
+          'TREE',
+          'LEAF',
+          'HOME',
+          'BED',
+          'SOFA',
+          'BOOK',
+          'PEN',
+        ];
 
-  static const List<String> mediumWords = [
-    'RABBIT',
-    'TURTLE',
-    'MONKEY',
-    'SPIDER',
-    'BANANA',
-    'ORANGE',
-    'GRAPES',
-    'CHERRY',
-    'COFFEE',
-    'WATER',
-    'FLOWER',
-    'GARDEN',
-    'FOREST',
-    'RIVER',
-    'WINDOW',
-    'MIRROR',
-    'FAMILY',
-    'DOCTOR',
-    'NURSE',
-    'HEALTH'
-  ];
+  static List<String> get mediumWords => AppLanguageController.isTurkish
+      ? const [
+          'MAYMUN',
+          'ÖRÜMCEK',
+          'MUZ',
+          'PORTAKAL',
+          'ÜZÜM',
+          'KİRAZ',
+          'KAHVE',
+          'SU',
+          'ÇİÇEK',
+          'BAHÇE',
+          'ORMAN',
+          'NEHİR',
+          'PENCERE',
+          'AYNA',
+          'AİLE',
+          'DOKTOR',
+          'HEMŞİRE',
+          'SAĞLIK',
+          'TİLKİ',
+          'KURBAĞA',
+        ]
+      : const [
+          'RABBIT',
+          'TURTLE',
+          'MONKEY',
+          'SPIDER',
+          'BANANA',
+          'ORANGE',
+          'GRAPES',
+          'CHERRY',
+          'COFFEE',
+          'WATER',
+          'FLOWER',
+          'GARDEN',
+          'FOREST',
+          'RIVER',
+          'WINDOW',
+          'MIRROR',
+          'FAMILY',
+          'DOCTOR',
+          'NURSE',
+          'HEALTH',
+        ];
 
-  static const List<String> hardWords = [
-    'ELEPHANT',
-    'KANGAROO',
-    'CROCODILE',
-    'PINEAPPLE',
-    'STRAWBERRY',
-    'WATERMELON',
-    'BREAKFAST',
-    'MEDICINE',
-    'HOSPITAL',
-    'AMBULANCE',
-    'MOUNTAIN',
-    'WATERFALL',
-    'COMMUNITY',
-    'ADVENTURE',
-    'TELEVISION',
-    'NEWSPAPER',
-    'FURNITURE'
-  ];
+  static List<String> get hardWords => AppLanguageController.isTurkish
+      ? const [
+          'FİL',
+          'KANGURU',
+          'TİMSAH',
+          'ANANAS',
+          'ÇİLEK',
+          'KARPUZ',
+          'KAHVALTI',
+          'İLAÇ',
+          'HASTANE',
+          'AMBULANS',
+          'DAĞ',
+          'ŞELALE',
+          'TOPLULUK',
+          'MACERA',
+          'TELEVİZYON',
+          'GAZETE',
+          'MOBİLYA',
+        ]
+      : const [
+          'ELEPHANT',
+          'KANGAROO',
+          'CROCODILE',
+          'PINEAPPLE',
+          'STRAWBERRY',
+          'WATERMELON',
+          'BREAKFAST',
+          'MEDICINE',
+          'HOSPITAL',
+          'AMBULANCE',
+          'MOUNTAIN',
+          'WATERFALL',
+          'COMMUNITY',
+          'ADVENTURE',
+          'TELEVISION',
+          'NEWSPAPER',
+          'FURNITURE',
+        ];
   // --- End Word Search Feature ---
 
   // --- Start Sudoku Game Feature ---
@@ -335,6 +404,34 @@ class AppStrings {
       en: 'Tap an empty square, then pick a number.',
       tr: 'Boş bir kareye dokunun, ardından bir sayı seçin.');
   // --- End Sudoku Game Feature ---
+
+  // --- Start Health Tracking Feature (additional strings) ---
+  static String get normalStatusLabel => _t(en: 'Normal', tr: 'Normal');
+  static String get attentionStatusLabel => _t(en: 'Attention', tr: 'Dikkat');
+  static String get latestReadingLabel =>
+      _t(en: 'Latest Reading', tr: 'Son Ölçüm');
+  static String get normalRangePrefix => _t(en: 'Normal: ', tr: 'Normal: ');
+  static String get recentHistoryTitle =>
+      _t(en: 'Recent History', tr: 'Son Kayıtlar');
+  static String get progressChartTitle =>
+      _t(en: 'Progress Chart', tr: 'İlerleme Grafiği');
+  static String get noDataForPeriodMessage =>
+      _t(en: 'No data for this period', tr: 'Bu dönem için veri yok');
+  static String get noteLabelPrefix => _t(en: 'Note: ', tr: 'Not: ');
+  static String addMetricButtonLabel(String label) =>
+      _t(en: 'Add $label', tr: '$label Ekle');
+  static String addRecordDialogTitle(String label) =>
+      _t(en: 'Add $label Record', tr: '$label Kaydı Ekle');
+  static String get systolicLabel => _t(en: 'Systolic', tr: 'Sistolik');
+  static String get diastolicLabel => _t(en: 'Diastolic', tr: 'Diyastolik');
+  static String get noteOptionalLabel =>
+      _t(en: 'Note (Optional)', tr: 'Not (İsteğe Bağlı)');
+  static String get addNotesHint =>
+      _t(en: 'Add any notes...', tr: 'Not ekleyin...');
+  static String get addRecordButton => _t(en: 'Add Record', tr: 'Kayıt Ekle');
+  static String enterValueHint(String label) =>
+      _t(en: 'Enter $label', tr: '$label girin');
+  // --- End Health Tracking Feature (additional strings) ---
 
   // --- Start Nearby Services Hub Feature ---
   static String get nearbyServicesTitle =>
@@ -1051,7 +1148,34 @@ class AppStrings {
   static String get stepAIAssistantDesc => _t(
       en: 'Have a question about how to use the app? Ask the AI Assistant anytime, in Turkish or English, and it will explain in simple steps.',
       tr: 'Uygulamayı nasıl kullanacağınız hakkında bir sorunuz mu var? İstediğiniz zaman Türkçe veya İngilizce olarak Yapay Zeka Asistanına sorun, size basit adımlarla açıklasın.');
+  static String get stepBrainGamesDesc => _t(
+      en: 'Play Memory Match, Word Search, or Sudoku to keep your mind active. Pick Easy, Medium, or Hard, and the app keeps track of your wins and best times.',
+      tr: 'Zihninizi aktif tutmak için Hafıza Eşleştirme, Kelime Bulmaca veya Sudoku oynayın. Kolay, Orta veya Zor seçin; uygulama kazanma sayınızı ve en iyi sürelerinizi takip eder.');
   // --- End Instructions Screen ---
+
+  // --- Start Brain Games Screens (game details / dialogs) ---
+  static String get selectDifficultyTitle =>
+      _t(en: 'Select Difficulty', tr: 'Zorluk Seçin');
+  static String playButtonLabel(String difficulty) =>
+      _t(en: 'Play $difficulty', tr: '$difficulty Oyna');
+  static String get bestTimesTitle =>
+      _t(en: 'Best Times', tr: 'En İyi Süreler');
+  static String get secondsSuffix => _t(en: ' seconds', tr: ' saniye');
+  static String get secondsAbbrev => _t(en: 's', tr: 'sn');
+  static String get completedSuffix => _t(en: 'Completed:', tr: 'Tamamlandı:');
+  static String get wordsToFindTitle =>
+      _t(en: 'Words to Find:', tr: 'Bulunacak Kelimeler:');
+  // --- End Brain Games Screens (game details / dialogs) ---
+
+  // --- Start Language Setting (Profile screen) ---
+  static String get languageTileTitle => _t(en: 'Language', tr: 'Dil');
+  static String get languageTileSubtitle =>
+      _t(en: 'Change app language', tr: 'Uygulama dilini değiştirin');
+  static String get selectLanguageTitle =>
+      _t(en: 'Select Language', tr: 'Dil Seçin');
+  static String get englishLanguageLabel => _t(en: 'English', tr: 'İngilizce');
+  static String get turkishLanguageLabel => _t(en: 'Turkish', tr: 'Türkçe');
+  // --- End Language Setting (Profile screen) ---
 }
 
 // --- Mock Exercise Data with more variety ---

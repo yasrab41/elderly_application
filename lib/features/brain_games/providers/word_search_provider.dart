@@ -44,22 +44,23 @@ class WordSearchProvider extends ChangeNotifier {
   }
 
   void _setupDifficultyParameters() {
-    switch (difficulty) {
-      case 'Easy':
-        gridSize = 6;
-        _targetWordCount = 3;
-        _wordPool = List.from(AppStrings.easyWords);
-        break;
-      case 'Medium':
-        gridSize = 8;
-        _targetWordCount = 5;
-        _wordPool = List.from(AppStrings.mediumWords);
-        break;
-      case 'Hard':
-        gridSize = 10;
-        _targetWordCount = 8;
-        _wordPool = List.from(AppStrings.hardWords);
-        break;
+    // FIX: was comparing against hardcoded English literals; `difficulty`
+    // is the already-localized label (AppStrings.difficultyEasy, etc). In
+    // Turkish this matched none of the cases — there wasn't even a
+    // default — leaving gridSize at 6, but _targetWordCount at 0 and
+    // _wordPool empty, so the puzzle had no words to place at all.
+    if (difficulty == AppStrings.difficultyMedium) {
+      gridSize = 8;
+      _targetWordCount = 5;
+      _wordPool = List.from(AppStrings.mediumWords);
+    } else if (difficulty == AppStrings.difficultyHard) {
+      gridSize = 10;
+      _targetWordCount = 8;
+      _wordPool = List.from(AppStrings.hardWords);
+    } else {
+      gridSize = 6;
+      _targetWordCount = 3;
+      _wordPool = List.from(AppStrings.easyWords);
     }
   }
 
@@ -76,11 +77,11 @@ class WordSearchProvider extends ChangeNotifier {
       // Define directions based on difficulty
       List<Point> directions = [Point(1, 0), Point(0, 1)]; // Easy: Right, Down
 
-      if (difficulty == 'Medium') {
+      if (difficulty == AppStrings.difficultyMedium) {
         // Medium: Add forward diagonals
         directions.addAll([Point(1, 1), Point(1, -1)]);
       }
-      if (difficulty == 'Hard') {
+      if (difficulty == AppStrings.difficultyHard) {
         // Hard: All 8 directions (Backwards and all diagonals)
         directions.addAll([
           Point(-1, 0),

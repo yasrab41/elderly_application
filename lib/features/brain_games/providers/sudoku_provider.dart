@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
+import 'package:elderly_prototype_app/core/constants.dart';
 
 class SudokuCell {
   int value = 0;
@@ -40,26 +41,22 @@ class SudokuProvider extends ChangeNotifier {
   }
 
   void _setupDifficultyParameters() {
-    switch (difficulty) {
-      case 'Easy':
-        gridSize = 4;
-        blockW = 2;
-        blockH = 2; // 4x4
-        break;
-      case 'Medium':
-        gridSize = 6;
-        blockW = 3;
-        blockH = 2; // 6x6
-        break;
-      case 'Hard':
-        gridSize = 9;
-        blockW = 3;
-        blockH = 3; // 9x9
-        break;
-      default:
-        gridSize = 4;
-        blockW = 2;
-        blockH = 2;
+    // FIX: was comparing against hardcoded English literals; `difficulty`
+    // is the already-localized label (AppStrings.difficultyEasy, etc), so
+    // this never matched in Turkish and always fell through to the 4x4
+    // Easy grid regardless of what was tapped.
+    if (difficulty == AppStrings.difficultyMedium) {
+      gridSize = 6;
+      blockW = 3;
+      blockH = 2; // 6x6
+    } else if (difficulty == AppStrings.difficultyHard) {
+      gridSize = 9;
+      blockW = 3;
+      blockH = 3; // 9x9
+    } else {
+      gridSize = 4;
+      blockW = 2;
+      blockH = 2;
     }
   }
 
@@ -86,8 +83,9 @@ class SudokuProvider extends ChangeNotifier {
     }
 
     // 4. Dig holes to create the puzzle
-    int cellsToRemove =
-        difficulty == 'Easy' ? 6 : (difficulty == 'Medium' ? 16 : 40);
+    int cellsToRemove = difficulty == AppStrings.difficultyEasy
+        ? 6
+        : (difficulty == AppStrings.difficultyMedium ? 16 : 40);
     int removed = 0;
     final random = Random();
 
